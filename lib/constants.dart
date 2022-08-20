@@ -1,0 +1,77 @@
+// Midgard Public API
+import 'models/currency.dart';
+
+// CoinPaprika
+const coinPaprikaUrl = 'https://api.coinpaprika.com/v1';
+const coinPaprikaAssets = '$coinPaprikaUrl/tickers';
+const coinPaprikaIconUrl = 'https://static.coinpaprika.com/coin';
+const coinPaprikaConversion = 'https://api.coinpaprika.com/v1/price-converter';
+
+// Unicode Characters
+String unicodeBitcoin = String.fromCharCodes(Runes('\u{20BF}'));
+
+List<Currency> fiatCurrencies = [
+  Currency('ARS',
+      id: 'ars-argentine-peso', name: 'Argentine peso', symbol: r'$'),
+  Currency('AUD',
+      id: 'aud-australian-dollar', name: 'Australian dollar', symbol: r'$'),
+  Currency('BOB',
+      id: 'bob-bolivian-boliviano', name: 'Bolivian boliviano', symbol: 'Bs'),
+  Currency('BRL', id: 'brl-brazil-real', name: 'Brazilian real', symbol: r'R$'),
+  Currency('CAD',
+      id: 'cad-canadian-dollar', name: 'Canadian dollars', symbol: r'$'),
+  Currency('CHF', id: 'chf-swiss-franc', name: 'Swiss franc', symbol: 'CHF'),
+  Currency('CLP', id: 'clp-chilean-peso', name: 'Chilean peso', symbol: r'$'),
+  Currency('CNY', id: 'cny-yuan-renminbi', name: 'Chinese yuan', symbol: '¥'),
+  Currency('COP',
+      id: 'cop-colombian-peso', name: 'Colombian peso', symbol: r'$'),
+  Currency('CZK', id: 'czk-czech-koruna', name: 'Czech koruna', symbol: 'Kč'),
+  Currency('DKK', id: 'dkk-danish-krone', name: 'Danish krone', symbol: 'kr'),
+  Currency('EUR', id: 'eur-euro', name: 'Euro', symbol: '€'),
+  Currency('GBP',
+      id: 'gbp-pound-sterling', name: 'Pounds sterling', symbol: '£'),
+  Currency('HKD',
+      id: 'hkd-hong-kong-dollar', name: 'Hong Kong dollar', symbol: r'$'),
+  Currency('HUF',
+      id: 'huf-hungarian-forint', name: 'Hungarian forint', symbol: 'ft'),
+  Currency('IDR',
+      id: 'idr-indonesian-rupiah', name: 'Indonesian rupiah', symbol: 'Rp'),
+  Currency('ILS',
+      id: 'ils-israeli-shekel', name: 'Israeli shekel', symbol: '₪'),
+  Currency('INR', id: 'inr-indian-rupee', name: 'Indian rupee', symbol: '₹'),
+  Currency('ISK',
+      id: 'isk-icelandic-krona', name: 'Icelandic króna', symbol: 'kr'),
+  Currency('JPY', id: 'jpy-japanese-yen', name: 'Japanese yen', symbol: '¥'),
+  Currency('KRW',
+      id: 'krw-south-korea-won', name: 'South Korean won', symbol: '₩'),
+  Currency('MXN', id: 'mxn-mexican-peso', name: 'Mexican peso', symbol: r'$'),
+  Currency('MYR',
+      id: 'myr-malaysian-ringgit', name: 'Malaysian ringgit', symbol: 'RM'),
+  Currency('NGN',
+      id: 'ngn-nigerian-naira', name: 'Nigerian naira', symbol: '₦'),
+  Currency('NOK',
+      id: 'nok-norwegian-krone', name: 'Norwegian krone', symbol: 'kr'),
+  Currency('NZD',
+      id: 'nzd-new-zealand-dollar', name: 'New Zealand dollar', symbol: r'$'),
+  Currency('PEN', id: 'pen-peruvian-sol', name: 'Peruvian sol', symbol: 'S/'),
+  Currency('PHP',
+      id: 'php-philippines-piso', name: 'Philippine peso', symbol: '₱'),
+  Currency('PKR',
+      id: 'pkr-pakistani-rupee', name: 'Pakistani rupee', symbol: 'Rs'),
+  Currency('PLN', id: 'pln-polish-zloty', name: 'Polish zloty', symbol: 'zł'),
+  Currency('RUB', id: 'rub-russian-ruble', name: 'Russian ruble', symbol: '₽'),
+  Currency('SEK', id: 'sek-swedish-krona', name: 'Swedish krona', symbol: 'kr'),
+  Currency('SGD',
+      id: 'sgd-singapore-dollar', name: 'Singapore dollar', symbol: r'$'),
+  Currency('THB', id: 'thb-thai-baht', name: 'Thai baht', symbol: '฿'),
+  Currency('TRY', id: 'try-turkish-lira', name: 'Turkish lira', symbol: '₺'),
+  Currency('TWD',
+      id: 'twd-taiwan-new-dollar', name: 'New Taiwan dollar', symbol: r'NT$'),
+  Currency('UAH',
+      id: 'uah-ukrainian-hryvnia', name: 'Ukrainian hryvna', symbol: '₴'),
+  Currency('USD', id: 'usd-us-dollars', name: 'US dollar', symbol: r'$'),
+  Currency('VND',
+      id: 'vnd-vietnamese-dong', name: 'Vietnamese dong', symbol: '₫'),
+  Currency('ZAR',
+      id: 'zar-south-african-rand', name: 'South african rand', symbol: 'R'),
+];
