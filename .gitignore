@@ -10,7 +10,7 @@
 .svn/
 
 # App related
-#/lib/config/keys.dart
+/lib/config/keys.dart
 
 # IntelliJ related
 *.iml

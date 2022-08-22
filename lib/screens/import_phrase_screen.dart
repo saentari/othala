@@ -7,14 +7,13 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as pathProvider;
-import 'package:xchain_dart/xchaindart.dart' as xchain;
-import 'package:xchain_dart/xchaindart.dart';
 
 import '../constants.dart';
 import '../models/currency.dart';
 import '../models/secure_item.dart';
 import '../models/unsplash_image.dart';
 import '../models/wallet.dart';
+import '../services/bitcoin_client.dart';
 import '../services/secure_storage.dart';
 import '../services/unsplash_image_provider.dart';
 import '../themes/theme_data.dart';
@@ -158,15 +157,25 @@ class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
     final StorageService _storageService = StorageService();
     _storageService.writeSecureData(SecureItem(_key, _mnemonic));
 
-    XChainClient _client = BitcoinClient(_mnemonic);
+    BitcoinClient _bitcoinClient = BitcoinClient(_mnemonic);
     var _walletBox = Hive.box('walletBox');
     Currency _defaultFiatCurrency =
         Currency('USD', id: 'usd-us-dollars', name: 'US dollar', symbol: r'$');
     Currency _defaultCurrency = Currency('btc',
         id: 'btc-bitcoin', name: 'Bitcoin', symbol: unicodeBitcoin);
 
-    _walletBox.add(Wallet(_key, '', 'phrase', 'bitcoin', [_client.address], [],
-        [], _imageId, _localPath, _defaultFiatCurrency, _defaultCurrency));
+    _walletBox.add(Wallet(
+        _key,
+        '',
+        'phrase',
+        'bitcoin',
+        [_bitcoinClient.address],
+        [],
+        [],
+        _imageId,
+        _localPath,
+        _defaultFiatCurrency,
+        _defaultCurrency));
 
     Navigator.pushReplacementNamed(context, '/home_screen');
   }
@@ -180,12 +189,12 @@ class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
   void _validateMnemonic() {
     if (_myTextController.text.isNotEmpty) {
       _mnemonic = _myTextController.text;
-      if (xchain.validateMnemonic(_mnemonic) == true) {
+      if (validateMnemonic(_mnemonic) == true) {
         setState(() {
           _confirmed = true;
         });
       }
-      if (xchain.validateMnemonic(_mnemonic) == false) {
+      if (validateMnemonic(_mnemonic) == false) {
         setState(() {
           _confirmed = false;
         });

@@ -1,12 +1,11 @@
 import 'dart:io';
 
-import 'package:bitcoin_dart/bitcoin_flutter.dart' as bitcoinClient;
-import 'package:flutter/cupertino.dart';
+import 'package:bitcoin_dart/bitcoin_dart.dart' as bitcoin;
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as pathProvider;
-import 'package:xchain_dart/xchaindart.dart';
 
 import '../constants.dart';
 import '../models/currency.dart';
@@ -14,14 +13,16 @@ import '../models/secure_item.dart';
 import '../models/transaction.dart';
 import '../models/unsplash_image.dart';
 import '../models/wallet.dart';
+import '../services/bitcoin_client.dart';
 import '../services/secure_storage.dart';
 import '../services/unsplash_image_provider.dart';
+import '../utils/utils.dart';
 
 class WalletManager extends ValueNotifier<Box> {
   final StorageService _storageService = StorageService();
 
   // Wallet client can be either read-only or full.
-  late XChainClient _client;
+  late BitcoinClient _bitcoinClient;
 
   WalletManager(Box value) : super(value);
 
@@ -56,12 +57,12 @@ class WalletManager extends ValueNotifier<Box> {
     if (mnemonic != null && mnemonic.isNotEmpty) {
       _secureData = mnemonic;
       _type = 'mnemonic';
-      _client = BitcoinClient(mnemonic);
-      address = _client.address;
+      _bitcoinClient = BitcoinClient(mnemonic);
+      address = _bitcoinClient.address;
     } else if (address != null && address.isNotEmpty) {
       _secureData = address;
       _type = 'address';
-      _client = BitcoinClient.readonly(address);
+      _bitcoinClient = BitcoinClient.readonly(address);
     } else {
       throw ArgumentError('Missing input');
     }
@@ -72,9 +73,9 @@ class WalletManager extends ValueNotifier<Box> {
     // Secure storage
     _storageService.writeSecureData(SecureItem(_key, _secureData));
 
-    num _balance = await getBalance(_client.address, _network);
+    num _balance = await getBalance(_bitcoinClient.address, _network);
     List<Transaction> _transactions =
-        await getTransactions(_client.address, _network);
+        await getTransactions(_bitcoinClient.address, _network);
 
     var _walletBox = Hive.box('walletBox');
 
@@ -103,13 +104,14 @@ class WalletManager extends ValueNotifier<Box> {
 
   /// Retrieve wallet balance.
   Future<double> getBalance(address, network) async {
-    _client = BitcoinClient.readonly(address);
+    _bitcoinClient = BitcoinClient.readonly(address);
     String _asset = 'BTC';
     if (network == 'testnet') {
-      _client.setNetwork(bitcoinClient.testnet);
+      _bitcoinClient.setNetwork(bitcoin.testnet);
       _asset = 'tBTC';
     }
-    List _balances = await _client.getBalance(_client.address, 'BTC.$_asset');
+    List _balances =
+        await _bitcoinClient.getBalance(_bitcoinClient.address, 'BTC.$_asset');
     double _balance = _balances[0]['amount'];
     return _balance;
   }
@@ -125,12 +127,12 @@ class WalletManager extends ValueNotifier<Box> {
   }
 
   Future<List<Transaction>> getTransactions(address, network) async {
-    XChainClient _client = BitcoinClient.readonly(address);
+    BitcoinClient _bitcoinClient = BitcoinClient.readonly(address);
     if (network == 'testnet') {
-      _client.setNetwork(bitcoinClient.testnet);
+      _bitcoinClient.setNetwork(bitcoin.testnet);
     }
     List<Transaction> _transactions = [];
-    List _rawTxs = await _client.getTransactions(address);
+    List _rawTxs = await _bitcoinClient.getTransactions(address);
     for (var _rawTx in _rawTxs) {
       String _transactionId = _rawTx['txid'];
       DateTime _transactionBroadcast = _rawTx['date'];
@@ -158,9 +160,9 @@ class WalletManager extends ValueNotifier<Box> {
   }
 
   String getNetworkType(String address) {
-    XChainClient _client = BitcoinClient.readonly(address);
-    _client.setNetwork(bitcoinClient.testnet);
-    if (_client.validateAddress(address) == true) {
+    BitcoinClient _bitcoinClient = BitcoinClient.readonly(address);
+    _bitcoinClient.setNetwork(bitcoin.testnet);
+    if (_bitcoinClient.validateAddress(address) == true) {
       return 'testnet';
     } else {
       return 'bitcoin';
@@ -180,16 +182,16 @@ class WalletManager extends ValueNotifier<Box> {
 
     // Get the seed to update the address on the new network
     String? _seed = await _storageService.readSecureData(_wallet.key);
-    XChainClient _client = BitcoinClient(_seed!);
+    BitcoinClient _bitcoinClient = BitcoinClient(_seed!);
 
     if (network == 'bitcoin') {
       _wallet.network = 'bitcoin';
-      _client.setNetwork(bitcoinClient.bitcoin);
+      _bitcoinClient.setNetwork(bitcoin.bitcoin);
     } else if (network == 'testnet') {
       _wallet.network = 'testnet';
-      _client.setNetwork(bitcoinClient.testnet);
+      _bitcoinClient.setNetwork(bitcoin.testnet);
     }
-    _wallet.address = [_client.getAddress(0)];
+    _wallet.address = [_bitcoinClient.getAddress(0)];
 
     // update box entry with new network & address.
     value.putAt(walletIndex, _wallet);
@@ -199,11 +201,12 @@ class WalletManager extends ValueNotifier<Box> {
   Future<void> updateAllBalances() async {
     for (var index = 0; index < value.length; index++) {
       Wallet _wallet = value.getAt(index);
-      XChainClient _client = BitcoinClient.readonly(_wallet.address[0]);
+      BitcoinClient _bitcoinClient = BitcoinClient.readonly(_wallet.address[0]);
       if (_wallet.network == 'testnet') {
-        _client.setNetwork(bitcoinClient.testnet);
+        _bitcoinClient.setNetwork(bitcoin.testnet);
       }
-      List _balances = await _client.getBalance(_client.address, 'BTC.BTC');
+      List _balances =
+          await _bitcoinClient.getBalance(_bitcoinClient.address, 'BTC.BTC');
       _wallet.balance = [_balances[0]['amount']];
       value.putAt(index, _wallet);
     }
@@ -212,23 +215,24 @@ class WalletManager extends ValueNotifier<Box> {
   /// Update a single wallet balance.
   Future<void> updateBalance(index) async {
     Wallet _wallet = value.getAt(index);
-    XChainClient _client = BitcoinClient.readonly(_wallet.address[0]);
+    BitcoinClient _bitcoinClient = BitcoinClient.readonly(_wallet.address[0]);
     if (_wallet.network == 'testnet') {
-      _client.setNetwork(bitcoinClient.testnet);
+      _bitcoinClient.setNetwork(bitcoin.testnet);
     }
-    List _balances = await _client.getBalance(_client.address, 'BTC.BTC');
+    List _balances =
+        await _bitcoinClient.getBalance(_bitcoinClient.address, 'BTC.BTC');
     _wallet.balance = [_balances[0]['amount']];
     value.putAt(index, _wallet);
   }
 
   Future<void> updateTransactions(index) async {
     Wallet _wallet = value.getAt(index);
-    XChainClient _client = BitcoinClient.readonly(_wallet.address[0]);
+    BitcoinClient _bitcoinClient = BitcoinClient.readonly(_wallet.address[0]);
     if (_wallet.network == 'testnet') {
-      _client.setNetwork(bitcoinClient.testnet);
+      _bitcoinClient.setNetwork(bitcoin.testnet);
     }
     List<Transaction> _transactions = [];
-    List _rawTxs = await _client.getTransactions(_wallet.address[0]);
+    List _rawTxs = await _bitcoinClient.getTransactions(_wallet.address[0]);
     for (var _rawTx in _rawTxs) {
       String _transactionId = _rawTx['txid'];
       DateTime _transactionBroadcast = _rawTx['date'];
@@ -261,13 +265,13 @@ class WalletManager extends ValueNotifier<Box> {
   }
 
   bool validateAddress(String address) {
-    XChainClient _client = BitcoinClient.readonly(address);
-    if (_client.validateAddress(address) == true) {
+    BitcoinClient _bitcoinClient = BitcoinClient.readonly(address);
+    if (_bitcoinClient.validateAddress(address) == true) {
       return true;
     } else {
       // try validating on testnet.
-      _client.setNetwork(bitcoinClient.testnet);
-      if (_client.validateAddress(address) == true) {
+      _bitcoinClient.setNetwork(bitcoin.testnet);
+      if (_bitcoinClient.validateAddress(address) == true) {
         return true;
       } else {
         return false;
@@ -313,7 +317,9 @@ class WalletManager extends ValueNotifier<Box> {
     try {
       await File(localPath).delete();
     } catch (e) {
-      print('Unable to delete file.');
+      if (kDebugMode) {
+        print('Unable to delete file.');
+      }
     }
   }
 }

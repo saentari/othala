@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:xchain_dart/xchaindart.dart';
 
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
+import '../utils/utils.dart';
 import '../widgets/flat_button.dart';
 
 void main() => runApp(const MaterialApp(home: CameraScreen()));
