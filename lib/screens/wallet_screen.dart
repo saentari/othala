@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
+import '../models/currency.dart';
 import '../models/transaction.dart';
 import '../models/unsplash_image.dart';
 import '../models/wallet.dart';
@@ -36,12 +37,21 @@ class _WalletScreenState extends State<WalletScreen> {
   /// Stored the currently searched keyword.
   late String keyword;
 
+  final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
+  var _format = NumberFormat("0.########", "en_US");
+  num _balance = 0.0;
+
+  late Currency _defaultCurrency;
   late Wallet _wallet;
 
   @override
   void initState() {
     super.initState();
-    _refresh(widget.walletIndex);
+    _defaultCurrency = _walletManager.getDefaultCurrency(widget.walletIndex);
+    if (_defaultCurrency.code != 'BTC' && _defaultCurrency.code != 'SATS') {
+      _format = NumberFormat.simpleCurrency(name: _defaultCurrency.code);
+    }
+    _getTransactions(widget.walletIndex);
   }
 
   @override
@@ -52,6 +62,7 @@ class _WalletScreenState extends State<WalletScreen> {
           builder: (context, Box box, widget2) {
             if (widget.walletIndex < box.length) {
               _wallet = box.getAt(widget.walletIndex);
+              _balance = _wallet.balance.first * _defaultCurrency.priceUsd;
             }
             return Scaffold(
               body: Container(
@@ -98,9 +109,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             textBaseline: TextBaseline.alphabetic,
                             children: [
                               Text(
-                                _wallet.balance.isNotEmpty
-                                    ? _wallet.balance.first.toString()
-                                    : '',
+                                _format.format(_balance),
                                 style: const TextStyle(
                                   color: kWhiteColor,
                                   fontSize: 32.0,
@@ -108,11 +117,11 @@ class _WalletScreenState extends State<WalletScreen> {
                                 ),
                               ),
                               const SizedBox(width: 8.0),
-                              const Text(
-                                'btc',
-                                style: TextStyle(
+                              Text(
+                                _defaultCurrency.code,
+                                style: const TextStyle(
                                   color: kWhiteColor,
-                                  fontSize: 24.0,
+                                  fontSize: 20.0,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -201,10 +210,8 @@ class _WalletScreenState extends State<WalletScreen> {
     return _ioAmount;
   }
 
-  Future<void> _refresh(int index) async {
-    final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
+  Future<void> _getTransactions(int index) async {
     await _walletManager.updateTransactions(index);
-    await _walletManager.updateBalance(index);
   }
 
   _showImage(String path) {

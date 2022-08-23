@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:othala/models/currency.dart';
-import 'package:othala/services/exchange_manager.dart';
-import 'package:othala/services/wallet_manager.dart';
 
+import '../models/currency.dart';
 import '../models/wallet.dart';
 import '../screens/receive_payment_screen.dart';
 import '../screens/send_payment_screen.dart';
 import '../screens/wallet_screen.dart';
+import '../services/exchange_manager.dart';
+import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 
@@ -26,17 +26,34 @@ class WalletCard extends StatefulWidget {
 class _WalletCardState extends State<WalletCard> {
   final ExchangeManager _exchangeManager = ExchangeManager();
   final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
-
-  late Wallet _wallet;
-
-  String _currencyUnit = 'btc';
-  Currency _defaultFiatCurrency =
-      Currency('USD', id: 'usd-us-dollars', name: 'US dollar', symbol: r'$');
+  final Currency _bitcoin = Currency('BTC', priceUsd: 1.0);
+  final Currency _satoshi = Currency('SATS', priceUsd: 100000000.0);
+  var _format = NumberFormat("0.########", "en_US");
   num _balance = 0.0;
   num _amount = 0.0;
-  double _price = 1;
-  int _denominator = 1;
-  var format = NumberFormat("0.########", "en_US");
+
+  late Currency _defaultCurrency;
+  late Currency _defaultFiatCurrency;
+  late Wallet _wallet;
+
+  @override
+  void initState() {
+    super.initState();
+    Box _box = Hive.box('walletBox');
+    if (widget.walletIndex < _box.length) {
+      _wallet = _box.getAt(widget.walletIndex);
+    }
+    if (_wallet.balance.isNotEmpty) {
+      _amount = _wallet.balance.first;
+    }
+    _defaultCurrency = _walletManager.getDefaultCurrency(widget.walletIndex);
+    _defaultFiatCurrency =
+        _walletManager.getDefaultFiatCurrency(widget.walletIndex);
+    // use stored price
+    _balance = _amount * _defaultCurrency.priceUsd;
+    // retrieve new price
+    _updateCurrency(_defaultCurrency);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +61,6 @@ class _WalletCardState extends State<WalletCard> {
       child: ValueListenableBuilder(
           valueListenable: Hive.box('walletBox').listenable(),
           builder: (context, Box box, widget2) {
-            _initialize(box);
             return Scaffold(
               body: Column(
                 children: [
@@ -72,7 +88,7 @@ class _WalletCardState extends State<WalletCard> {
                         Positioned(
                           top: 48,
                           child: GestureDetector(
-                            onTap: () => _changeCurrency(),
+                            onTap: () => _toggleDefaultCurrency(),
                             child: Container(
                               decoration: BoxDecoration(
                                 color: kBlackColor.withOpacity(0.5),
@@ -91,7 +107,7 @@ class _WalletCardState extends State<WalletCard> {
                                 textBaseline: TextBaseline.alphabetic,
                                 children: [
                                   Text(
-                                    format.format(_balance),
+                                    _format.format(_balance),
                                     style: const TextStyle(
                                       color: kWhiteColor,
                                       fontSize: 40.0,
@@ -100,7 +116,7 @@ class _WalletCardState extends State<WalletCard> {
                                   ),
                                   const SizedBox(width: 8.0),
                                   Text(
-                                    _currencyUnit,
+                                    _defaultCurrency.code,
                                     style: const TextStyle(
                                       color: kWhiteColor,
                                       fontSize: 24.0,
@@ -174,40 +190,34 @@ class _WalletCardState extends State<WalletCard> {
     }
   }
 
-  void _initialize(box) {
-    if (widget.walletIndex < box.length) {
-      _wallet = box.getAt(widget.walletIndex);
+  _toggleDefaultCurrency() async {
+    if (_defaultCurrency.code == _bitcoin.code) {
+      _updateCurrency(_satoshi);
+    } else if (_defaultCurrency.code == _satoshi.code) {
+      _updateCurrency(_defaultFiatCurrency);
+    } else {
+      _updateCurrency(_bitcoin);
     }
-    if (_wallet.balance.isNotEmpty) {
-      _amount = _wallet.balance.first;
-    }
-    _balance = _amount * _price * _denominator;
   }
 
-  _changeCurrency() async {
-    _defaultFiatCurrency =
-        _walletManager.getDefaultFiatCurrency(widget.walletIndex);
-
-    if (_currencyUnit == 'btc') {
-      _currencyUnit = 'sats';
-      _denominator = 100000000;
-      _price = 1;
-      format = NumberFormat("0.########", "en_US");
-    } else if (_currencyUnit == 'sats') {
-      _currencyUnit = _defaultFiatCurrency.code;
-      // when amount is zero, price doesn't matter for balance.
-      if (_amount != 0) {
-        _price = await _exchangeManager.getPrice(_defaultFiatCurrency.code);
-      }
-      _denominator = 1;
-      format = NumberFormat.simpleCurrency(name: _defaultFiatCurrency.code);
+  _updateCurrency(Currency newCurrency) async {
+    if (newCurrency.code == _bitcoin.code) {
+      _defaultCurrency = _bitcoin;
+      _format = NumberFormat("0.########", "en_US");
+    } else if (newCurrency.code == _satoshi.code) {
+      _defaultCurrency = _satoshi;
+      _format = NumberFormat("0.########", "en_US");
     } else {
-      _currencyUnit = 'btc';
-      _price = 1;
-      _denominator = 1;
-      format = NumberFormat("0.########", _defaultFiatCurrency.locale);
+      // if newCurrency is not bitcoin or satoshi, then fiat.
+      _defaultCurrency = newCurrency;
+      _format = NumberFormat.simpleCurrency(name: _defaultCurrency.code);
+      if (_amount != 0) {
+        _defaultCurrency.priceUsd =
+            await _exchangeManager.getPrice(_defaultCurrency.code);
+      }
     }
-    setState(() {});
+    _walletManager.setDefaultCurrency(widget.walletIndex, _defaultCurrency);
+    _balance = _amount * _defaultCurrency.priceUsd;
   }
 }
 

@@ -169,11 +169,15 @@ class WalletManager extends ValueNotifier<Box> {
     }
   }
 
+  setDefaultCurrency(int walletIndex, Currency currency) {
+    Wallet _wallet = value.getAt(walletIndex);
+    _wallet.defaultCurrency = currency;
+    value.putAt(walletIndex, _wallet);
+  }
+
   setDefaultFiatCurrency(int walletIndex, Currency currency) {
     Wallet _wallet = value.getAt(walletIndex);
     _wallet.defaultFiatCurrency = currency;
-
-    // update box entry with new default currency.
     value.putAt(walletIndex, _wallet);
   }
 
@@ -214,6 +218,7 @@ class WalletManager extends ValueNotifier<Box> {
 
   /// Update a single wallet balance.
   Future<void> updateBalance(index) async {
+    print('getting balance');
     Wallet _wallet = value.getAt(index);
     BitcoinClient _bitcoinClient = BitcoinClient.readonly(_wallet.address[0]);
     if (_wallet.network == 'testnet') {
@@ -243,7 +248,6 @@ class WalletManager extends ValueNotifier<Box> {
           _transactionId, _transactionBroadcast, _confirmation, _from, _to);
       _transactions.add(_tx);
     }
-
     _wallet.transactions = _transactions;
     value.putAt(index, _wallet);
   }
