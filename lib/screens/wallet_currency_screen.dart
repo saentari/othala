@@ -79,7 +79,7 @@ class ListTileAsset extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        _walletManager.setDefaultFiatCurrency(walletIndex, fiatCurrency);
+        await _walletManager.setDefaultFiatCurrency(walletIndex, fiatCurrency);
         Navigator.pop(context);
       },
       child: Container(

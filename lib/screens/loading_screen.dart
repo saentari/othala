@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hive/hive.dart';
+import 'package:othala/services/wallet_manager.dart';
 
 import '../screens/home_screen.dart';
 import '../themes/theme_data.dart';
@@ -14,9 +16,12 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
+  final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
+
   @override
   initState() {
     super.initState();
+    _walletManager.updateFiatPrices();
     // placeholder for verifying data.
     Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(

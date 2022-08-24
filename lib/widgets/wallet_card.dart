@@ -211,10 +211,6 @@ class _WalletCardState extends State<WalletCard> {
       // if newCurrency is not bitcoin or satoshi, then fiat.
       _defaultCurrency = newCurrency;
       _format = NumberFormat.simpleCurrency(name: _defaultCurrency.code);
-      if (_amount != 0) {
-        _defaultCurrency.priceUsd =
-            await _exchangeManager.getPrice(_defaultCurrency.code);
-      }
     }
     _walletManager.setDefaultCurrency(widget.walletIndex, _defaultCurrency);
     _balance = _amount * _defaultCurrency.priceUsd;

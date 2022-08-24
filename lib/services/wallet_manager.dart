@@ -4,6 +4,7 @@ import 'package:bitcoin_dart/bitcoin_dart.dart' as bitcoin;
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:othala/services/exchange_manager.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as pathProvider;
 
@@ -20,6 +21,7 @@ import '../utils/utils.dart';
 
 class WalletManager extends ValueNotifier<Box> {
   final StorageService _storageService = StorageService();
+  final ExchangeManager _exchangeManager = ExchangeManager();
 
   // Wallet client can be either read-only or full.
   late BitcoinClient _bitcoinClient;
@@ -175,9 +177,13 @@ class WalletManager extends ValueNotifier<Box> {
     value.putAt(walletIndex, _wallet);
   }
 
-  setDefaultFiatCurrency(int walletIndex, Currency currency) {
+  setDefaultFiatCurrency(int walletIndex, Currency currency) async {
     Wallet _wallet = value.getAt(walletIndex);
     _wallet.defaultFiatCurrency = currency;
+    double price =
+        await _exchangeManager.getPrice(_wallet.defaultFiatCurrency.code);
+    print(price);
+    _wallet.defaultFiatCurrency.priceUsd = price;
     value.putAt(walletIndex, _wallet);
   }
 
@@ -228,6 +234,22 @@ class WalletManager extends ValueNotifier<Box> {
         await _bitcoinClient.getBalance(_bitcoinClient.address, 'BTC.BTC');
     _wallet.balance = [_balances[0]['amount']];
     value.putAt(index, _wallet);
+  }
+
+  updateFiatPrices() async {
+    print('retrieving market prices...');
+    List _codes = [];
+    // for (Currency currency in fiatCurrencies) {
+    //   _codes.add(currency.code);
+    // }
+    var _walletBox = Hive.box('walletBox');
+    for (int index = 0; index < _walletBox.length; index++) {
+      Wallet _wallet = value.getAt(index);
+      _wallet.defaultFiatCurrency.priceUsd =
+          await _exchangeManager.getPrice(_wallet.defaultFiatCurrency.code);
+      value.putAt(index, _wallet);
+    }
+    print('retrieved market prices!');
   }
 
   Future<void> updateTransactions(index) async {

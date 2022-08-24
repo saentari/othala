@@ -21,8 +21,10 @@ class SendPaymentScreen extends StatefulWidget {
 
 class _SendPaymentScreenState extends State<SendPaymentScreen> {
   bool _confirmed = false;
-  String _recipientAddress = '';
-  String _recipientAmount = '';
+  // String _recipientAddress = '';
+  // String _recipientAmount = '';
+  String _recipientAddress = 'tb1q669kqq0ykrzgx337w3sj0kdf6zcuznvff34z85';
+  String _recipientAmount = '0.0001';
   String _unit = BitcoinUnit.btc.toShortString();
   late Wallet _wallet;
 
