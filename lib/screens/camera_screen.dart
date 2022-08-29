@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dart_lnurl/dart_lnurl.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -57,7 +58,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 controller.scannedDataStream.listen((scanData) {
                   if (mounted && scanData.code != '') {
                     _controller!.pauseCamera();
-                    _validateAddress(scanData.code);
+                    _identifyInput(scanData.code);
                   }
                 });
               },
@@ -118,25 +119,51 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 
-  void _importWallet() {
-    _walletManager.encryptToKeyStore(address: _address);
-    Navigator.pop(context);
-    Navigator.pushReplacementNamed(context, '/home_screen');
-  }
-
-  void _validateAddress(input) {
-    _address = _stripMeta(input);
-    _confirmed = _walletManager.validateAddress(_address);
-    if (_confirmed == true) {
-      _importWallet();
+  _identifyInput(input) {
+    if (input
+        .startsWith(RegExp(r'(^lightning[A-z,0-9])', caseSensitive: false))) {
+      _validateLnurl(input);
+    } else if (input
+        .startsWith(RegExp(r'(^lnurl[A-z,0-9])', caseSensitive: false))) {
+      _validateLnurl(input);
     } else {
-      Navigator.pop(context);
+      _validateAddress(input);
     }
   }
 
-  String _stripMeta(source) {
+  void _validateAddress(input) {
     // strip meta-data (e.g. bitcoin:bc1...).
-    List<AssetAddress> _addresses = substractAddress(source);
-    return _addresses.first.address;
+    List<AssetAddress> _addresses = substractAddress(input);
+    _address = _addresses.first.address;
+    _confirmed = _walletManager.validateAddress(_address);
+    if (_confirmed == true) {
+      _walletManager.encryptToKeyStore(address: _address);
+      Navigator.pop(context);
+      Navigator.pushReplacementNamed(context, '/home_screen');
+    } else {
+      Navigator.pushReplacementNamed(
+        context,
+        '/camera_error_screen',
+        arguments: input,
+      );
+    }
+  }
+
+  Future<void> _validateLnurl(input) async {
+    // Verify if lnurl is valid
+    final lnurlAuth = await getParams(input);
+    if (lnurlAuth.authParams != null) {
+      Navigator.pushNamed(
+        context,
+        '/lnurl_screen',
+        arguments: lnurlAuth.authParams,
+      );
+    } else {
+      Navigator.pushReplacementNamed(
+        context,
+        '/camera_error_screen',
+        arguments: input,
+      );
+    }
   }
 }
