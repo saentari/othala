@@ -1,7 +1,7 @@
 substractAddress(String source) {
   String address;
 
-  // start with empty list
+  // Start with empty list
   List<AssetAddress> addresses = [];
 
   // If source is empty or null
@@ -9,14 +9,14 @@ substractAddress(String source) {
     throw ArgumentError('Input is empty');
   }
 
-  // matches on spaces
+  // Matches on spaces
   RegExp regExpSpaces = new RegExp(r' ');
   bool hasIllegalChars = regExpSpaces.hasMatch(source);
   if (hasIllegalChars) {
     throw ArgumentError('Illegal character');
   }
 
-  // starts with chain prefix
+  // Starts with chain prefix
   RegExp regExpPrefix = new RegExp(r':');
   bool hasPrefix = regExpPrefix.hasMatch(source);
 
@@ -25,15 +25,15 @@ substractAddress(String source) {
     var matches2 = regex2.firstMatch(source);
     String prefix = matches2!.group(1)!.toLowerCase();
     if (prefix == 'bitcoin') {
+      // Strip prefix
       address = matches2.group(2)!;
-      // identify chain and assets
       addresses = _identifyChain(address, prefix);
     } else {
       throw ArgumentError('Unsupported prefix');
     }
   } else {
     address = source;
-    // identify chain and assets
+    // Identify chain and assets
     addresses = _identifyChain(address);
   }
 
@@ -43,24 +43,24 @@ substractAddress(String source) {
 _identifyChain(String address, [String? prefix]) {
   List<AssetAddress> _addresses = [];
 
-  if (prefix == 'bitcoin') {
-    _addresses.add(AssetAddress(address, 'BTC.BTC', 'mainnet'));
-  }
   // Bitcoin Legacy address starts with 1 and has 34 or less characters
-  else if (address.startsWith(new RegExp(r'(^1[A-z,0-9]{33})'))) {
-    _addresses.add(AssetAddress(address, 'BTC.BTC', 'mainnet'));
+  if (address.startsWith(RegExp(r'(^1[A-z,0-9]{33})', caseSensitive: false))) {
+    _addresses.add(AssetAddress(address, 32, 'mainnet'));
   }
   // Bitcoin & Litecoin Segwit address starts with 3 and has 34 characters
-  else if (address.startsWith(new RegExp(r'(^3[A-z,0-9]{33})'))) {
-    _addresses.add(AssetAddress(address, 'BTC.BTC', 'mainnet'));
+  else if (address
+      .startsWith(RegExp(r'(^3[A-z,0-9]{33})', caseSensitive: false))) {
+    _addresses.add(AssetAddress(address, 49, 'mainnet'));
   }
   // Bitcoin Native-Segwit address starts with bc1 and has 42 characters
-  else if (address.startsWith(new RegExp(r'(^bc1[A-z,0-9]{39})'))) {
-    _addresses.add(AssetAddress(address, 'BTC.BTC', 'mainnet'));
+  else if (address
+      .startsWith(RegExp(r'(^bc1[A-z,0-9]{39})', caseSensitive: false))) {
+    _addresses.add(AssetAddress(address, 84, 'mainnet'));
   }
   // Bitcoin Native-Segwit testnet address starts with tb1 and has 42 characters
-  else if (address.startsWith(new RegExp(r'(^tb1[A-z,0-9]{39})'))) {
-    _addresses.add(AssetAddress(address, 'BTC.tBTC', 'testnet'));
+  else if (address
+      .startsWith(RegExp(r'(^tb1[A-z,0-9]{39})', caseSensitive: false))) {
+    _addresses.add(AssetAddress(address, 84, 'testnet'));
   } else {
     throw ArgumentError('Unsupported chain');
   }
@@ -69,8 +69,8 @@ _identifyChain(String address, [String? prefix]) {
 
 class AssetAddress {
   String address;
-  String asset;
+  int bip;
   String networkType;
 
-  AssetAddress(this.address, this.asset, this.networkType);
+  AssetAddress(this.address, this.bip, this.networkType);
 }

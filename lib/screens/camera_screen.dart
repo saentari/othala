@@ -127,7 +127,15 @@ class _CameraScreenState extends State<CameraScreen> {
         .startsWith(RegExp(r'(^lnurl[A-z,0-9])', caseSensitive: false))) {
       _validateLnurl(input);
     } else {
-      _validateAddress(input);
+      try {
+        _validateAddress(input);
+      } catch (e) {
+        Navigator.pushReplacementNamed(
+          context,
+          '/camera_error_screen',
+          arguments: input,
+        );
+      }
     }
   }
 
@@ -137,9 +145,8 @@ class _CameraScreenState extends State<CameraScreen> {
     _address = _addresses.first.address;
     _confirmed = _walletManager.validateAddress(_address);
     if (_confirmed == true) {
-      _walletManager.encryptToKeyStore(address: _address);
-      Navigator.pop(context);
-      Navigator.pushReplacementNamed(context, '/home_screen');
+      Navigator.pushNamed(context, '/wallet_discovery_screen',
+          arguments: _addresses);
     } else {
       Navigator.pushReplacementNamed(
         context,

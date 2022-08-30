@@ -57,6 +57,7 @@ class ListItem extends StatelessWidget {
             children: [
               Text(
                 title,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w500,
