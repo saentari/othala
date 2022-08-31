@@ -62,7 +62,9 @@ class _WalletScreenState extends State<WalletScreen> {
           builder: (context, Box box, widget2) {
             if (widget.walletIndex < box.length) {
               _wallet = box.getAt(widget.walletIndex);
-              _balance = _wallet.balance.first * _defaultCurrency.priceUsd;
+              print(_wallet.balance.first);
+              print(_defaultCurrency.priceUsd);
+              // _balance = _wallet.balance.first * _defaultCurrency.priceUsd;
             }
             return Scaffold(
               body: Container(

@@ -9,7 +9,6 @@ import '../models/wallet.dart';
 import '../screens/receive_payment_screen.dart';
 import '../screens/send_payment_screen.dart';
 import '../screens/wallet_screen.dart';
-import '../services/exchange_manager.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
@@ -24,7 +23,6 @@ class WalletCard extends StatefulWidget {
 }
 
 class _WalletCardState extends State<WalletCard> {
-  final ExchangeManager _exchangeManager = ExchangeManager();
   final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
   final Currency _bitcoin = Currency('BTC', priceUsd: 1.0);
   final Currency _satoshi = Currency('SATS', priceUsd: 100000000.0);

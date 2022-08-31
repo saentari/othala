@@ -8,7 +8,6 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as pathProvider;
 
-import '../constants.dart';
 import '../models/currency.dart';
 import '../models/secure_item.dart';
 import '../models/unsplash_image.dart';
@@ -161,8 +160,8 @@ class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
     var _walletBox = Hive.box('walletBox');
     Currency _defaultFiatCurrency =
         Currency('USD', id: 'usd-us-dollars', name: 'US dollar', symbol: r'$');
-    Currency _defaultCurrency = Currency('btc',
-        id: 'btc-bitcoin', name: 'Bitcoin', symbol: unicodeBitcoin);
+    Currency _defaultCurrency =
+        Currency('BTC', id: 'btc-bitcoin', name: 'Bitcoin', priceUsd: 1.0);
 
     _walletBox.add(Wallet(
         _key,
@@ -170,7 +169,7 @@ class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
         'phrase',
         'bitcoin',
         [_bitcoinClient.address],
-        [],
+        [0],
         [],
         _imageId,
         _localPath,
