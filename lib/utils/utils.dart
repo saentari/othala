@@ -1,3 +1,33 @@
+import 'package:bip39/bip39.dart';
+import 'package:bitcoin_dart/bitcoin_dart.dart';
+import 'package:dart_lnurl/dart_lnurl.dart';
+import 'package:othala/enums/input_type.dart';
+
+InputType? getInputType(String input,
+    {String? language, NetworkType? network}) {
+  String defaultLanguage = language ?? 'english';
+  NetworkType defaultNetwork = network ?? bitcoin;
+
+  // Check if valid mnemonic
+  if (validateMnemonic(input, language: defaultLanguage)) {
+    return InputType.mnemonic;
+  }
+  // Check if valid address
+  else if (Address.validateAddress(input, defaultNetwork)) {
+    return InputType.address;
+  }
+  // Check if valid testnet address
+  else if (Address.validateAddress(input, testnet)) {
+    return InputType.address;
+  }
+  // Check if valid lnurl
+  else if (validateLnUrl(input)) {
+    return InputType.lnurl;
+  } else {
+    return null;
+  }
+}
+
 substractAddress(String source) {
   String address;
 
@@ -10,14 +40,14 @@ substractAddress(String source) {
   }
 
   // Matches on spaces
-  RegExp regExpSpaces = new RegExp(r' ');
+  RegExp regExpSpaces = RegExp(r' ');
   bool hasIllegalChars = regExpSpaces.hasMatch(source);
   if (hasIllegalChars) {
     throw ArgumentError('Illegal character');
   }
 
   // Starts with chain prefix
-  RegExp regExpPrefix = new RegExp(r':');
+  RegExp regExpPrefix = RegExp(r':');
   bool hasPrefix = regExpPrefix.hasMatch(source);
 
   if (hasPrefix) {

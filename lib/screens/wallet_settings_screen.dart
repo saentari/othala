@@ -98,7 +98,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                       ),
                     ),
                     Visibility(
-                      visible: _wallet.type == 'phrase' ? true : false,
+                      visible: _wallet.type == 'mnemonic' ? true : false,
                       child: const ListDivider(),
                     ),
                     GestureDetector(
@@ -112,7 +112,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                         }
                       },
                       child: Visibility(
-                        visible: _wallet.type == 'phrase' ? true : false,
+                        visible: _wallet.type == 'mnemonic' ? true : false,
                         child: ListItem(
                           'Toggle nework',
                           subtitle: 'Selected network: ${_wallet.network}',

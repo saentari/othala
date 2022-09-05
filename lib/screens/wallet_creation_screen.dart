@@ -1,22 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_emoji/flutter_emoji.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart' as pathProvider;
 
-import '../models/currency.dart';
-import '../models/secure_item.dart';
-import '../models/unsplash_image.dart';
-import '../models/wallet.dart';
 import '../services/bitcoin_client.dart';
-import '../services/secure_storage.dart';
-import '../services/unsplash_image_provider.dart';
+import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 
@@ -30,11 +20,6 @@ class WalletCreationScreen extends StatefulWidget {
 class _WalletCreationScreenState extends State<WalletCreationScreen> {
   bool _confirmed = false;
   String _randomMnemonic = '';
-  String _imageId = '';
-
-  // Default background image
-  String _localPath =
-      'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg';
 
   List<String> _randomMnemonicList = [
     '',
@@ -55,7 +40,6 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
   void initState() {
     super.initState();
     _createMnemonic();
-    _loadRandomImage(keyword: 'nature');
   }
 
   @override
@@ -397,30 +381,8 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
   }
 
   _encryptToKeyStore() async {
-    String _key = UniqueKey().toString();
-
-    final StorageService _storageService = StorageService();
-    _storageService.writeSecureData(SecureItem(_key, _randomMnemonic));
-
-    BitcoinClient _bitcoinClient = BitcoinClient(_randomMnemonic);
-    var _walletBox = Hive.box('walletBox');
-    Currency _defaultFiatCurrency =
-        Currency('USD', id: 'usd-us-dollars', name: 'US dollar', symbol: r'$');
-    Currency _defaultCurrency =
-        Currency('BTC', id: 'btc-bitcoin', name: 'Bitcoin', priceUsd: 1.0);
-    _walletBox.add(Wallet(
-        _key,
-        '',
-        'phrase',
-        'bitcoin',
-        [_bitcoinClient.address],
-        [0],
-        [],
-        _imageId,
-        _localPath,
-        _defaultFiatCurrency,
-        _defaultCurrency));
-
+    final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
+    _walletManager.encryptToKeyStore(mnemonic: _randomMnemonic);
     Navigator.pushReplacementNamed(context, '/home_screen');
   }
 
@@ -443,30 +405,5 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
         backgroundColor: kDarkGreyColor,
       ),
     );
-  }
-
-  /// Requests a [UnsplashImage] for a given [keyword] query.
-  /// If the given [keyword] is null, any random image is loaded.
-  _loadRandomImage({String? keyword}) async {
-    UnsplashImage _imageData =
-        await UnsplashImageProvider.loadRandomImage(keyword: keyword);
-    _imageId = _imageData.getId();
-    _download(_imageData.getRegularUrl());
-  }
-
-  Future<void> _download(String url) async {
-    final response = await http.get(Uri.parse(url));
-
-    // Get the image name
-    final imageName = path.basename(url);
-
-    // Get the document directory path
-    final appDir = await pathProvider.getApplicationDocumentsDirectory();
-    // This is the saved image path
-    _localPath = path.join(appDir.path, imageName);
-
-    // Downloading
-    final imageFile = File(_localPath);
-    await imageFile.writeAsBytes(response.bodyBytes);
   }
 }

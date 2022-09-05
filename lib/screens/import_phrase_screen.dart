@@ -1,20 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart' as pathProvider;
 
-import '../models/currency.dart';
-import '../models/secure_item.dart';
-import '../models/unsplash_image.dart';
-import '../models/wallet.dart';
 import '../services/bitcoin_client.dart';
-import '../services/secure_storage.dart';
-import '../services/unsplash_image_provider.dart';
+import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 
@@ -26,21 +16,16 @@ class ImportPhraseScreen extends StatefulWidget {
 }
 
 class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
-  // Default background image
-  String _localPath =
-      'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg';
+  final _myTextController = TextEditingController();
 
   bool _confirmed = false;
   String _mnemonic = '';
-  String _imageId = '';
-  final _myTextController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     // Start listening to changes.
     _myTextController.addListener(_validateMnemonic);
-    _loadRandomImage(keyword: 'nature');
   }
 
   @override
@@ -74,7 +59,7 @@ class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
                 padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                 alignment: Alignment.centerLeft,
                 child: const Text(
-                  'Enter your 12-word recovery phrase to import your wallets.',
+                  'Enter your recovery phrase to import your wallets.',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -91,7 +76,7 @@ class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
                       style: const TextStyle(fontSize: 20),
                       controller: _myTextController,
                       decoration: const InputDecoration(
-                        hintText: '12 words separated by a single space.',
+                        hintText: 'use spaces between words.',
                       ),
                     ),
                     const SizedBox(height: 8.0),
@@ -151,31 +136,8 @@ class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
   }
 
   _encryptToKeyStore() async {
-    String _key = UniqueKey().toString();
-
-    final StorageService _storageService = StorageService();
-    _storageService.writeSecureData(SecureItem(_key, _mnemonic));
-
-    BitcoinClient _bitcoinClient = BitcoinClient(_mnemonic);
-    var _walletBox = Hive.box('walletBox');
-    Currency _defaultFiatCurrency =
-        Currency('USD', id: 'usd-us-dollars', name: 'US dollar', symbol: r'$');
-    Currency _defaultCurrency =
-        Currency('BTC', id: 'btc-bitcoin', name: 'Bitcoin', priceUsd: 1.0);
-
-    _walletBox.add(Wallet(
-        _key,
-        '',
-        'phrase',
-        'bitcoin',
-        [_bitcoinClient.address],
-        [0],
-        [],
-        _imageId,
-        _localPath,
-        _defaultFiatCurrency,
-        _defaultCurrency));
-
+    final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
+    _walletManager.encryptToKeyStore(mnemonic: _mnemonic);
     Navigator.pushReplacementNamed(context, '/home_screen');
   }
 
@@ -199,30 +161,5 @@ class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
         });
       }
     }
-  }
-
-  /// Requests a [UnsplashImage] for a given [keyword] query.
-  /// If the given [keyword] is null, any random image is loaded.
-  _loadRandomImage({String? keyword}) async {
-    UnsplashImage res =
-        await UnsplashImageProvider.loadRandomImage(keyword: keyword);
-    _imageId = res.getId();
-    _download(res.getRegularUrl());
-  }
-
-  Future<void> _download(String url) async {
-    final response = await http.get(Uri.parse(url));
-
-    // Get the image name
-    final imageName = path.basename(url);
-
-    // Get the document directory path
-    final appDir = await pathProvider.getApplicationDocumentsDirectory();
-    // This is the saved image path
-    _localPath = path.join(appDir.path, imageName);
-
-    // Downloading
-    final imageFile = File(_localPath);
-    await imageFile.writeAsBytes(response.bodyBytes);
   }
 }

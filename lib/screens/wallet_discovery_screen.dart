@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
+import 'package:othala/enums/input_type.dart';
 
+import '../services/bitcoin_client.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
 import '../utils/utils.dart';
@@ -21,13 +23,13 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
   bool _confirmed = false;
   List<String> _address = [''];
   List<String> _amount = ['0'];
-  List<String> _title = ['Bitcoin Wallet'];
+  late String _mnemonic;
+  late InputType _inputType;
 
   @override
   Widget build(BuildContext context) {
     if (_confirmed == false) {
-      getWalletData(
-          ModalRoute.of(context)!.settings.arguments as List<AssetAddress>);
+      getWalletData(ModalRoute.of(context)!.settings.arguments);
     }
     return SafeArea(
       child: Scaffold(
@@ -59,7 +61,11 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
                 child: ListView(
                   children: [
                     ListItem(
-                      _title[0],
+                      'Address',
+                      subtitle: _address[0],
+                    ),
+                    ListItem(
+                      'Balance',
                       subtitle: _amount[0],
                     ),
                   ],
@@ -103,19 +109,32 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
   }
 
   void _encryptToKeyStore() async {
-    _walletManager.encryptToKeyStore(address: _address[0]);
+    print('storing: $_inputType');
+    if (_inputType == InputType.address) {
+      _walletManager.encryptToKeyStore(address: _address[0]);
+    } else if (_inputType == InputType.mnemonic) {
+      _walletManager.encryptToKeyStore(mnemonic: _mnemonic);
+    }
     Navigator.of(context).pushNamedAndRemoveUntil(
         '/home_screen', (Route<dynamic> route) => false);
   }
 
   Future<void> getWalletData(input) async {
-    // TODO: Support passphrase & key import
-    List<AssetAddress> _addresses = input;
-    AssetAddress firstAddress = _addresses[0];
+    _inputType = input[0];
+    late AssetAddress _firstAddress;
+
+    if (_inputType == InputType.mnemonic) {
+      _mnemonic = input[1];
+      BitcoinClient _client = BitcoinClient(_mnemonic);
+      _firstAddress = AssetAddress(_client.address, 84, 'bitcoin');
+    } else {
+      _firstAddress = input[1];
+    }
+
     double _doubleAmount = await _walletManager.getBalance(
-        firstAddress.address, firstAddress.networkType);
-    _address.insert(0, firstAddress.address);
-    _title.insert(0, 'Bitcoin Wallet');
+        _firstAddress.address, _firstAddress.networkType);
+
+    _address.insert(0, _firstAddress.address);
     _amount.insert(0, '$_doubleAmount BTC');
     _confirmed = true;
     setState(() {});

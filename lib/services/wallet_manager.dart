@@ -8,7 +8,6 @@ import 'package:othala/services/exchange_manager.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as pathProvider;
 
-import '../constants.dart';
 import '../models/currency.dart';
 import '../models/secure_item.dart';
 import '../models/transaction.dart';
@@ -87,8 +86,8 @@ class WalletManager extends ValueNotifier<Box> {
 
     Currency _defaultFiatCurrency =
         Currency('USD', id: 'usd-us-dollars', name: 'US dollar', symbol: r'$');
-    Currency _defaultCurrency = Currency('btc',
-        id: 'btc-bitcoin', name: 'Bitcoin', symbol: unicodeBitcoin);
+    Currency _defaultCurrency =
+        Currency('BTC', id: 'btc-bitcoin', name: 'Bitcoin', priceUsd: 1.0);
 
     _walletBox.add(Wallet(
         _key,
@@ -224,7 +223,6 @@ class WalletManager extends ValueNotifier<Box> {
 
   /// Update a single wallet balance.
   Future<void> updateBalance(index) async {
-    print('getting balance');
     Wallet _wallet = value.getAt(index);
     BitcoinClient _bitcoinClient = BitcoinClient.readonly(_wallet.address[0]);
     if (_wallet.network == 'testnet') {
@@ -237,11 +235,6 @@ class WalletManager extends ValueNotifier<Box> {
   }
 
   updateFiatPrices() async {
-    print('retrieving market prices...');
-    List _codes = [];
-    // for (Currency currency in fiatCurrencies) {
-    //   _codes.add(currency.code);
-    // }
     var _walletBox = Hive.box('walletBox');
     for (int index = 0; index < _walletBox.length; index++) {
       Wallet _wallet = value.getAt(index);

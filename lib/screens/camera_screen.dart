@@ -2,10 +2,9 @@ import 'dart:io';
 
 import 'package:dart_lnurl/dart_lnurl.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
-import '../services/wallet_manager.dart';
+import '../enums/input_type.dart';
 import '../themes/theme_data.dart';
 import '../utils/utils.dart';
 import '../widgets/flat_button.dart';
@@ -22,9 +21,6 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> {
   final GlobalKey _qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? _controller;
-  late String _address;
-  bool _confirmed = false;
-  final _walletManager = WalletManager(Hive.box('walletBox'));
 
   @override
   void dispose() {
@@ -119,52 +115,32 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 
-  _identifyInput(input) {
-    if (input
-        .startsWith(RegExp(r'(^lightning[A-z,0-9])', caseSensitive: false))) {
-      _validateLnurl(input);
-    } else if (input
-        .startsWith(RegExp(r'(^lnurl[A-z,0-9])', caseSensitive: false))) {
-      _validateLnurl(input);
-    } else {
-      try {
-        _validateAddress(input);
-      } catch (e) {
+  _identifyInput(input) async {
+    InputType? _inputType = getInputType(input);
+
+    if (_inputType == InputType.lnurl) {
+      final lnurlAuth = await getParams(input);
+      if (lnurlAuth.authParams != null) {
+        Navigator.pushNamed(
+          context,
+          '/lnurl_screen',
+          arguments: lnurlAuth.authParams,
+        );
+      } else {
         Navigator.pushReplacementNamed(
           context,
           '/camera_error_screen',
           arguments: input,
         );
       }
-    }
-  }
-
-  void _validateAddress(input) {
-    // strip meta-data (e.g. bitcoin:bc1...).
-    List<AssetAddress> _addresses = substractAddress(input);
-    _address = _addresses.first.address;
-    _confirmed = _walletManager.validateAddress(_address);
-    if (_confirmed == true) {
+    } else if (_inputType == InputType.address) {
+      List<AssetAddress> _addresses = substractAddress(input);
+      AssetAddress _address = _addresses[0];
       Navigator.pushNamed(context, '/wallet_discovery_screen',
-          arguments: _addresses);
-    } else {
-      Navigator.pushReplacementNamed(
-        context,
-        '/camera_error_screen',
-        arguments: input,
-      );
-    }
-  }
-
-  Future<void> _validateLnurl(input) async {
-    // Verify if lnurl is valid
-    final lnurlAuth = await getParams(input);
-    if (lnurlAuth.authParams != null) {
-      Navigator.pushNamed(
-        context,
-        '/lnurl_screen',
-        arguments: lnurlAuth.authParams,
-      );
+          arguments: [_inputType, _address]);
+    } else if (_inputType == InputType.mnemonic) {
+      Navigator.pushNamed(context, '/wallet_discovery_screen',
+          arguments: [_inputType, input]);
     } else {
       Navigator.pushReplacementNamed(
         context,
