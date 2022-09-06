@@ -12,9 +12,11 @@ import '../widgets/image_tile.dart';
 import '../widgets/loading_indicator.dart';
 
 class WalletBackgroundScreen extends StatefulWidget {
-  const WalletBackgroundScreen(this.walletIndex, {Key? key}) : super(key: key);
+  const WalletBackgroundScreen({Key? key}) : super(key: key);
 
-  final int walletIndex;
+  // const WalletBackgroundScreen(this.walletIndex, {Key? key}) : super(key: key);
+  //
+  // final int walletIndex;
 
   @override
   _WalletBackgroundScreenState createState() => _WalletBackgroundScreenState();
@@ -44,12 +46,13 @@ class _WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _walletIndex = ModalRoute.of(context)!.settings.arguments as int;
     return SafeArea(
       child: ValueListenableBuilder(
           valueListenable: Hive.box('walletBox').listenable(),
           builder: (context, Box box, widget2) {
-            if (widget.walletIndex < box.length) {
-              _wallet = box.getAt(widget.walletIndex);
+            if (_walletIndex < box.length) {
+              _wallet = box.getAt(_walletIndex);
             }
             return Scaffold(
               body: OrientationBuilder(
@@ -59,7 +62,7 @@ class _WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
                     _buildSearchAppBar(),
 
                     //Grid view with all the images
-                    _buildImageGrid(orientation: orientation),
+                    _buildImageGrid(_walletIndex, orientation: orientation),
 
                     // loading indicator at the bottom of the list
                     const SliverToBoxAdapter(
@@ -146,40 +149,11 @@ class _WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   /// Returns the SearchAppBar.
   Widget _buildSearchAppBar() {
     return SliverAppBar(
-      //Appbar Title
-      title: keyword == null
-          // either search-field or just the title
-          ? TextField(
-              keyboardType: TextInputType.text,
-              decoration: const InputDecoration(
-                  hintText: 'Search...', border: InputBorder.none),
-              onSubmitted: (String keyword) =>
-                  // search and display images associated to the keyword
-                  _loadImages(keyword: keyword),
-              autofocus: true,
-            )
-          : SvgPicture.asset(
-              'assets/icons/logo.svg',
-              color: kYellowColor,
-              height: 40.0,
-            ),
-      //Appbar actions
-      // actions: <Widget>[
-      //   keyword != null
-      //       ? IconButton(
-      //           icon: const Icon(Icons.clear),
-      //           onPressed: () {
-      //             // reset the state
-      //             _resetImages();
-      //           },
-      //         )
-      //       : IconButton(
-      //           icon: const Icon(Icons.search),
-      //           onPressed: () =>
-      //               // go into searching state
-      //               setState(() => keyword = ""),
-      //         ),
-      // ],
+      title: SvgPicture.asset(
+        'assets/icons/logo.svg',
+        color: kYellowColor,
+        height: 40.0,
+      ),
       backgroundColor: Colors.transparent,
       systemOverlayStyle: SystemUiOverlayStyle.dark,
     );
@@ -187,7 +161,7 @@ class _WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
 
   /// Returns the grid that displays images.
   /// [orientation] can be used to adjust the grid column count.
-  Widget _buildImageGrid({orientation = Orientation.portrait}) {
+  Widget _buildImageGrid(walletIndex, {orientation = Orientation.portrait}) {
     // calc columnCount based on orientation
     int columnCount = orientation == Orientation.portrait ? 2 : 3;
     // return staggered grid
@@ -199,7 +173,7 @@ class _WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
         itemCount: _images.length,
         // set itemBuilder
         itemBuilder: (BuildContext context, int index) =>
-            _buildImageItemBuilder(index),
+            _buildImageItemBuilder(index, walletIndex),
         staggeredTileBuilder: (int index) =>
             _buildStaggeredTile(_images[index], columnCount),
         mainAxisSpacing: 16.0,
@@ -209,17 +183,17 @@ class _WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   }
 
   /// Returns a FutureBuilder to load a [UnsplashImage] for a given [index].
-  Widget _buildImageItemBuilder(int index) {
+  Widget _buildImageItemBuilder(int imageIndex, int walletIndex) {
     return FutureBuilder(
       // pass image loader
-      future: _loadImage(index),
+      future: _loadImage(imageIndex),
       builder: (context, snapshot) {
         // image loaded return [_ImageTile]
         UnsplashImage? _image;
         if (snapshot.data != null) {
           _image = snapshot.data as UnsplashImage;
         }
-        return ImageTile(_image, _wallet.imageId, widget.walletIndex);
+        return ImageTile(_image, _wallet.imageId, walletIndex);
       },
     );
   }

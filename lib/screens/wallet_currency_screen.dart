@@ -10,9 +10,7 @@ import '../widgets/flat_button.dart';
 import '../widgets/list_divider.dart';
 
 class WalletCurrencyScreen extends StatefulWidget {
-  WalletCurrencyScreen(this.walletIndex, {Key? key}) : super(key: key);
-
-  int walletIndex;
+  const WalletCurrencyScreen({Key? key}) : super(key: key);
 
   @override
   _WalletCurrencyScreenState createState() => _WalletCurrencyScreenState();
@@ -26,8 +24,8 @@ class _WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _defaultFiatCurrency =
-        _walletManager.getDefaultFiatCurrency(widget.walletIndex);
+    final _walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    _defaultFiatCurrency = _walletManager.getDefaultFiatCurrency(_walletIndex);
     return SafeArea(
       child: Scaffold(
         body: CustomScrollView(
@@ -38,7 +36,7 @@ class _WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
                   return Column(
                     children: <Widget>[
                       ListTileAsset(
-                        widget.walletIndex,
+                        _walletIndex,
                         _fiatCurrencies[index],
                         _defaultFiatCurrency,
                       ),
@@ -67,7 +65,8 @@ class _WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
 }
 
 class ListTileAsset extends StatelessWidget {
-  ListTileAsset(this.walletIndex, this.fiatCurrency, this.defaultFiatCurrency,
+  const ListTileAsset(
+      this.walletIndex, this.fiatCurrency, this.defaultFiatCurrency,
       {Key? key})
       : super(key: key);
 
@@ -80,6 +79,7 @@ class ListTileAsset extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         await _walletManager.setDefaultFiatCurrency(walletIndex, fiatCurrency);
+        await _walletManager.setDefaultCurrency(walletIndex, fiatCurrency);
         Navigator.pop(context);
       },
       child: Container(

@@ -8,7 +8,6 @@ import '../models/currency.dart';
 import '../models/transaction.dart';
 import '../models/unsplash_image.dart';
 import '../models/wallet.dart';
-import '../screens/wallet_settings_screen.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
@@ -16,9 +15,7 @@ import '../widgets/list_divider.dart';
 import '../widgets/list_item_transaction.dart';
 
 class WalletScreen extends StatefulWidget {
-  const WalletScreen(this.walletIndex, {Key? key}) : super(key: key);
-
-  final int walletIndex;
+  const WalletScreen({Key? key}) : super(key: key);
 
   @override
   _WalletScreenState createState() => _WalletScreenState();
@@ -45,27 +42,14 @@ class _WalletScreenState extends State<WalletScreen> {
   late Wallet _wallet;
 
   @override
-  void initState() {
-    super.initState();
-    _defaultCurrency = _walletManager.getDefaultCurrency(widget.walletIndex);
-    if (_defaultCurrency.code != 'BTC' && _defaultCurrency.code != 'SATS') {
-      _format = NumberFormat.simpleCurrency(name: _defaultCurrency.code);
-    }
-    _getTransactions(widget.walletIndex);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final _walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    _getTransactions(_walletIndex);
     return SafeArea(
       child: ValueListenableBuilder(
           valueListenable: Hive.box('walletBox').listenable(),
           builder: (context, Box box, widget2) {
-            if (widget.walletIndex < box.length) {
-              _wallet = box.getAt(widget.walletIndex);
-              print(_wallet.balance.first);
-              print(_defaultCurrency.priceUsd);
-              // _balance = _wallet.balance.first * _defaultCurrency.priceUsd;
-            }
+            _updateValues(box, _walletIndex);
             return Scaffold(
               body: Container(
                 padding: const EdgeInsets.only(
@@ -90,15 +74,11 @@ class _WalletScreenState extends State<WalletScreen> {
                           right: 8,
                           child: IconButton(
                             onPressed: () {
-                              Navigator.push(
+                              Navigator.pushNamed(
                                 context,
-                                MaterialPageRoute<void>(
-                                  builder: (BuildContext context) =>
-                                      WalletSettingsScreen(widget.walletIndex),
-                                ),
-                              ).then((value) {
-                                setState(() {});
-                              });
+                                '/wallet_settings_screen',
+                                arguments: _walletIndex,
+                              );
                             },
                             icon: const Icon(Icons.more_vert),
                           ),
@@ -179,6 +159,22 @@ class _WalletScreenState extends State<WalletScreen> {
             );
           }),
     );
+  }
+
+  void _updateValues(Box<dynamic> box, walletIndex) {
+    num _amount = 0;
+    if (walletIndex < box.length) {
+      _wallet = box.getAt(walletIndex);
+    }
+    if (_wallet.balance.isNotEmpty) {
+      _amount = _wallet.balance.first;
+    }
+    _defaultCurrency = _wallet.defaultCurrency;
+    // use stored price
+    _balance = _amount * _defaultCurrency.priceUsd;
+    if (_defaultCurrency.code != 'BTC' && _defaultCurrency.code != 'SATS') {
+      _format = NumberFormat.simpleCurrency(name: _defaultCurrency.code);
+    }
   }
 
   List _checkInputOutput(Transaction transaction, String address) {

@@ -14,9 +14,13 @@ import '../screens/lnurl_confirmation_screen.dart';
 import '../screens/lnurl_screen.dart';
 import '../screens/loading_screen.dart';
 import '../screens/send_payment_confirmation_screen.dart';
+import '../screens/wallet_background_screen.dart';
 import '../screens/wallet_creation_screen.dart';
+import '../screens/wallet_currency_screen.dart';
 import '../screens/wallet_discovery_screen.dart';
 import '../screens/wallet_import_screen.dart';
+import '../screens/wallet_screen.dart';
+import '../screens/wallet_settings_screen.dart';
 import '../themes/theme_data.dart';
 
 Future<void> main() async {
@@ -56,8 +60,13 @@ class MyApp extends StatelessWidget {
         '/loading_screen': (context) => const LoadingScreen(),
         '/send_payment_confirmation_screen': (context) =>
             const SendPaymentConfirmationScreen(),
+        '/wallet_background_screen': (context) =>
+            const WalletBackgroundScreen(),
         '/wallet_creation_screen': (context) => const WalletCreationScreen(),
+        '/wallet_currency_screen': (context) => const WalletCurrencyScreen(),
         '/wallet_discovery_screen': (context) => const WalletDiscoveryScreen(),
+        '/wallet_settings_screen': (context) => const WalletSettingsScreen(),
+        '/wallet_screen': (context) => const WalletScreen(),
         '/wallet_import_screen': (context) => const WalletImportScreen(),
       },
     );

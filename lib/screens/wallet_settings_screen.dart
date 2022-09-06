@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:othala/screens/wallet_currency_screen.dart';
 
 import '../models/wallet.dart';
-import '../screens/home_screen.dart';
-import '../screens/wallet_background_screen.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
@@ -13,9 +10,7 @@ import '../widgets/list_divider.dart';
 import '../widgets/list_item.dart';
 
 class WalletSettingsScreen extends StatefulWidget {
-  const WalletSettingsScreen(this.walletIndex, {Key? key}) : super(key: key);
-
-  final int walletIndex;
+  const WalletSettingsScreen({Key? key}) : super(key: key);
 
   @override
   _WalletSettingsScreenState createState() => _WalletSettingsScreenState();
@@ -28,15 +23,15 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _walletIndex = ModalRoute.of(context)!.settings.arguments as int;
     return SafeArea(
       child: ValueListenableBuilder(
           valueListenable: Hive.box('walletBox').listenable(),
           builder: (context, Box box, widget2) {
-            if (widget.walletIndex < box.length) {
-              _wallet = box.getAt(widget.walletIndex);
-              _defaultFiatCurrency = _walletManager
-                  .getDefaultFiatCurrency(widget.walletIndex)
-                  .name;
+            if (_walletIndex < box.length) {
+              _wallet = box.getAt(_walletIndex);
+              _defaultFiatCurrency =
+                  _walletManager.getDefaultFiatCurrency(_walletIndex).name;
             }
             return Scaffold(
               body: Container(
@@ -56,11 +51,11 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    WalletCurrencyScreen(widget.walletIndex)));
+                        Navigator.pushNamed(
+                          context,
+                          '/wallet_currency_screen',
+                          arguments: _walletIndex,
+                        );
                       },
                       child: ListItem(
                         'Local currency',
@@ -70,15 +65,13 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                     ),
                     const ListDivider(),
                     GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (context, animation1, animation2) =>
-                              WalletBackgroundScreen(widget.walletIndex),
-                          transitionDuration: Duration.zero,
-                          reverseTransitionDuration: Duration.zero,
-                        ),
-                      ),
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/wallet_background_screen',
+                          arguments: _walletIndex,
+                        );
+                      },
                       child: ListItem(
                         'Background image',
                         subtitle: 'Select a new background image',
@@ -88,7 +81,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                     const ListDivider(),
                     GestureDetector(
                       onTap: () {
-                        _showDialog();
+                        _showDialog(_walletIndex);
                       },
                       child: ListItem(
                         'Delete wallet',
@@ -104,11 +97,9 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                     GestureDetector(
                       onTap: () {
                         if (_wallet.network == 'bitcoin') {
-                          _walletManager.setNetwork(
-                              widget.walletIndex, 'testnet');
+                          _walletManager.setNetwork(_walletIndex, 'testnet');
                         } else if (_wallet.network == 'testnet') {
-                          _walletManager.setNetwork(
-                              widget.walletIndex, 'testnet');
+                          _walletManager.setNetwork(_walletIndex, 'testnet');
                         }
                       },
                       child: Visibility(
@@ -145,7 +136,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
     );
   }
 
-  void _showDialog() {
+  void _showDialog(_walletIndex) {
     showDialog(
       barrierDismissible: true,
       context: context,
@@ -218,7 +209,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                               ),
                             ),
                           ),
-                          onTap: () => _deleteWallet(),
+                          onTap: () => _deleteWallet(_walletIndex),
                         ),
                       ),
                       Expanded(
@@ -255,16 +246,9 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
     );
   }
 
-  Future<void> _deleteWallet() async {
-    await _walletManager.deleteWallet(widget.walletIndex);
-
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation1, animation2) => const HomeScreen(),
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-      ),
-    );
+  Future<void> _deleteWallet(walletIndex) async {
+    await _walletManager.deleteWallet(walletIndex);
+    Navigator.of(context).pushNamedAndRemoveUntil(
+        '/home_screen', (Route<dynamic> route) => false);
   }
 }

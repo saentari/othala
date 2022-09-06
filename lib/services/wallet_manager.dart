@@ -101,6 +101,9 @@ class WalletManager extends ValueNotifier<Box> {
         _localPath,
         _defaultFiatCurrency,
         _defaultCurrency));
+
+    // get bitcoin price in USD
+    updateFiatPrices();
   }
 
   /// Retrieve wallet balance.
@@ -181,7 +184,6 @@ class WalletManager extends ValueNotifier<Box> {
     _wallet.defaultFiatCurrency = currency;
     double price =
         await _exchangeManager.getPrice(_wallet.defaultFiatCurrency.code);
-    print(price);
     _wallet.defaultFiatCurrency.priceUsd = price;
     value.putAt(walletIndex, _wallet);
   }

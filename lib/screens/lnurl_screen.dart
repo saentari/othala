@@ -18,11 +18,6 @@ class _LnurlScreenState extends State<LnurlScreen> {
     final lnurlAuth =
         ModalRoute.of(context)!.settings.arguments as LNURLAuthParams;
 
-    print(lnurlAuth.domain);
-    print(lnurlAuth.k1);
-    print(lnurlAuth.tag);
-    print(lnurlAuth.action);
-
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -68,35 +63,6 @@ class _LnurlScreenState extends State<LnurlScreen> {
                       ],
                     ),
                   ),
-
-                  // Container(
-                  //   width: double.infinity,
-                  //   color: kTransparentColor,
-                  //   padding: const EdgeInsets.all(16.0),
-                  //   child: Column(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: [
-                  //       const Text(
-                  //         'Wallet',
-                  //         style: TextStyle(
-                  //           fontSize: 16,
-                  //           fontWeight: FontWeight.w500,
-                  //           color: kDarkNeutral5Color,
-                  //         ),
-                  //       ),
-                  //       Text(
-                  //         _recipientAmount.isNotEmpty
-                  //             ? '$_recipientAmount $_unit'
-                  //             : 'Enter amount...',
-                  //         style: const TextStyle(
-                  //           fontSize: 20,
-                  //           fontWeight: FontWeight.w500,
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  //
                 ],
               ),
               const Spacer(),
@@ -113,10 +79,11 @@ class _LnurlScreenState extends State<LnurlScreen> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/home_screen', (Route<dynamic> route) => false);
                       },
                       child: const CustomFlatButton(
-                        textLabel: 'Cancel',
+                        textLabel: 'Close',
                         buttonColor: kDarkBackgroundColor,
                         fontColor: kWhiteColor,
                       ),

@@ -90,10 +90,11 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/home_screen', (Route<dynamic> route) => false);
                       },
                       child: const CustomFlatButton(
-                        textLabel: 'Cancel',
+                        textLabel: 'Close',
                         buttonColor: kDarkBackgroundColor,
                         fontColor: kWhiteColor,
                       ),
@@ -109,7 +110,6 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
   }
 
   void _encryptToKeyStore() async {
-    print('storing: $_inputType');
     if (_inputType == InputType.address) {
       _walletManager.encryptToKeyStore(address: _address[0]);
     } else if (_inputType == InputType.mnemonic) {

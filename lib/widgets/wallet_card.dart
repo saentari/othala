@@ -8,7 +8,6 @@ import '../models/currency.dart';
 import '../models/wallet.dart';
 import '../screens/receive_payment_screen.dart';
 import '../screens/send_payment_screen.dart';
-import '../screens/wallet_screen.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
@@ -28,30 +27,10 @@ class _WalletCardState extends State<WalletCard> {
   final Currency _satoshi = Currency('SATS', priceUsd: 100000000.0);
   var _format = NumberFormat("0.########", "en_US");
   num _balance = 0.0;
-  num _amount = 0.0;
 
   late Currency _defaultCurrency;
   late Currency _defaultFiatCurrency;
   late Wallet _wallet;
-
-  @override
-  void initState() {
-    super.initState();
-    Box _box = Hive.box('walletBox');
-    if (widget.walletIndex < _box.length) {
-      _wallet = _box.getAt(widget.walletIndex);
-    }
-    if (_wallet.balance.isNotEmpty) {
-      _amount = _wallet.balance.first;
-    }
-    _defaultCurrency = _walletManager.getDefaultCurrency(widget.walletIndex);
-    _defaultFiatCurrency =
-        _walletManager.getDefaultFiatCurrency(widget.walletIndex);
-    // use stored price
-    _balance = _amount * _defaultCurrency.priceUsd;
-    // retrieve new price
-    _updateCurrency(_defaultCurrency);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +38,7 @@ class _WalletCardState extends State<WalletCard> {
       child: ValueListenableBuilder(
           valueListenable: Hive.box('walletBox').listenable(),
           builder: (context, Box box, widget2) {
+            _updateValues(box);
             return Scaffold(
               body: Column(
                 children: [
@@ -68,15 +48,11 @@ class _WalletCardState extends State<WalletCard> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(
+                            Navigator.pushNamed(
                               context,
-                              MaterialPageRoute<void>(
-                                builder: (BuildContext context) =>
-                                    WalletScreen(widget.walletIndex),
-                              ),
-                            ).then((value) {
-                              setState(() {});
-                            });
+                              '/wallet_screen',
+                              arguments: widget.walletIndex,
+                            );
                           },
                           child: Hero(
                             tag: 'imageHero',
@@ -114,7 +90,7 @@ class _WalletCardState extends State<WalletCard> {
                                   ),
                                   const SizedBox(width: 8.0),
                                   Text(
-                                    _defaultCurrency.code,
+                                    _wallet.defaultCurrency.code,
                                     style: const TextStyle(
                                       color: kWhiteColor,
                                       fontSize: 24.0,
@@ -173,6 +149,23 @@ class _WalletCardState extends State<WalletCard> {
     );
   }
 
+  void _updateValues(Box<dynamic> box) {
+    num _amount = 0;
+    if (widget.walletIndex < box.length) {
+      _wallet = box.getAt(widget.walletIndex);
+    }
+    if (_wallet.balance.isNotEmpty) {
+      _amount = _wallet.balance.first;
+    }
+    _defaultCurrency = _wallet.defaultCurrency;
+    _defaultFiatCurrency = _wallet.defaultFiatCurrency;
+    // use stored price
+    _balance = _amount * _defaultCurrency.priceUsd;
+    if (_defaultCurrency.code != 'BTC' && _defaultCurrency.code != 'SATS') {
+      _format = NumberFormat.simpleCurrency(name: _defaultCurrency.code);
+    }
+  }
+
   _showImage() {
     if (FileSystemEntity.typeSync(_wallet.imagePath) ==
         FileSystemEntityType.notFound) {
@@ -211,7 +204,6 @@ class _WalletCardState extends State<WalletCard> {
       _format = NumberFormat.simpleCurrency(name: _defaultCurrency.code);
     }
     _walletManager.setDefaultCurrency(widget.walletIndex, _defaultCurrency);
-    _balance = _amount * _defaultCurrency.priceUsd;
   }
 }
 
