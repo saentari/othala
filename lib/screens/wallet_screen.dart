@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
-import '../models/currency.dart';
 import '../models/transaction.dart';
 import '../models/unsplash_image.dart';
 import '../models/wallet.dart';
@@ -38,7 +37,6 @@ class _WalletScreenState extends State<WalletScreen> {
   var _format = NumberFormat("0.########", "en_US");
   num _balance = 0.0;
 
-  late Currency _defaultCurrency;
   late Wallet _wallet;
 
   @override
@@ -100,7 +98,7 @@ class _WalletScreenState extends State<WalletScreen> {
                               ),
                               const SizedBox(width: 8.0),
                               Text(
-                                _defaultCurrency.code,
+                                _wallet.defaultCurrency.code,
                                 style: const TextStyle(
                                   color: kWhiteColor,
                                   fontSize: 20.0,
@@ -161,19 +159,15 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  void _updateValues(Box<dynamic> box, walletIndex) {
-    num _amount = 0;
+  Future<void> _updateValues(Box<dynamic> box, walletIndex) async {
     if (walletIndex < box.length) {
       _wallet = box.getAt(walletIndex);
     }
-    if (_wallet.balance.isNotEmpty) {
-      _amount = _wallet.balance.first;
-    }
-    _defaultCurrency = _wallet.defaultCurrency;
-    // use stored price
-    _balance = _amount * _defaultCurrency.priceUsd;
-    if (_defaultCurrency.code != 'BTC' && _defaultCurrency.code != 'SATS') {
-      _format = NumberFormat.simpleCurrency(name: _defaultCurrency.code);
+    num _amount = _wallet.balance.first;
+    _balance = _amount * _wallet.defaultCurrency.priceUsd;
+    if (_wallet.defaultCurrency.code != 'BTC' &&
+        _wallet.defaultCurrency.code != 'SATS') {
+      _format = NumberFormat.simpleCurrency(name: _wallet.defaultCurrency.code);
     }
   }
 
@@ -209,6 +203,7 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Future<void> _getTransactions(int index) async {
+    await _walletManager.updateBalance(index);
     await _walletManager.updateTransactions(index);
   }
 
