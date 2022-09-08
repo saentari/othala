@@ -380,10 +380,12 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
     setState(() {});
   }
 
-  _encryptToKeyStore() async {
+  Future<void> _encryptToKeyStore() async {
     final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
-    _walletManager.encryptToKeyStore(mnemonic: _randomMnemonic);
-    Navigator.pushReplacementNamed(context, '/home_screen');
+    await _walletManager.encryptToKeyStore(mnemonic: _randomMnemonic);
+    int _jumpToPage = _walletManager.value.length - 1;
+    Navigator.pushReplacementNamed(context, '/home_screen',
+        arguments: _jumpToPage);
   }
 
   void _setClipboard() async {

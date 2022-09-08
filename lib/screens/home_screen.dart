@@ -15,12 +15,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final PageController _controller = PageController(initialPage: 0);
+  PageController? _controller;
   final _currentPageNotifier = ValueNotifier<int>(0);
   final Box _walletBox = Hive.box('walletBox');
 
   @override
   Widget build(BuildContext context) {
+    final initialPage = ModalRoute.of(context)!.settings.arguments ?? 0;
+    _controller = PageController(initialPage: initialPage as int);
+    _currentPageNotifier.value = initialPage;
     return SafeArea(
       child: ValueListenableBuilder(
           valueListenable: Hive.box('walletBox').listenable(),

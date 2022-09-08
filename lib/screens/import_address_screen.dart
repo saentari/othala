@@ -132,9 +132,11 @@ class _ImportAddressScreenState extends State<ImportAddressScreen> {
     );
   }
 
-  void _importWallet() {
-    _walletManager.encryptToKeyStore(address: _address);
-    Navigator.pushReplacementNamed(context, '/home_screen');
+  Future<void> _importWallet() async {
+    await _walletManager.encryptToKeyStore(address: _address);
+    int _jumpToPage = _walletManager.value.length - 1;
+    Navigator.pushReplacementNamed(context, '/home_screen',
+        arguments: _jumpToPage);
   }
 
   void _getClipboard() async {

@@ -135,10 +135,12 @@ class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
     );
   }
 
-  _encryptToKeyStore() async {
+  Future<void> _encryptToKeyStore() async {
     final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
-    _walletManager.encryptToKeyStore(mnemonic: _mnemonic);
-    Navigator.pushReplacementNamed(context, '/home_screen');
+    await _walletManager.encryptToKeyStore(mnemonic: _mnemonic);
+    int _jumpToPage = _walletManager.value.length - 1;
+    Navigator.pushReplacementNamed(context, '/home_screen',
+        arguments: _jumpToPage);
   }
 
   void _getClipboard() async {

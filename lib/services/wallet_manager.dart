@@ -50,7 +50,7 @@ class WalletManager extends ValueNotifier<Box> {
   }
 
   /// Secure store wallet
-  void encryptToKeyStore({String? mnemonic, String? address}) async {
+  encryptToKeyStore({String? mnemonic, String? address}) async {
     String _key = UniqueKey().toString();
     String _secureData;
 

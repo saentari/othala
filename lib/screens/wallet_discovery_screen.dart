@@ -109,14 +109,16 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
     );
   }
 
-  void _encryptToKeyStore() async {
+  Future<void> _encryptToKeyStore() async {
     if (_inputType == InputType.address) {
-      _walletManager.encryptToKeyStore(address: _address[0]);
+      await _walletManager.encryptToKeyStore(address: _address[0]);
     } else if (_inputType == InputType.mnemonic) {
-      _walletManager.encryptToKeyStore(mnemonic: _mnemonic);
+      await _walletManager.encryptToKeyStore(mnemonic: _mnemonic);
     }
+    int _jumpToPage = _walletManager.value.length - 1;
     Navigator.of(context).pushNamedAndRemoveUntil(
-        '/home_screen', (Route<dynamic> route) => false);
+        '/home_screen', (Route<dynamic> route) => false,
+        arguments: _jumpToPage);
   }
 
   Future<void> getWalletData(input) async {
