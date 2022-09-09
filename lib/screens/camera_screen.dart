@@ -117,6 +117,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
   _identifyInput(input) async {
     InputType? _inputType = getInputType(input);
+    print('inputtype: $_inputType');
 
     if (_inputType == InputType.lnurl) {
       final lnurlAuth = await getParams(input);

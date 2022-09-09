@@ -1,23 +1,22 @@
 import 'package:bip39/bip39.dart';
 import 'package:bitcoin_dart/bitcoin_dart.dart';
+import 'package:btc_address_validate/btc_address_validate.dart' as validator;
 import 'package:dart_lnurl/dart_lnurl.dart';
 import 'package:othala/enums/input_type.dart';
 
 InputType? getInputType(String input,
     {String? language, NetworkType? network}) {
   String defaultLanguage = language ?? 'english';
-  NetworkType defaultNetwork = network ?? bitcoin;
+
+  // Strip any bitcoin prefix
+  input = input.replaceFirst(RegExp(r'bitcoin:', caseSensitive: false), '');
 
   // Check if valid mnemonic
   if (validateMnemonic(input, language: defaultLanguage)) {
     return InputType.mnemonic;
   }
   // Check if valid address
-  else if (Address.validateAddress(input, defaultNetwork)) {
-    return InputType.address;
-  }
-  // Check if valid testnet address
-  else if (Address.validateAddress(input, testnet)) {
+  else if (validator.validate(input).type.toString().isNotEmpty) {
     return InputType.address;
   }
   // Check if valid lnurl

@@ -46,9 +46,13 @@ dependencies:
   bitcoin_dart:
     git:
       url: https://github.com/saentari/bitcoin_dart.git
+  btc_address_validate:
+    git:
+      url: https://github.com/saentari/btc_address_validate.git
   dart_lnurl:
     git:
       url: https://github.com/saentari/dart_lnurl.git
+
 
 dev_dependencies:
   flutter_test:

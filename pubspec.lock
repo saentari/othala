@@ -43,6 +43,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.9.0"
+  base58check:
+    dependency: transitive
+    description:
+      name: base58check
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   bech32:
     dependency: transitive
     description:
@@ -89,6 +96,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
+  btc_address_validate:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "055a7e00c88bde1e9a2114075bdf846b8312af4a"
+      url: "https://github.com/saentari/btc_address_validate.git"
+    source: git
+    version: "1.1.0"
   build:
     dependency: transitive
     description:
@@ -222,6 +238,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
+  dart_bech32:
+    dependency: transitive
+    description:
+      name: dart_bech32
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   dart_lnurl:
     dependency: "direct main"
     description:
@@ -252,6 +275,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.0.1"
+  equatable:
+    dependency: transitive
+    description:
+      name: equatable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.5"
   fake_async:
     dependency: transitive
     description:

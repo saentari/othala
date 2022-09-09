@@ -1,3 +1,5 @@
+import 'package:btc_address_validate/btc_address_validate.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
@@ -21,8 +23,9 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
   final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
 
   bool _confirmed = false;
+  String _walletType = 'Unknown wallet';
   List<String> _address = [''];
-  List<String> _amount = ['0'];
+  List<String> _amount = ['0 BTC'];
   late String _mnemonic;
   late InputType _inputType;
 
@@ -60,14 +63,8 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
               Expanded(
                 child: ListView(
                   children: [
-                    ListItem(
-                      'Address',
-                      subtitle: _address[0],
-                    ),
-                    ListItem(
-                      'Balance',
-                      subtitle: _amount[0],
-                    ),
+                    ListItem(_walletType,
+                        subtitle: _amount[0], icon: Icons.currency_bitcoin),
                   ],
                 ),
               ),
@@ -131,6 +128,7 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
       _firstAddress = AssetAddress(_client.address, 84, 'bitcoin');
     } else {
       _firstAddress = input[1];
+      _walletType = getAddressType(_firstAddress);
     }
 
     double _doubleAmount = await _walletManager.getBalance(
@@ -140,5 +138,25 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
     _amount.insert(0, '$_doubleAmount BTC');
     _confirmed = true;
     setState(() {});
+  }
+
+  // walletDescriptor
+  String getAddressType(AssetAddress address) {
+    Address _addressData = validate(address.address);
+    String _description = 'Wallet';
+    String _type = describeEnum(_addressData.type as Enum);
+
+    if (_addressData.network == Network.testnet) {
+      _description = 'Testnet + $_description';
+    }
+
+    if (_addressData.segwit) {
+      _description = 'Native Segwit $_description';
+    } else {
+      _description = 'Legacy $_description';
+    }
+
+    _description = '$_description (${_type.toLowerCase()})';
+    return _description;
   }
 }
