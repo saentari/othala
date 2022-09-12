@@ -23,7 +23,7 @@ void main() {
     const address = 'tb1qdyxry6tza2sflfzlr8w6m65873thva724yjlmw';
 
     test('valid address', () {
-      InputType? res = getInputType(address, network: testnet);
+      InputType? res = getInputType(address);
       expect(res, InputType.address);
     });
   });

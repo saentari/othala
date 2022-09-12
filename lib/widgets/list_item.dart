@@ -51,29 +51,32 @@ class ListItem extends StatelessWidget {
                   const SizedBox(width: 16.0),
                 ],
               )),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
+          Expanded(
+            flex: 99,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-              subtitle != ''
-                  ? Text(
-                      getSubString(subtitle),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: subtitleColor,
-                      ),
-                    )
-                  : Container(),
-            ],
+                subtitle != ''
+                    ? Text(
+                        getSubString(subtitle),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: subtitleColor,
+                        ),
+                      )
+                    : Container(),
+              ],
+            ),
           ),
           const Spacer(),
           Text(

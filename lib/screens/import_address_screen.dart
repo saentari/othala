@@ -76,7 +76,7 @@ class _ImportAddressScreenState extends State<ImportAddressScreen> {
                       style: const TextStyle(fontSize: 20),
                       controller: _myTextController,
                       decoration: const InputDecoration(
-                        hintText: 'address starting with a 1 or bc1',
+                        hintText: 'bitcoin address, e.g. bc1...',
                       ),
                     ),
                     const SizedBox(height: 8.0),
@@ -145,16 +145,12 @@ class _ImportAddressScreenState extends State<ImportAddressScreen> {
   }
 
   void _validateAddress() {
-    _address = _stripMeta(_myTextController.text);
+    // Strip any bitcoin prefix
+    _address = _myTextController.text
+        .replaceFirst(RegExp(r'bitcoin:', caseSensitive: false), '');
     if (_myTextController.text.isNotEmpty) {
-      _confirmed = _walletManager.validateAddress(_address);
+      _confirmed = isValidAddress(_address);
       setState(() {});
     }
-  }
-
-  String _stripMeta(source) {
-    // strip meta-data (e.g. bitcoin:bc1...).
-    List<AssetAddress> _addresses = substractAddress(source);
-    return _addresses.first.address;
   }
 }

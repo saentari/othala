@@ -1,4 +1,3 @@
-import 'package:btc_address_validate/btc_address_validate.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -23,7 +22,7 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
   final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
 
   bool _confirmed = false;
-  String _walletType = 'Unknown wallet';
+  String _walletName = 'Unknown wallet';
   List<String> _address = [''];
   List<String> _amount = ['0 BTC'];
   late String _mnemonic;
@@ -63,8 +62,11 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
               Expanded(
                 child: ListView(
                   children: [
-                    ListItem(_walletType,
-                        subtitle: _amount[0], icon: Icons.currency_bitcoin),
+                    ListItem(
+                      _walletName,
+                      subtitle: _amount[0],
+                      icon: Icons.currency_bitcoin,
+                    ),
                   ],
                 ),
               ),
@@ -120,43 +122,22 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
 
   Future<void> getWalletData(input) async {
     _inputType = input[0];
-    late AssetAddress _firstAddress;
+    late String _firstAddress;
 
     if (_inputType == InputType.mnemonic) {
       _mnemonic = input[1];
       BitcoinClient _client = BitcoinClient(_mnemonic);
-      _firstAddress = AssetAddress(_client.address, 84, 'bitcoin');
+      _firstAddress = _client.address;
     } else {
       _firstAddress = input[1];
-      _walletType = getAddressType(_firstAddress);
     }
+    _walletName = getAddressName(_firstAddress);
 
-    double _doubleAmount = await _walletManager.getBalance(
-        _firstAddress.address, _firstAddress.networkType);
+    double _doubleAmount = await _walletManager.getBalance(_firstAddress);
 
-    _address.insert(0, _firstAddress.address);
+    _address.insert(0, _firstAddress);
     _amount.insert(0, '$_doubleAmount BTC');
     _confirmed = true;
     setState(() {});
-  }
-
-  // walletDescriptor
-  String getAddressType(AssetAddress address) {
-    Address _addressData = validate(address.address);
-    String _description = 'Wallet';
-    String _type = describeEnum(_addressData.type as Enum);
-
-    if (_addressData.network == Network.testnet) {
-      _description = 'Testnet + $_description';
-    }
-
-    if (_addressData.segwit) {
-      _description = 'Native Segwit $_description';
-    } else {
-      _description = 'Legacy $_description';
-    }
-
-    _description = '$_description (${_type.toLowerCase()})';
-    return _description;
   }
 }

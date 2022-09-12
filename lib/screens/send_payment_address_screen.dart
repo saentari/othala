@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:hive/hive.dart';
 
-import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
+import '../utils/utils.dart';
 import '../widgets/flat_button.dart';
 
 class SendPaymentAddressScreen extends StatefulWidget {
@@ -22,7 +21,6 @@ class _SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
   bool _confirmed = false;
 
   final _myTextController = TextEditingController();
-  final _walletManager = WalletManager(Hive.box('walletBox'));
 
   @override
   void initState() {
@@ -148,7 +146,7 @@ class _SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
   void _validateAddress() {
     _address = _myTextController.text;
     if (_myTextController.text.isNotEmpty) {
-      _confirmed = _walletManager.validateAddress(_address);
+      _confirmed = isValidAddress(_address);
       setState(() {});
     }
   }

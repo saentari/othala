@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:bitcoin_dart/bitcoin_dart.dart' as bitcoin;
+import 'package:btc_address_validate/btc_address_validate.dart' as btc_address;
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:othala/services/exchange_manager.dart';
 import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart' as pathProvider;
+import 'package:path_provider/path_provider.dart' as path_provider;
 
 import '../models/currency.dart';
 import '../models/secure_item.dart';
@@ -14,6 +14,7 @@ import '../models/transaction.dart';
 import '../models/unsplash_image.dart';
 import '../models/wallet.dart';
 import '../services/bitcoin_client.dart';
+import '../services/exchange_manager.dart';
 import '../services/secure_storage.dart';
 import '../services/unsplash_image_provider.dart';
 import '../utils/utils.dart';
@@ -74,7 +75,7 @@ class WalletManager extends ValueNotifier<Box> {
     // Secure storage
     _storageService.writeSecureData(SecureItem(_key, _secureData));
 
-    num _balance = await getBalance(_bitcoinClient.address, _network);
+    num _balance = await getBalance(_bitcoinClient.address);
     List<Transaction> _transactions =
         await getTransactions(_bitcoinClient.address, _network);
 
@@ -89,9 +90,11 @@ class WalletManager extends ValueNotifier<Box> {
     Currency _defaultCurrency =
         Currency('BTC', id: 'btc-bitcoin', name: 'Bitcoin', priceUsd: 1.0);
 
+    String _walletName = getAddressName(address);
+
     _walletBox.add(Wallet(
         _key,
-        '',
+        _walletName,
         _type,
         _network,
         [address],
@@ -107,10 +110,12 @@ class WalletManager extends ValueNotifier<Box> {
   }
 
   /// Retrieve wallet balance.
-  Future<double> getBalance(address, network) async {
+  Future<double> getBalance(address) async {
+    btc_address.Network? _network = btc_address.validate(address).network;
+
     _bitcoinClient = BitcoinClient.readonly(address);
     String _asset = 'BTC';
-    if (network == 'testnet') {
+    if (_network == btc_address.Network.testnet) {
       _bitcoinClient.setNetwork(bitcoin.testnet);
       _asset = 'tBTC';
     }
@@ -148,19 +153,6 @@ class WalletManager extends ValueNotifier<Box> {
       _transactions.add(_tx);
     }
     return _transactions;
-  }
-
-  String? getInputType(String input) {
-    // check if input is an address format.
-    List<AssetAddress> _addresses = substractAddress(input);
-    if (_addresses.isNotEmpty) {
-      String _address = _addresses.first.address;
-      bool _isValid = validateAddress(_address);
-      if (_isValid == true) {
-        return 'address';
-      }
-    }
-    return null;
   }
 
   String getNetworkType(String address) {
@@ -269,38 +261,7 @@ class WalletManager extends ValueNotifier<Box> {
     value.putAt(index, _wallet);
   }
 
-  bool validateInput({required String input, String? inputType}) {
-    bool _valid = false;
-
-    if (inputType == 'address') {
-      _valid = validateAddress(input);
-    } else if (inputType == 'mnemonic') {
-      _valid = validatePhrase(input);
-    } else if (input.isNotEmpty) {
-      inputType = getInputType(input);
-      if (inputType == 'address') {
-        _valid = true;
-      }
-    }
-    return _valid;
-  }
-
-  bool validateAddress(String address) {
-    BitcoinClient _bitcoinClient = BitcoinClient.readonly(address);
-    if (_bitcoinClient.validateAddress(address) == true) {
-      return true;
-    } else {
-      // try validating on testnet.
-      _bitcoinClient.setNetwork(bitcoin.testnet);
-      if (_bitcoinClient.validateAddress(address) == true) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
-
-  bool validatePhrase(String input) {
+  bool isValidPhrase(String input) {
     return validateMnemonic(input);
   }
 
@@ -324,7 +285,7 @@ class WalletManager extends ValueNotifier<Box> {
     final imageName = path.basename(url);
 
     // Get the document directory path
-    final appDir = await pathProvider.getApplicationDocumentsDirectory();
+    final appDir = await path_provider.getApplicationDocumentsDirectory();
     // This is the saved image path
     _localPath = path.join(appDir.path, imageName);
 

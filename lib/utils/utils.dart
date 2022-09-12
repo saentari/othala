@@ -1,11 +1,11 @@
 import 'package:bip39/bip39.dart';
-import 'package:bitcoin_dart/bitcoin_dart.dart';
-import 'package:btc_address_validate/btc_address_validate.dart' as validator;
+import 'package:btc_address_validate/btc_address_validate.dart' as btc_address;
 import 'package:dart_lnurl/dart_lnurl.dart';
-import 'package:othala/enums/input_type.dart';
+import 'package:flutter/foundation.dart';
 
-InputType? getInputType(String input,
-    {String? language, NetworkType? network}) {
+import '../enums/input_type.dart';
+
+InputType? getInputType(String input, {String? language}) {
   String defaultLanguage = language ?? 'english';
 
   // Strip any bitcoin prefix
@@ -16,7 +16,7 @@ InputType? getInputType(String input,
     return InputType.mnemonic;
   }
   // Check if valid address
-  else if (validator.validate(input).type.toString().isNotEmpty) {
+  else if (isValidAddress(input)) {
     return InputType.address;
   }
   // Check if valid lnurl
@@ -27,79 +27,31 @@ InputType? getInputType(String input,
   }
 }
 
-substractAddress(String source) {
-  String address;
-
-  // Start with empty list
-  List<AssetAddress> addresses = [];
-
-  // If source is empty or null
-  if (source.isEmpty) {
-    throw ArgumentError('Input is empty');
+bool isValidAddress(String address) {
+  try {
+    btc_address.validate(address);
+    return true;
+  } catch (e) {
+    return false;
   }
-
-  // Matches on spaces
-  RegExp regExpSpaces = RegExp(r' ');
-  bool hasIllegalChars = regExpSpaces.hasMatch(source);
-  if (hasIllegalChars) {
-    throw ArgumentError('Illegal character');
-  }
-
-  // Starts with chain prefix
-  RegExp regExpPrefix = RegExp(r':');
-  bool hasPrefix = regExpPrefix.hasMatch(source);
-
-  if (hasPrefix) {
-    RegExp regex2 = RegExp(r'^(.+):(.+)');
-    var matches2 = regex2.firstMatch(source);
-    String prefix = matches2!.group(1)!.toLowerCase();
-    if (prefix == 'bitcoin') {
-      // Strip prefix
-      address = matches2.group(2)!;
-      addresses = _identifyChain(address, prefix);
-    } else {
-      throw ArgumentError('Unsupported prefix');
-    }
-  } else {
-    address = source;
-    // Identify chain and assets
-    addresses = _identifyChain(address);
-  }
-
-  return addresses;
 }
 
-_identifyChain(String address, [String? prefix]) {
-  List<AssetAddress> _addresses = [];
+// walletDescriptor
+String getAddressName(String address) {
+  btc_address.Address _addressData = btc_address.validate(address);
+  String _description = 'Wallet';
+  String _type = describeEnum(_addressData.type as Enum);
 
-  // Bitcoin Legacy address starts with 1 and has 34 or less characters
-  if (address.startsWith(RegExp(r'(^1[A-z,0-9]{33})', caseSensitive: false))) {
-    _addresses.add(AssetAddress(address, 32, 'mainnet'));
+  if (_addressData.network == btc_address.Network.testnet) {
+    _description = 'Testnet $_description';
   }
-  // Bitcoin & Litecoin Segwit address starts with 3 and has 34 characters
-  else if (address
-      .startsWith(RegExp(r'(^3[A-z,0-9]{33})', caseSensitive: false))) {
-    _addresses.add(AssetAddress(address, 49, 'mainnet'));
-  }
-  // Bitcoin Native-Segwit address starts with bc1 and has 42 characters
-  else if (address
-      .startsWith(RegExp(r'(^bc1[A-z,0-9]{39})', caseSensitive: false))) {
-    _addresses.add(AssetAddress(address, 84, 'mainnet'));
-  }
-  // Bitcoin Native-Segwit testnet address starts with tb1 and has 42 characters
-  else if (address
-      .startsWith(RegExp(r'(^tb1[A-z,0-9]{39})', caseSensitive: false))) {
-    _addresses.add(AssetAddress(address, 84, 'testnet'));
+
+  if (_addressData.segwit) {
+    _description = 'Native Segwit $_description';
   } else {
-    throw ArgumentError('Unsupported chain');
+    _description = 'Legacy $_description';
   }
-  return _addresses;
-}
 
-class AssetAddress {
-  String address;
-  int bip;
-  String networkType;
-
-  AssetAddress(this.address, this.bip, this.networkType);
+  _description = '$_description (${_type.toLowerCase()})';
+  return _description;
 }

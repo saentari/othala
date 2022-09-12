@@ -34,8 +34,10 @@ class _WalletScreenState extends State<WalletScreen> {
   late String keyword;
 
   final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
-  var _format = NumberFormat("0.########", "en_US");
+  final _btcFormat = NumberFormat("0.########", "en_US");
+  var _fiatFormat = NumberFormat.simpleCurrency();
   num _balance = 0.0;
+  num _amount = 0.0;
 
   late Wallet _wallet;
 
@@ -82,23 +84,50 @@ class _WalletScreenState extends State<WalletScreen> {
                           ),
                         ),
                         Positioned(
-                          top: 40.0,
+                          top: 20.0,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.baseline,
                             textBaseline: TextBaseline.alphabetic,
                             children: [
                               Text(
-                                _format.format(_balance),
+                                _wallet.name,
+                                style: const TextStyle(
+                                  color: kWhiteColor,
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          top: 60.0,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text(
+                                '${_btcFormat.format(_amount)} BTC',
                                 style: const TextStyle(
                                   color: kWhiteColor,
                                   fontSize: 32.0,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              const SizedBox(width: 8.0),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          top: 110.0,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
                               Text(
-                                _wallet.defaultCurrency.code,
+                                _fiatFormat.format(_balance),
                                 style: const TextStyle(
                                   color: kWhiteColor,
                                   fontSize: 20.0,
@@ -163,12 +192,10 @@ class _WalletScreenState extends State<WalletScreen> {
     if (walletIndex < box.length) {
       _wallet = box.getAt(walletIndex);
     }
-    num _amount = _wallet.balance.first;
-    _balance = _amount * _wallet.defaultCurrency.priceUsd;
-    if (_wallet.defaultCurrency.code != 'BTC' &&
-        _wallet.defaultCurrency.code != 'SATS') {
-      _format = NumberFormat.simpleCurrency(name: _wallet.defaultCurrency.code);
-    }
+    _fiatFormat =
+        NumberFormat.simpleCurrency(name: _wallet.defaultFiatCurrency.code);
+    _amount = _wallet.balance.first;
+    _balance = _amount * _wallet.defaultFiatCurrency.priceUsd;
   }
 
   List _checkInputOutput(Transaction transaction, String address) {
