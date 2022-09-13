@@ -199,33 +199,42 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   List _checkInputOutput(Transaction transaction, String address) {
-    double _amount = 0.0;
-    String _io = '';
+    bool _sender = false;
+    bool _receiver = false;
+    double _vinAmount = 0.0;
+    double _voutAmount = 0.0;
+    String _recipient = '';
+
     for (Map vin in transaction.from) {
-      if (vin.values.first == address) {
-        // Filter out transactions to self
-        for (Map vout in transaction.to) {
-          _io = address;
-          if (vout.values.first != address) {
-            _amount = _amount - vout.values.elementAt(1);
-            _io = vout.values.elementAt(0);
-          }
-          break;
-        }
-        break;
-      } else {
-        // 100% new deposit to address
-        for (Map vout in transaction.to) {
-          String _address = address;
-          if (vout.values.first == _address) {
-            _amount = _amount + vout.values.elementAt(1);
-            _io = vout.values.elementAt(0);
-          }
-        }
-        break;
+      if (vin.values.elementAt(0) == address) {
+        _sender = true;
+        _vinAmount = _vinAmount + vin.values.elementAt(1);
       }
     }
-    List _ioAmount = [_io, _amount];
+
+    for (Map vout in transaction.to) {
+      if (_sender == false && vout.values.elementAt(0) == address) {
+        _recipient = vout.values.elementAt(0);
+        _voutAmount = vout.values.elementAt(1);
+        break;
+      }
+      // Ignore empty OP_RETURN entries
+      if (vout.values.elementAt(0) != '' &&
+          vout.values.elementAt(0) != address) {
+        _recipient = vout.values.elementAt(0);
+        _voutAmount = _voutAmount - vout.values.elementAt(1);
+      }
+      if (vout.values.elementAt(0) == address) {
+        _receiver = true;
+      }
+    }
+
+    // Use tx outputs of sender instead of tx input of receiver
+    if (_sender == true && _receiver == false) {
+      _voutAmount = 0 - _vinAmount;
+    }
+
+    List _ioAmount = [_recipient, _voutAmount];
     return _ioAmount;
   }
 
