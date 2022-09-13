@@ -206,25 +206,26 @@ class _WalletScreenState extends State<WalletScreen> {
     String _recipient = '';
 
     for (Map vin in transaction.from) {
-      if (vin.values.elementAt(0) == address) {
+      if (vin.values.elementAt(0) == address.toLowerCase()) {
         _sender = true;
         _vinAmount = _vinAmount + vin.values.elementAt(1);
       }
     }
 
     for (Map vout in transaction.to) {
-      if (_sender == false && vout.values.elementAt(0) == address) {
+      if (_sender == false &&
+          vout.values.elementAt(0) == address.toLowerCase()) {
         _recipient = vout.values.elementAt(0);
         _voutAmount = vout.values.elementAt(1);
         break;
       }
       // Ignore empty OP_RETURN entries
       if (vout.values.elementAt(0) != '' &&
-          vout.values.elementAt(0) != address) {
+          vout.values.elementAt(0) != address.toLowerCase()) {
         _recipient = vout.values.elementAt(0);
         _voutAmount = _voutAmount - vout.values.elementAt(1);
       }
-      if (vout.values.elementAt(0) == address) {
+      if (vout.values.elementAt(0) == address.toLowerCase()) {
         _receiver = true;
       }
     }
