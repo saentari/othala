@@ -9,7 +9,7 @@ class Transaction {
   @HiveField(1)
   DateTime transactionBroadcast;
   @HiveField(2)
-  var confirmation;
+  int confirmations;
   @HiveField(3)
   List<Map> from;
   @HiveField(4)
@@ -18,7 +18,7 @@ class Transaction {
   Transaction(
     this.transactionId,
     this.transactionBroadcast,
-    this.confirmation,
+    this.confirmations,
     this.from,
     this.to,
   );

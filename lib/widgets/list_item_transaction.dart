@@ -9,6 +9,7 @@ class ListItemTransaction extends StatelessWidget {
       {Key? key,
       this.value = 0.0,
       this.subtitle = '',
+      this.subtitleValue,
       this.subtitleColor = kDarkNeutral7Color,
       this.icon})
       : super(key: key);
@@ -17,6 +18,7 @@ class ListItemTransaction extends StatelessWidget {
   String subtitle;
   Color subtitleColor;
   double value;
+  var subtitleValue;
   IconData? icon;
 
   String getSubString(String fullString) {
@@ -67,14 +69,30 @@ class ListItemTransaction extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(
-              value.toString(),
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.end,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-              ),
+            flex: 1,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  value.toString(),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  subtitleValue.toString(),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

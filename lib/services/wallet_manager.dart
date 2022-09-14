@@ -145,11 +145,11 @@ class WalletManager extends ValueNotifier<Box> {
     for (var _rawTx in _rawTxs) {
       String _transactionId = _rawTx['txid'];
       DateTime _transactionBroadcast = _rawTx['date'];
-      var _confirmation = _rawTx['confirmed'];
+      int _blockConf = _rawTx['confirmations'];
       List<Map> _from = _rawTx['from'];
       List<Map> _to = _rawTx['to'];
       Transaction _tx = Transaction(
-          _transactionId, _transactionBroadcast, _confirmation, _from, _to);
+          _transactionId, _transactionBroadcast, _blockConf, _from, _to);
       _transactions.add(_tx);
     }
     return _transactions;
@@ -250,11 +250,11 @@ class WalletManager extends ValueNotifier<Box> {
     for (var _rawTx in _rawTxs) {
       String _transactionId = _rawTx['txid'];
       DateTime _transactionBroadcast = _rawTx['date'];
-      var _confirmation = _rawTx['confirmed'];
+      int _blockConf = _rawTx['confirmations'];
       List<Map> _from = _rawTx['from'];
       List<Map> _to = _rawTx['to'];
       Transaction _tx = Transaction(
-          _transactionId, _transactionBroadcast, _confirmation, _from, _to);
+          _transactionId, _transactionBroadcast, _blockConf, _from, _to);
       _transactions.add(_tx);
     }
     _wallet.transactions = _transactions;

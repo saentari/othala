@@ -19,7 +19,7 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
     return Transaction(
       fields[0] as String,
       fields[1] as DateTime,
-      fields[2] as dynamic,
+      fields[2] as int,
       (fields[3] as List)
           .map((dynamic e) => (e as Map).cast<dynamic, dynamic>())
           .toList(),
@@ -38,7 +38,7 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
       ..writeByte(1)
       ..write(obj.transactionBroadcast)
       ..writeByte(2)
-      ..write(obj.confirmation)
+      ..write(obj.confirmations)
       ..writeByte(3)
       ..write(obj.from)
       ..writeByte(4)

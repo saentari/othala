@@ -156,10 +156,19 @@ class _WalletScreenState extends State<WalletScreen> {
                               _wallet.address.first);
                           _address = _ioAmount.elementAt(0);
                           _amount = _ioAmount.elementAt(1);
+                          String _confirmations = '';
+                          int _blockConf =
+                              _wallet.transactions[index].confirmations;
+                          if (_blockConf == 0) {
+                            _confirmations = 'pending';
+                          } else if (_blockConf < 6) {
+                            _confirmations = '$_blockConf conf.';
+                          }
                           return ListItemTransaction(
                             _address,
                             subtitle: _formattedDateTime,
                             value: _amount,
+                            subtitleValue: _confirmations,
                           );
                         },
                       ),
@@ -206,7 +215,8 @@ class _WalletScreenState extends State<WalletScreen> {
     String _recipient = '';
 
     for (Map vin in transaction.from) {
-      if (vin.values.elementAt(0) == address.toLowerCase()) {
+      if (vin.values.elementAt(0).toString().toLowerCase() ==
+          address.toLowerCase()) {
         _sender = true;
         _vinAmount = _vinAmount + vin.values.elementAt(1);
       }
@@ -214,19 +224,18 @@ class _WalletScreenState extends State<WalletScreen> {
 
     for (Map vout in transaction.to) {
       if (_sender == false &&
-          vout.values.elementAt(0) == address.toLowerCase()) {
+          vout.values.elementAt(0).toString().toLowerCase() ==
+              address.toLowerCase()) {
         _recipient = vout.values.elementAt(0);
         _voutAmount = vout.values.elementAt(1);
         break;
       }
       // Ignore empty OP_RETURN entries
       if (vout.values.elementAt(0) != '' &&
-          vout.values.elementAt(0) != address.toLowerCase()) {
+          vout.values.elementAt(0).toString().toLowerCase() !=
+              address.toLowerCase()) {
         _recipient = vout.values.elementAt(0);
         _voutAmount = _voutAmount - vout.values.elementAt(1);
-      }
-      if (vout.values.elementAt(0) == address.toLowerCase()) {
-        _receiver = true;
       }
     }
 
