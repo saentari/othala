@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
+import '../constants.dart';
+import '../models/currency.dart';
 import '../models/transaction.dart';
 import '../models/unsplash_image.dart';
 import '../models/wallet.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
+import '../utils/utils.dart';
 import '../widgets/flat_button.dart';
 import '../widgets/list_divider.dart';
 import '../widgets/list_item_transaction.dart';
@@ -34,8 +37,6 @@ class _WalletScreenState extends State<WalletScreen> {
   late String keyword;
 
   final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
-  final _btcFormat = NumberFormat("0.########", "en_US");
-  var _fiatFormat = NumberFormat.simpleCurrency();
   num _balance = 0.0;
   num _amount = 0.0;
 
@@ -109,7 +110,11 @@ class _WalletScreenState extends State<WalletScreen> {
                             textBaseline: TextBaseline.alphabetic,
                             children: [
                               Text(
-                                '${_btcFormat.format(_amount)} BTC',
+                                getNumberFormat(
+                                    currency: Currency('BTC'),
+                                    amount: _amount,
+                                    decimalDigits: 8,
+                                    symbol: unicodeBitcoin),
                                 style: const TextStyle(
                                   color: kWhiteColor,
                                   fontSize: 32.0,
@@ -127,7 +132,9 @@ class _WalletScreenState extends State<WalletScreen> {
                             textBaseline: TextBaseline.alphabetic,
                             children: [
                               Text(
-                                _fiatFormat.format(_balance),
+                                getNumberFormat(
+                                    currency: _wallet.defaultFiatCurrency,
+                                    amount: _balance),
                                 style: const TextStyle(
                                   color: kWhiteColor,
                                   fontSize: 20.0,
@@ -201,8 +208,6 @@ class _WalletScreenState extends State<WalletScreen> {
     if (walletIndex < box.length) {
       _wallet = box.getAt(walletIndex);
     }
-    _fiatFormat =
-        NumberFormat.simpleCurrency(name: _wallet.defaultFiatCurrency.code);
     _amount = _wallet.balance.first;
     _balance = _amount * _wallet.defaultFiatCurrency.priceUsd;
   }
@@ -236,6 +241,8 @@ class _WalletScreenState extends State<WalletScreen> {
               address.toLowerCase()) {
         _recipient = vout.values.elementAt(0);
         _voutAmount = _voutAmount - vout.values.elementAt(1);
+      } else {
+        _receiver = true;
       }
     }
 

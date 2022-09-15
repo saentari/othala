@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 
 import '../models/currency.dart';
 import '../models/wallet.dart';
@@ -10,6 +9,7 @@ import '../screens/receive_payment_screen.dart';
 import '../screens/send_payment_screen.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
+import '../utils/utils.dart';
 import '../widgets/flat_button.dart';
 
 class WalletCard extends StatefulWidget {
@@ -25,7 +25,6 @@ class _WalletCardState extends State<WalletCard> {
   final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
   final Currency _bitcoin = Currency('BTC', priceUsd: 1.0);
   final Currency _satoshi = Currency('SATS', priceUsd: 100000000.0);
-  var _format = NumberFormat("0.########", "en_US");
   num _balance = 0.0;
 
   late Currency _defaultCurrency;
@@ -81,7 +80,9 @@ class _WalletCardState extends State<WalletCard> {
                                 textBaseline: TextBaseline.alphabetic,
                                 children: [
                                   Text(
-                                    _format.format(_balance),
+                                    getNumberFormat(
+                                        currency: _defaultCurrency,
+                                        amount: _balance),
                                     style: const TextStyle(
                                       color: kWhiteColor,
                                       fontSize: 40.0,
@@ -161,9 +162,6 @@ class _WalletCardState extends State<WalletCard> {
     _defaultFiatCurrency = _wallet.defaultFiatCurrency;
     // use stored price
     _balance = _amount * _defaultCurrency.priceUsd;
-    if (_defaultCurrency.code != 'BTC' && _defaultCurrency.code != 'SATS') {
-      _format = NumberFormat.simpleCurrency(name: _defaultCurrency.code);
-    }
   }
 
   _showImage() {
@@ -194,14 +192,11 @@ class _WalletCardState extends State<WalletCard> {
   _updateCurrency(Currency newCurrency) async {
     if (newCurrency.code == _bitcoin.code) {
       _defaultCurrency = _bitcoin;
-      _format = NumberFormat("0.########", "en_US");
     } else if (newCurrency.code == _satoshi.code) {
       _defaultCurrency = _satoshi;
-      _format = NumberFormat("0.########", "en_US");
     } else {
       // if newCurrency is not bitcoin or satoshi, then fiat.
       _defaultCurrency = newCurrency;
-      _format = NumberFormat.simpleCurrency(name: _defaultCurrency.code);
     }
     _walletManager.setDefaultCurrency(widget.walletIndex, _defaultCurrency);
   }

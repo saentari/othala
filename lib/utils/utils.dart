@@ -2,8 +2,36 @@ import 'package:bip39/bip39.dart';
 import 'package:btc_address_validate/btc_address_validate.dart' as btc_address;
 import 'package:dart_lnurl/dart_lnurl.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 import '../enums/input_type.dart';
+import '../models/currency.dart';
+
+String getNumberFormat(
+    {required Currency currency,
+    required num amount,
+    String symbol = "",
+    int decimalDigits = 2}) {
+  NumberFormat numberFormat;
+
+  if (currency.code == 'BTC') {
+    amount == 0 ? decimalDigits = 0 : decimalDigits = 5;
+    numberFormat = NumberFormat.currency(
+        locale: "en_US", symbol: symbol, decimalDigits: decimalDigits);
+  } else if (currency.code == 'SATS') {
+    numberFormat = NumberFormat.currency(symbol: "", decimalDigits: 0);
+    return numberFormat.format(amount).replaceAll(',', ' ');
+  } else {
+    if (amount > 10000 || amount < -10000) {
+      decimalDigits = 0;
+    }
+    numberFormat = NumberFormat.currency(
+        symbol: currency.symbol,
+        locale: currency.locale != '' ? currency.locale : 'en_US',
+        decimalDigits: decimalDigits);
+  }
+  return numberFormat.format(amount);
+}
 
 InputType? getInputType(String input, {String? language}) {
   String defaultLanguage = language ?? 'english';
