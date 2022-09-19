@@ -256,8 +256,11 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Future<void> _getTransactions(int index) async {
-    await _walletManager.updateBalance(index);
-    await _walletManager.updateTransactions(index);
+    bool isSynced = await _walletManager.isSynced(index);
+    if (isSynced == false) {
+      await _walletManager.updateBalance(index);
+      await _walletManager.updateTransactions(index);
+    }
   }
 
   _showImage(String path) {

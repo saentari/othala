@@ -201,6 +201,14 @@ class BitcoinClient {
     return _txData;
   }
 
+  getTransactionAddressStats(address) async {
+    // Returns mempool and chain transaction stats
+    String _addressUri = '${getExplorerAddressUrl(address)}';
+    String _addrResponseBody = await _networkHelper.getData(_addressUri);
+
+    return jsonDecode(_addrResponseBody);
+  }
+
   getTransactions(address, [limit]) async {
     // Current block
     String _blockHeightUri = '${getExplorerUrl()}/blocks/tip/height';

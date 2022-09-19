@@ -51,7 +51,8 @@ class WalletManager extends ValueNotifier<Box> {
   }
 
   /// Secure store wallet
-  encryptToKeyStore({String? mnemonic, String? address}) async {
+  encryptToKeyStore(
+      {String? mnemonic, String? address, bool generated = false}) async {
     String _key = UniqueKey().toString();
     String _secureData;
 
@@ -75,12 +76,15 @@ class WalletManager extends ValueNotifier<Box> {
     // Secure storage
     _storageService.writeSecureData(SecureItem(_key, _secureData));
 
-    num _balance = await getBalance(_bitcoinClient.address);
-    List<Transaction> _transactions =
-        await getTransactions(_bitcoinClient.address, _network);
+    num _balance = 0;
+    List<Transaction> _transactions = [];
+    // Retrieve balance and transactions when imported
+    if (generated == false) {
+      _balance = await getBalance(_bitcoinClient.address);
+      _transactions = await getTransactions(_bitcoinClient.address, _network);
+    }
 
-    var _walletBox = Hive.box('walletBox');
-
+    // Random background image
     UnsplashImage _imageData = await _loadRandomImage(keyword: 'nature');
     String _imageId = _imageData.getId();
     String _localPath = await _downloadFile(_imageData.getRegularUrl());
@@ -92,6 +96,8 @@ class WalletManager extends ValueNotifier<Box> {
 
     String _walletName = getAddressName(address);
 
+    // Store in Hive Box
+    var _walletBox = Hive.box('walletBox');
     _walletBox.add(Wallet(
         _key,
         _walletName,
@@ -105,8 +111,31 @@ class WalletManager extends ValueNotifier<Box> {
         _defaultFiatCurrency,
         _defaultCurrency));
 
-    // get bitcoin price in USD
-    updateFiatPrices();
+    // Get BTC/USD price for imported wallet
+    if (generated == false) {
+      updateFiatPrices();
+    }
+  }
+
+  /// Check if there are missing transactions
+  Future<bool> isSynced(index) async {
+    Wallet _wallet = value.getAt(index);
+    BitcoinClient _bitcoinClient = BitcoinClient.readonly(_wallet.address[0]);
+    if (_wallet.network == 'testnet') {
+      _bitcoinClient.setNetwork(bitcoin.testnet);
+    }
+
+    var _stats =
+        await _bitcoinClient.getTransactionAddressStats(_bitcoinClient.address);
+
+    int _blockExplorerTx =
+        _stats['chain_stats']['tx_count'] + _stats['mempool_stats']['tx_count'];
+    int _walletBoxTx = _wallet.transactions.length;
+
+    if (_blockExplorerTx == _walletBoxTx) {
+      return true;
+    }
+    return false;
   }
 
   /// Retrieve wallet balance.
@@ -229,14 +258,22 @@ class WalletManager extends ValueNotifier<Box> {
   }
 
   updateFiatPrices() async {
+    // Avoids fetching duplicate prices
     var _walletBox = Hive.box('walletBox');
+    Map _prices = {};
     for (int index = 0; index < _walletBox.length; index++) {
       Wallet _wallet = value.getAt(index);
-      _wallet.defaultFiatCurrency.priceUsd =
-          await _exchangeManager.getPrice(_wallet.defaultFiatCurrency.code);
+      String _code = _wallet.defaultFiatCurrency.code;
+      if (_prices.keys.contains(_code)) {
+        _wallet.defaultFiatCurrency.priceUsd = _prices[_code];
+      } else {
+        double _price =
+            await _exchangeManager.getPrice(_wallet.defaultFiatCurrency.code);
+        _wallet.defaultFiatCurrency.priceUsd = _price;
+        _prices.putIfAbsent(_code, () => _price);
+      }
       value.putAt(index, _wallet);
     }
-    print('retrieved market prices!');
   }
 
   Future<void> updateTransactions(index) async {
