@@ -53,6 +53,21 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                       onTap: () {
                         Navigator.pushNamed(
                           context,
+                          '/wallet_name_screen',
+                          arguments: _walletIndex,
+                        );
+                      },
+                      child: ListItem(
+                        'Wallet name',
+                        subtitle: _wallet.name,
+                        chevron: true,
+                      ),
+                    ),
+                    const ListDivider(),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
                           '/wallet_currency_screen',
                           arguments: _walletIndex,
                         );
@@ -120,7 +135,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                               Navigator.pop(context);
                             },
                             child: const CustomFlatButton(
-                              textLabel: 'Cancel',
+                              textLabel: 'Close',
                               buttonColor: kDarkBackgroundColor,
                               fontColor: kWhiteColor,
                             ),

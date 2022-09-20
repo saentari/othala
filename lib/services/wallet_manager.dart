@@ -194,6 +194,14 @@ class WalletManager extends ValueNotifier<Box> {
     }
   }
 
+  setWalletValue(int walletIndex, {String? name}) {
+    Wallet _wallet = value.getAt(walletIndex);
+    if (name != null) {
+      _wallet.name = name;
+    }
+    value.putAt(walletIndex, _wallet);
+  }
+
   setDefaultCurrency(int walletIndex, Currency currency) {
     Wallet _wallet = value.getAt(walletIndex);
     _wallet.defaultCurrency = currency;
