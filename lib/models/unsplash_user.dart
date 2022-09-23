@@ -1,6 +1,6 @@
 /// Model for Unsplash User
 class UnsplashUser {
-  var data;
+  var data = {};
 
   UnsplashUser(this.data);
 

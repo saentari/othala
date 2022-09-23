@@ -1,6 +1,6 @@
 enum Network {
-  TESTNET,
-  BITCOIN,
-  REGTEST,
-  SIGNET,
+  testnet,
+  bitcoin,
+  regtest,
+  signet,
 }

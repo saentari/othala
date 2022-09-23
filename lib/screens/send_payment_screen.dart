@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:othala/enums/bitcoin_unit_enum.dart';
-import 'package:othala/screens/send_payment_address_screen.dart';
-import 'package:othala/screens/send_payment_amount_screen.dart';
 
+import '../enums/bitcoin_unit_enum.dart';
 import '../models/wallet.dart';
+import '../screens/send_payment_address_screen.dart';
+import '../screens/send_payment_amount_screen.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 
@@ -25,7 +24,7 @@ class _SendPaymentScreenState extends State<SendPaymentScreen> {
   // String _recipientAmount = '';
   String _recipientAddress = 'tb1q669kqq0ykrzgx337w3sj0kdf6zcuznvff34z85';
   String _recipientAmount = '0.0001';
-  String _unit = BitcoinUnit.btc.toShortString();
+  final String _unit = BitcoinUnit.btc.toShortString();
   late Wallet _wallet;
 
   @override
@@ -191,7 +190,6 @@ class _SendPaymentScreenState extends State<SendPaymentScreen> {
   }
 
   _sendPayment() {
-    print('sending...');
     Navigator.pushReplacementNamed(
         context, '/send_payment_confirmation_screen');
   }

@@ -1,6 +1,6 @@
 /// Model for image location.
 class Location {
-  var data;
+  var data = {};
 
   Location(this.data);
 

@@ -76,19 +76,6 @@ class _WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
     );
   }
 
-  /// Resets the state to the initial state.
-  _resetImages() {
-    // clear image list
-    _images = [];
-    // reset page counter
-    page = 0;
-    totalPages = -1;
-    // reset keyword
-    keyword = null;
-    // show regular images
-    _loadImages(keyword: 'nature');
-  }
-
   /// Requests a list of [UnsplashImage] for a given [keyword].
   /// If the given [keyword] is null, trending images are loaded.
   _loadImages({String? keyword}) async {

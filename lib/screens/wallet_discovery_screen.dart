@@ -1,9 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
-import 'package:othala/enums/input_type.dart';
 
+import '../enums/input_type.dart';
 import '../services/bitcoin_client.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
@@ -23,8 +22,8 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
 
   bool _confirmed = false;
   String _walletName = 'Unknown wallet';
-  List<String> _address = [''];
-  List<String> _amount = ['0 BTC'];
+  final List<String> _address = [''];
+  final List<String> _amount = ['0 BTC'];
   late String _mnemonic;
   late InputType _inputType;
 

@@ -5,21 +5,21 @@ import '../themes/theme_data.dart';
 
 class ListItemTransaction extends StatelessWidget {
   // default value is empty, unless argument is set.
-  ListItemTransaction(this.title,
+  const ListItemTransaction(this.title,
       {Key? key,
       this.value = 0.0,
       this.subtitle = '',
-      this.subtitleValue,
+      this.subtitleValue = '',
       this.subtitleColor = kDarkNeutral7Color,
       this.icon})
       : super(key: key);
 
   final String title;
-  String subtitle;
-  Color subtitleColor;
-  double value;
-  var subtitleValue;
-  IconData? icon;
+  final String subtitle;
+  final Color subtitleColor;
+  final double value;
+  final String subtitleValue;
+  final IconData? icon;
 
   String getSubString(String fullString) {
     String subString = fullString;

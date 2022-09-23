@@ -4,7 +4,7 @@ import '../themes/theme_data.dart';
 
 class ListItem extends StatelessWidget {
   // default value is empty, unless argument is set.
-  ListItem(this.title,
+  const ListItem(this.title,
       {Key? key,
       this.value = '',
       this.subtitle = '',
@@ -14,11 +14,11 @@ class ListItem extends StatelessWidget {
       : super(key: key);
 
   final String title;
-  String subtitle;
-  Color subtitleColor;
-  String value;
-  bool chevron;
-  IconData? icon;
+  final String subtitle;
+  final Color subtitleColor;
+  final String value;
+  final bool chevron;
+  final IconData? icon;
 
   String getSubString(String fullString) {
     String subtitleShort = fullString;

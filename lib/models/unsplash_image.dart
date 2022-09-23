@@ -5,7 +5,7 @@ import 'unsplash_user.dart';
 
 /// Model for Unsplash Image
 class UnsplashImage {
-  var data;
+  var data = {};
 
   UnsplashImage(this.data);
 
@@ -110,7 +110,7 @@ class UnsplashImage {
 
 /// Model for the exif data of an image.
 class Exif {
-  var data;
+  var data = {};
 
   Exif(this.data);
 

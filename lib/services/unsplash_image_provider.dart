@@ -69,7 +69,7 @@ class UnsplashImageProvider {
     // setup http request
     HttpClientRequest request = await httpClient.getUrl(Uri.parse(url));
     // pass the client_id in the header
-    request.headers.add('Authorization', 'Client-ID ${Keys.UNSPLASH_API_KEY}');
+    request.headers.add('Authorization', 'Client-ID ${Keys.unsplashApiKey}');
     // wait for response
     HttpClientResponse response = await request.close();
     // Process the response
@@ -80,8 +80,6 @@ class UnsplashImageProvider {
       // return decoded json
       return jsonDecode(json);
     } else {
-      // something went wrong :(
-      print("Http error: ${response.statusCode}");
       // return empty list
       return [];
     }

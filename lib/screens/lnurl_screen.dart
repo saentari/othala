@@ -99,7 +99,6 @@ class _LnurlScreenState extends State<LnurlScreen> {
   }
 
   _authenticate(lnurlAuth) {
-    print('authenticating...');
     Navigator.pushNamed(context, '/lnurl_confirmation_screen',
         arguments: lnurlAuth.domain);
   }

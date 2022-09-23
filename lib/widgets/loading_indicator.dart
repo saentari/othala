@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class LoadingIndicator extends StatelessWidget {
   final Color color;
 
-  const LoadingIndicator(this.color);
+  const LoadingIndicator(this.color, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Center(

@@ -46,7 +46,7 @@ class _WalletImportScreenState extends State<WalletImportScreen> {
                 onTap: () {
                   Navigator.pushNamed(context, '/camera_screen');
                 },
-                child: ListItem(
+                child: const ListItem(
                   'Scan QR code',
                   subtitle: 'Use the camera to scan a QR code.',
                   chevron: true,
@@ -57,7 +57,7 @@ class _WalletImportScreenState extends State<WalletImportScreen> {
                 onTap: () {
                   Navigator.pushNamed(context, '/import_phrase_screen');
                 },
-                child: ListItem(
+                child: const ListItem(
                   'Enter recovery phrase',
                   subtitle: 'A combination of 12 to 24 words.',
                   chevron: true,
@@ -68,7 +68,7 @@ class _WalletImportScreenState extends State<WalletImportScreen> {
                 onTap: () {
                   Navigator.pushNamed(context, '/import_address_screen');
                 },
-                child: ListItem(
+                child: const ListItem(
                   'Enter wallet address',
                   subtitle: 'For importing a watch-only wallet',
                   chevron: true,

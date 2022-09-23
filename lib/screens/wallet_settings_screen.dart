@@ -42,12 +42,10 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                 ),
                 child: Column(
                   children: [
-                    Container(
-                      child: SvgPicture.asset(
-                        'assets/icons/logo.svg',
-                        color: kYellowColor,
-                        height: 40.0,
-                      ),
+                    SvgPicture.asset(
+                      'assets/icons/logo.svg',
+                      color: kYellowColor,
+                      height: 40.0,
                     ),
                     GestureDetector(
                       onTap: () {
@@ -87,7 +85,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                           arguments: _walletIndex,
                         );
                       },
-                      child: ListItem(
+                      child: const ListItem(
                         'Background image',
                         subtitle: 'Select a new background image',
                         chevron: true,
@@ -98,7 +96,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                       onTap: () {
                         _showDialog(_walletIndex);
                       },
-                      child: ListItem(
+                      child: const ListItem(
                         'Delete wallet',
                         subtitle: 'Warning: may cause loss of funds',
                         subtitleColor: kRedColor,

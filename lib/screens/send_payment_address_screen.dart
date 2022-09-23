@@ -7,9 +7,10 @@ import '../utils/utils.dart';
 import '../widgets/flat_button.dart';
 
 class SendPaymentAddressScreen extends StatefulWidget {
-  SendPaymentAddressScreen(this.recipientAddress, {Key? key}) : super(key: key);
+  const SendPaymentAddressScreen(this.recipientAddress, {Key? key})
+      : super(key: key);
 
-  String recipientAddress;
+  final String recipientAddress;
 
   @override
   _SendPaymentAddressScreenState createState() =>

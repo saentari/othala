@@ -5,11 +5,12 @@ import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 
 class SendPaymentAmountScreen extends StatefulWidget {
-  SendPaymentAmountScreen(this.recipientAmount, this.maxBalance, {Key? key})
+  const SendPaymentAmountScreen(this.recipientAmount, this.maxBalance,
+      {Key? key})
       : super(key: key);
 
-  String recipientAmount;
-  num maxBalance;
+  final String recipientAmount;
+  final num maxBalance;
 
   @override
   _SendPaymentAmountScreenState createState() =>

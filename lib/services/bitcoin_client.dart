@@ -26,7 +26,7 @@ class BitcoinClient {
 
   BitcoinClient.readonly(this.address) {
     readOnlyClient = true;
-    address = this.address;
+    address = address;
   }
 
   getAddress(walletIndex) {
@@ -34,7 +34,7 @@ class BitcoinClient {
       throw ('index must be greater than zero');
     }
 
-    final address;
+    final String? address;
     final seedUint8List = bip39.mnemonicToSeed(seed);
     final root = bip32.BIP32.fromSeed(seedUint8List);
 
