@@ -92,15 +92,23 @@ class BitcoinClient {
     }
   }
 
-  getFees(params) {
-    List fees = [
-      {
-        "type": "byte",
-        "fastest": 300,
-        "fast": 275,
-        "average": 250,
-      }
-    ];
+  getFees() async {
+    String _uri = 'https://app.bitgo.com/api/v2/btc/tx/fee';
+    String _responseBody = await _networkHelper.getData(_uri);
+    Map _rawFeesPerKb = jsonDecode(_responseBody);
+    Map _feeByBlockTarget = _rawFeesPerKb['feeByBlockTarget'];
+
+    int _fastest = _rawFeesPerKb['feePerKb'];
+    int _slow = _feeByBlockTarget['6'] ?? _fastest;
+    int _average = _feeByBlockTarget['3'] ?? ((_fastest + _slow) / 2).ceil();
+    int _fast = _feeByBlockTarget['2'] ?? ((_fastest + _average) / 2).ceil();
+
+    Map fees = {
+      "type": "kilobyte",
+      "fastest": _fastest,
+      "fast": _fast,
+      "average": _average,
+    };
     return fees;
   }
 
