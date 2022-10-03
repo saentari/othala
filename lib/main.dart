@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:othala/screens/lnurl_error_screen.dart';
 
 import '../models/currency.dart';
 import '../models/transaction.dart';
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
         '/import_phrase_screen': (context) => const ImportPhraseScreen(),
         '/lnurl_confirmation_screen': (context) =>
             const LnUrlConfirmationScreen(),
+        '/lnurl_error_screen': (context) => const LnUrlErrorScreen(),
         '/lnurl_screen': (context) => const LnurlScreen(),
         '/loading_screen': (context) => const LoadingScreen(),
         '/send_payment_confirmation_screen': (context) =>

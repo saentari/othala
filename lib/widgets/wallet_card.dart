@@ -58,47 +58,51 @@ class _WalletCardState extends State<WalletCard> {
                             child: _showImage(),
                           ),
                         ),
-                        Positioned(
-                          top: 48,
-                          child: GestureDetector(
-                            onTap: () => _toggleDefaultCurrency(),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: kBlackColor.withOpacity(0.5),
-                                borderRadius: const BorderRadius.only(
-                                  topRight: Radius.circular(40.0),
-                                  bottomRight: Radius.circular(40.0),
+                        Visibility(
+                          visible: _balance > 0 ? true : false,
+                          child: Positioned(
+                            top: 48,
+                            child: GestureDetector(
+                              onTap: () => _toggleDefaultCurrency(),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: kBlackColor.withOpacity(0.5),
+                                  borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(40.0),
+                                    bottomRight: Radius.circular(40.0),
+                                  ),
                                 ),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8.0,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
-                                textBaseline: TextBaseline.alphabetic,
-                                children: [
-                                  Text(
-                                    getNumberFormat(
-                                        currency: _defaultCurrency,
-                                        amount: _balance),
-                                    style: const TextStyle(
-                                      color: kWhiteColor,
-                                      fontSize: 40.0,
-                                      fontWeight: FontWeight.w600,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8.0,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: [
+                                    Text(
+                                      getNumberFormat(
+                                          currency: _defaultCurrency,
+                                          amount: _balance),
+                                      style: const TextStyle(
+                                        color: kWhiteColor,
+                                        fontSize: 40.0,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8.0),
-                                  Text(
-                                    _wallet.defaultCurrency.code,
-                                    style: const TextStyle(
-                                      color: kWhiteColor,
-                                      fontSize: 24.0,
-                                      fontWeight: FontWeight.w600,
+                                    const SizedBox(width: 8.0),
+                                    Text(
+                                      _wallet.defaultCurrency.code,
+                                      style: const TextStyle(
+                                        color: kWhiteColor,
+                                        fontSize: 24.0,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),

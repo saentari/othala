@@ -116,15 +116,15 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   _identifyInput(input) async {
-    InputType? _inputType = getInputType(input);
+    InputType? inputType = getInputType(input);
 
-    if (_inputType == InputType.lnurl) {
+    if (inputType == InputType.lnurl) {
       final lnurlAuth = await getParams(input);
       if (lnurlAuth.authParams != null) {
         Navigator.pushNamed(
           context,
           '/lnurl_screen',
-          arguments: lnurlAuth.authParams,
+          arguments: input,
         );
       } else {
         Navigator.pushReplacementNamed(
@@ -133,14 +133,14 @@ class _CameraScreenState extends State<CameraScreen> {
           arguments: input,
         );
       }
-    } else if (_inputType == InputType.address) {
+    } else if (inputType == InputType.address) {
       // Strip any bitcoin prefix
       input = input.replaceFirst(RegExp(r'bitcoin:', caseSensitive: false), '');
       Navigator.pushNamed(context, '/wallet_discovery_screen',
-          arguments: [_inputType, input]);
-    } else if (_inputType == InputType.mnemonic) {
+          arguments: [inputType, input]);
+    } else if (inputType == InputType.mnemonic) {
       Navigator.pushNamed(context, '/wallet_discovery_screen',
-          arguments: [_inputType, input]);
+          arguments: [inputType, input]);
     } else {
       Navigator.pushReplacementNamed(
         context,

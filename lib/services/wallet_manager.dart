@@ -194,6 +194,17 @@ class WalletManager extends ValueNotifier<Box> {
     }
   }
 
+  /// Returns a list of wallets (of a certain type)
+  getWallets(List<String> walletTypes) {
+    List<Wallet> wallets = [];
+    for (Wallet wallet in value.values) {
+      if (walletTypes.contains(wallet.type)) {
+        wallets.add(wallet);
+      }
+    }
+    return wallets;
+  }
+
   setWalletValue(int walletIndex, {String? name}) {
     Wallet _wallet = value.getAt(walletIndex);
     if (name != null) {

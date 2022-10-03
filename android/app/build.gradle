@@ -26,9 +26,9 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    // qr_code_scanner: ^1.0.0 requires compileSdkVersion 32.
+    // flutter_secure_storage: ^6.0.0 requires compileSdkVersion 33.
     //    compileSdkVersion flutter.compileSdkVersion
-    compileSdkVersion 32
+    compileSdkVersion 33
 
 
     compileOptions {
