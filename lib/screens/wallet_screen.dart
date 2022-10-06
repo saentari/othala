@@ -20,10 +20,10 @@ class WalletScreen extends StatefulWidget {
   const WalletScreen({Key? key}) : super(key: key);
 
   @override
-  _WalletScreenState createState() => _WalletScreenState();
+  WalletScreenState createState() => WalletScreenState();
 }
 
-class _WalletScreenState extends State<WalletScreen> {
+class WalletScreenState extends State<WalletScreen> {
   /// Stores the current page index for the api requests.
   int page = 0, totalPages = -1;
 
@@ -44,13 +44,13 @@ class _WalletScreenState extends State<WalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final _walletIndex = ModalRoute.of(context)!.settings.arguments as int;
-    _getTransactions(_walletIndex);
+    final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    _getTransactions(walletIndex);
     return SafeArea(
       child: ValueListenableBuilder(
           valueListenable: Hive.box('walletBox').listenable(),
           builder: (context, Box box, widget2) {
-            _updateValues(box, _walletIndex);
+            _updateValues(box, walletIndex);
             return Scaffold(
               body: Container(
                 padding: const EdgeInsets.only(
@@ -78,7 +78,7 @@ class _WalletScreenState extends State<WalletScreen> {
                               Navigator.pushNamed(
                                 context,
                                 '/wallet_settings_screen',
-                                arguments: _walletIndex,
+                                arguments: walletIndex,
                               );
                             },
                             icon: const Icon(Icons.more_vert),
@@ -153,29 +153,29 @@ class _WalletScreenState extends State<WalletScreen> {
                             const ListDivider(),
                         itemCount: _wallet.transactions.length,
                         itemBuilder: (BuildContext context, int index) {
-                          String _formattedDateTime =
+                          String formattedDateTime =
                               DateFormat('yyyy-MM-dd kk:mm').format(_wallet
                                   .transactions[index].transactionBroadcast);
-                          double _amount = 0.0;
-                          String _address = '';
-                          List _ioAmount = _checkInputOutput(
+                          double amount = 0.0;
+                          String address = '';
+                          List ioAmount = _checkInputOutput(
                               _wallet.transactions[index],
                               _wallet.address.first);
-                          _address = _ioAmount.elementAt(0);
-                          _amount = _ioAmount.elementAt(1);
-                          String _confirmations = '';
-                          int _blockConf =
+                          address = ioAmount.elementAt(0);
+                          amount = ioAmount.elementAt(1);
+                          String confirmations = '';
+                          int blockConf =
                               _wallet.transactions[index].confirmations;
-                          if (_blockConf == 0) {
-                            _confirmations = 'pending';
-                          } else if (_blockConf < 6) {
-                            _confirmations = '$_blockConf conf.';
+                          if (blockConf == 0) {
+                            confirmations = 'pending';
+                          } else if (blockConf < 6) {
+                            confirmations = '$blockConf conf.';
                           }
                           return ListItemTransaction(
-                            _address,
-                            subtitle: _formattedDateTime,
-                            value: _amount,
-                            subtitleValue: _confirmations,
+                            address,
+                            subtitle: formattedDateTime,
+                            value: amount,
+                            subtitleValue: confirmations,
                           );
                         },
                       ),
@@ -213,46 +213,46 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   List _checkInputOutput(Transaction transaction, String address) {
-    bool _sender = false;
-    bool _receiver = false;
-    double _vinAmount = 0.0;
-    double _voutAmount = 0.0;
-    String _recipient = '';
+    bool sender = false;
+    bool receiver = false;
+    double vinAmount = 0.0;
+    double voutAmount = 0.0;
+    String recipient = '';
 
     for (Map vin in transaction.from) {
       if (vin.values.elementAt(0).toString().toLowerCase() ==
           address.toLowerCase()) {
-        _sender = true;
-        _vinAmount = _vinAmount + vin.values.elementAt(1);
+        sender = true;
+        vinAmount = vinAmount + vin.values.elementAt(1);
       }
     }
 
     for (Map vout in transaction.to) {
-      if (_sender == false &&
+      if (sender == false &&
           vout.values.elementAt(0).toString().toLowerCase() ==
               address.toLowerCase()) {
-        _recipient = vout.values.elementAt(0);
-        _voutAmount = vout.values.elementAt(1);
+        recipient = vout.values.elementAt(0);
+        voutAmount = vout.values.elementAt(1);
         break;
       }
       // Ignore empty OP_RETURN entries
       if (vout.values.elementAt(0) != '' &&
           vout.values.elementAt(0).toString().toLowerCase() !=
               address.toLowerCase()) {
-        _recipient = vout.values.elementAt(0);
-        _voutAmount = _voutAmount - vout.values.elementAt(1);
+        recipient = vout.values.elementAt(0);
+        voutAmount = voutAmount - vout.values.elementAt(1);
       } else {
-        _receiver = true;
+        receiver = true;
       }
     }
 
     // Use tx outputs of sender instead of tx input of receiver
-    if (_sender == true && _receiver == false) {
-      _voutAmount = 0 - _vinAmount;
+    if (sender == true && receiver == false) {
+      voutAmount = 0 - vinAmount;
     }
 
-    List _ioAmount = [_recipient, _voutAmount];
-    return _ioAmount;
+    List ioAmount = [recipient, voutAmount];
+    return ioAmount;
   }
 
   Future<void> _getTransactions(int index) async {

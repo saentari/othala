@@ -22,12 +22,12 @@ class ListItem extends StatelessWidget {
 
   String getSubString(String fullString) {
     String subtitleShort = fullString;
-    int _length = fullString.length;
-    int _nearEnd = _length - 6;
-    if (_length > 40) {
-      String _sub1 = fullString.substring(0, 24);
-      String _sub2 = fullString.substring(_nearEnd, _length);
-      subtitleShort = _sub1 + '...' + _sub2;
+    int length = fullString.length;
+    int nearEnd = length - 6;
+    if (length > 40) {
+      String sub1 = fullString.substring(0, 24);
+      String sub2 = fullString.substring(nearEnd, length);
+      subtitleShort = '$sub1...$sub2';
     }
     return subtitleShort;
   }

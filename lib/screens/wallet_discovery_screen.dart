@@ -14,10 +14,10 @@ class WalletDiscoveryScreen extends StatefulWidget {
   const WalletDiscoveryScreen({Key? key}) : super(key: key);
 
   @override
-  _WalletDiscoveryScreenState createState() => _WalletDiscoveryScreenState();
+  WalletDiscoveryScreenState createState() => WalletDiscoveryScreenState();
 }
 
-class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
+class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
   final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
 
   bool _confirmed = false;
@@ -113,29 +113,30 @@ class _WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
     } else if (_inputType == InputType.mnemonic) {
       await _walletManager.encryptToKeyStore(mnemonic: _mnemonic);
     }
-    int _jumpToPage = _walletManager.value.length - 1;
+    if (!mounted) return;
+    int jumpToPage = _walletManager.value.length - 1;
     Navigator.of(context).pushNamedAndRemoveUntil(
         '/home_screen', (Route<dynamic> route) => false,
-        arguments: _jumpToPage);
+        arguments: jumpToPage);
   }
 
   Future<void> getWalletData(input) async {
     _inputType = input[0];
-    late String _firstAddress;
+    late String firstAddress;
 
     if (_inputType == InputType.mnemonic) {
       _mnemonic = input[1];
-      BitcoinClient _client = BitcoinClient(_mnemonic);
-      _firstAddress = _client.address;
+      BitcoinClient client = BitcoinClient(_mnemonic);
+      firstAddress = client.address;
     } else {
-      _firstAddress = input[1];
+      firstAddress = input[1];
     }
-    _walletName = getAddressName(_firstAddress);
+    _walletName = getAddressName(firstAddress);
 
-    double _doubleAmount = await _walletManager.getBalance(_firstAddress);
+    double doubleAmount = await _walletManager.getBalance(firstAddress);
 
-    _address.insert(0, _firstAddress);
-    _amount.insert(0, '$_doubleAmount BTC');
+    _address.insert(0, firstAddress);
+    _amount.insert(0, '$doubleAmount BTC');
     _confirmed = true;
     setState(() {});
   }

@@ -23,12 +23,12 @@ class ListItemTransaction extends StatelessWidget {
 
   String getSubString(String fullString) {
     String subString = fullString;
-    int _length = fullString.length;
-    int _nearEnd = _length - 6;
-    if (_length > 30) {
-      String _sub1 = fullString.substring(0, 14);
-      String _sub2 = fullString.substring(_nearEnd, _length);
-      subString = _sub1 + '...' + _sub2;
+    int length = fullString.length;
+    int nearEnd = length - 6;
+    if (length > 30) {
+      String sub1 = fullString.substring(0, 14);
+      String sub2 = fullString.substring(nearEnd, length);
+      subString = '$sub1...$sub2';
     }
     return subString;
   }

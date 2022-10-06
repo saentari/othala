@@ -15,10 +15,10 @@ class ReceivePaymentScreen extends StatefulWidget {
   final Wallet wallet;
 
   @override
-  _ReceivePaymentScreenState createState() => _ReceivePaymentScreenState();
+  ReceivePaymentScreenState createState() => ReceivePaymentScreenState();
 }
 
-class _ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
+class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -120,6 +120,7 @@ class _ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
     // clipboard
     ClipboardData data = ClipboardData(text: widget.wallet.address.first);
     await Clipboard.setData(data);
+    if (!mounted) return;
 
     // emoji
     var parser = EmojiParser();

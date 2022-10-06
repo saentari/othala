@@ -12,10 +12,10 @@ class ImportAddressScreen extends StatefulWidget {
   const ImportAddressScreen({Key? key}) : super(key: key);
 
   @override
-  _ImportAddressScreenState createState() => _ImportAddressScreenState();
+  ImportAddressScreenState createState() => ImportAddressScreenState();
 }
 
-class _ImportAddressScreenState extends State<ImportAddressScreen> {
+class ImportAddressScreenState extends State<ImportAddressScreen> {
   late String _address;
 
   bool _confirmed = false;
@@ -134,9 +134,10 @@ class _ImportAddressScreenState extends State<ImportAddressScreen> {
 
   Future<void> _importWallet() async {
     await _walletManager.encryptToKeyStore(address: _address);
-    int _jumpToPage = _walletManager.value.length - 1;
+    if (!mounted) return;
+    int jumpToPage = _walletManager.value.length - 1;
     Navigator.pushReplacementNamed(context, '/home_screen',
-        arguments: _jumpToPage);
+        arguments: jumpToPage);
   }
 
   void _getClipboard() async {

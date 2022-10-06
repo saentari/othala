@@ -15,10 +15,10 @@ class SendPaymentScreen extends StatefulWidget {
   final int walletIndex;
 
   @override
-  _SendPaymentScreenState createState() => _SendPaymentScreenState();
+  SendPaymentScreenState createState() => SendPaymentScreenState();
 }
 
-class _SendPaymentScreenState extends State<SendPaymentScreen> {
+class SendPaymentScreenState extends State<SendPaymentScreen> {
   bool _confirmed = false;
   // String _recipientAddress = '';
   // String _recipientAmount = '';
@@ -178,13 +178,13 @@ class _SendPaymentScreenState extends State<SendPaymentScreen> {
   Future<void> _navigateAndDisplayAmount(BuildContext context) async {
     // Navigator.push returns a Future that completes after calling
     // Navigator.pop on the Selection Screen.
-    num _maxBalance = _wallet.balance.first;
+    num maxBalance = _wallet.balance.first;
     _recipientAmount = await Navigator.push(
       context,
       // Create the SelectionScreen in the next step.
       MaterialPageRoute(
           builder: (context) =>
-              SendPaymentAmountScreen(_recipientAmount, _maxBalance)),
+              SendPaymentAmountScreen(_recipientAmount, maxBalance)),
     );
     setState(() {});
   }

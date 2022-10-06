@@ -155,17 +155,17 @@ class _WalletCardState extends State<WalletCard> {
   }
 
   void _updateValues(Box<dynamic> box) {
-    num _amount = 0;
+    num amount = 0;
     if (widget.walletIndex < box.length) {
       _wallet = box.getAt(widget.walletIndex);
     }
     if (_wallet.balance.isNotEmpty) {
-      _amount = _wallet.balance.first;
+      amount = _wallet.balance.first;
     }
     _defaultCurrency = _wallet.defaultCurrency;
     _defaultFiatCurrency = _wallet.defaultFiatCurrency;
     // use stored price
-    _balance = _amount * _defaultCurrency.priceUsd;
+    _balance = amount * _defaultCurrency.priceUsd;
   }
 
   _showImage() {

@@ -8,10 +8,10 @@ class CameraErrorScreen extends StatefulWidget {
   const CameraErrorScreen({Key? key}) : super(key: key);
 
   @override
-  _CameraErrorScreenState createState() => _CameraErrorScreenState();
+  CameraErrorScreenState createState() => CameraErrorScreenState();
 }
 
-class _CameraErrorScreenState extends State<CameraErrorScreen> {
+class CameraErrorScreenState extends State<CameraErrorScreen> {
   @override
   Widget build(BuildContext context) {
     final res = ModalRoute.of(context)!.settings.arguments;

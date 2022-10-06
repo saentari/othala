@@ -13,11 +13,11 @@ class SendPaymentAddressScreen extends StatefulWidget {
   final String recipientAddress;
 
   @override
-  _SendPaymentAddressScreenState createState() =>
-      _SendPaymentAddressScreenState();
+  SendPaymentAddressScreenState createState() =>
+      SendPaymentAddressScreenState();
 }
 
-class _SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
+class SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
   late String _address;
   bool _confirmed = false;
 

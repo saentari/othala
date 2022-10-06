@@ -14,15 +14,11 @@ import '../widgets/loading_indicator.dart';
 class WalletBackgroundScreen extends StatefulWidget {
   const WalletBackgroundScreen({Key? key}) : super(key: key);
 
-  // const WalletBackgroundScreen(this.walletIndex, {Key? key}) : super(key: key);
-  //
-  // final int walletIndex;
-
   @override
-  _WalletBackgroundScreenState createState() => _WalletBackgroundScreenState();
+  WalletBackgroundScreenState createState() => WalletBackgroundScreenState();
 }
 
-class _WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
+class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   late Wallet _wallet;
 
   /// Stores the current page index for the api requests.
@@ -46,13 +42,13 @@ class _WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final _walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
     return SafeArea(
       child: ValueListenableBuilder(
           valueListenable: Hive.box('walletBox').listenable(),
           builder: (context, Box box, widget2) {
-            if (_walletIndex < box.length) {
-              _wallet = box.getAt(_walletIndex);
+            if (walletIndex < box.length) {
+              _wallet = box.getAt(walletIndex);
             }
             return Scaffold(
               body: OrientationBuilder(
@@ -62,7 +58,7 @@ class _WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
                     _buildSearchAppBar(),
 
                     //Grid view with all the images
-                    _buildImageGrid(_walletIndex, orientation: orientation),
+                    _buildImageGrid(walletIndex, orientation: orientation),
 
                     // loading indicator at the bottom of the list
                     const SliverToBoxAdapter(
@@ -176,11 +172,11 @@ class _WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
       future: _loadImage(imageIndex),
       builder: (context, snapshot) {
         // image loaded return [_ImageTile]
-        UnsplashImage? _image;
+        UnsplashImage? image;
         if (snapshot.data != null) {
-          _image = snapshot.data as UnsplashImage;
+          image = snapshot.data as UnsplashImage;
         }
-        return ImageTile(_image, _wallet.imageId, walletIndex);
+        return ImageTile(image, _wallet.imageId, walletIndex);
       },
     );
   }

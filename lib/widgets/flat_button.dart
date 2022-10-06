@@ -21,15 +21,15 @@ class CustomFlatButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double _opacity = 1.0;
-    enabled == false ? _opacity = 0.2 : _opacity = 1.0;
+    double opacity = 1.0;
+    enabled == false ? opacity = 0.2 : opacity = 1.0;
 
     return Container(
       height: 56,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         border: Border.all(color: borderColor),
-        color: buttonColor.withOpacity(_opacity),
+        color: buttonColor.withOpacity(opacity),
       ),
       child: Text(
         textLabel,

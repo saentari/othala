@@ -12,10 +12,10 @@ class ImportPhraseScreen extends StatefulWidget {
   const ImportPhraseScreen({Key? key}) : super(key: key);
 
   @override
-  _ImportPhraseScreenState createState() => _ImportPhraseScreenState();
+  ImportPhraseScreenState createState() => ImportPhraseScreenState();
 }
 
-class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
+class ImportPhraseScreenState extends State<ImportPhraseScreen> {
   final _myTextController = TextEditingController();
 
   bool _confirmed = false;
@@ -136,11 +136,12 @@ class _ImportPhraseScreenState extends State<ImportPhraseScreen> {
   }
 
   Future<void> _encryptToKeyStore() async {
-    final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
-    await _walletManager.encryptToKeyStore(mnemonic: _mnemonic);
-    int _jumpToPage = _walletManager.value.length - 1;
+    final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
+    await walletManager.encryptToKeyStore(mnemonic: _mnemonic);
+    if (!mounted) return;
+    int jumpToPage = walletManager.value.length - 1;
     Navigator.pushReplacementNamed(context, '/home_screen',
-        arguments: _jumpToPage);
+        arguments: jumpToPage);
   }
 
   void _getClipboard() async {

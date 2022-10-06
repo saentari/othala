@@ -174,6 +174,7 @@ class LnurlScreenState extends State<LnurlScreen> {
     NetworkHelper networkHelper = NetworkHelper();
     try {
       final resBody = await networkHelper.getData(callBackUrl);
+      if (!mounted) return;
       final res = jsonDecode(resBody);
       final status = res['status'];
 
@@ -192,7 +193,6 @@ class LnurlScreenState extends State<LnurlScreen> {
     if (domain.isEmpty) {
       final res = await lnurl.getParams(url);
       lnurl.LNURLAuthParams? auth = res.authParams;
-      print(auth!.k1);
       domain = auth!.domain;
       setState(() {});
     }
@@ -229,7 +229,6 @@ class LnurlScreenState extends State<LnurlScreen> {
     final key = HEX.encode(linkingKey.publicKey);
     final sig = await lnurl.signK1(url, linkingKey);
     final decodedUrl = lnurl.decodeLnUri(url);
-    callBackUrl = '$decodedUrl&sig=${sig}&key=${key}';
-    print('callback: $callBackUrl');
+    callBackUrl = '$decodedUrl&sig=$sig&key=$key';
   }
 }

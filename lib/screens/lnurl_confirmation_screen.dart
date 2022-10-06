@@ -8,11 +8,10 @@ class LnUrlConfirmationScreen extends StatefulWidget {
   const LnUrlConfirmationScreen({Key? key}) : super(key: key);
 
   @override
-  _LnUrlConfirmationScreenState createState() =>
-      _LnUrlConfirmationScreenState();
+  LnUrlConfirmationScreenState createState() => LnUrlConfirmationScreenState();
 }
 
-class _LnUrlConfirmationScreenState extends State<LnUrlConfirmationScreen> {
+class LnUrlConfirmationScreenState extends State<LnUrlConfirmationScreen> {
   @override
   Widget build(BuildContext context) {
     final lnurlAuth = ModalRoute.of(context)!.settings.arguments;

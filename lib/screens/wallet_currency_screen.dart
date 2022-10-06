@@ -13,19 +13,19 @@ class WalletCurrencyScreen extends StatefulWidget {
   const WalletCurrencyScreen({Key? key}) : super(key: key);
 
   @override
-  _WalletCurrencyScreenState createState() => _WalletCurrencyScreenState();
+  WalletCurrencyScreenState createState() => WalletCurrencyScreenState();
 }
 
 final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
 
-class _WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
+class WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
   final List<Currency> _fiatCurrencies = fiatCurrencies;
   late Currency _defaultFiatCurrency;
 
   @override
   Widget build(BuildContext context) {
-    final _walletIndex = ModalRoute.of(context)!.settings.arguments as int;
-    _defaultFiatCurrency = _walletManager.getDefaultFiatCurrency(_walletIndex);
+    final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    _defaultFiatCurrency = _walletManager.getDefaultFiatCurrency(walletIndex);
     return SafeArea(
       child: Scaffold(
         body: CustomScrollView(
@@ -36,7 +36,7 @@ class _WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
                   return Column(
                     children: <Widget>[
                       ListTileAsset(
-                        _walletIndex,
+                        walletIndex,
                         _fiatCurrencies[index],
                         _defaultFiatCurrency,
                       ),
@@ -64,7 +64,7 @@ class _WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
   }
 }
 
-class ListTileAsset extends StatelessWidget {
+class ListTileAsset extends StatefulWidget {
   const ListTileAsset(
       this.walletIndex, this.fiatCurrency, this.defaultFiatCurrency,
       {Key? key})
@@ -75,11 +75,19 @@ class ListTileAsset extends StatelessWidget {
   final Currency defaultFiatCurrency;
 
   @override
+  State<ListTileAsset> createState() => _ListTileAssetState();
+}
+
+class _ListTileAssetState extends State<ListTileAsset> {
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        await _walletManager.setDefaultFiatCurrency(walletIndex, fiatCurrency);
-        await _walletManager.setDefaultCurrency(walletIndex, fiatCurrency);
+        await _walletManager.setDefaultFiatCurrency(
+            widget.walletIndex, widget.fiatCurrency);
+        await _walletManager.setDefaultCurrency(
+            widget.walletIndex, widget.fiatCurrency);
+        if (!mounted) return;
         Navigator.pop(context);
       },
       child: Container(
@@ -89,13 +97,15 @@ class ListTileAsset extends StatelessWidget {
         child: Row(
           children: [
             Text(
-              '${fiatCurrency.code}     ${fiatCurrency.name}',
+              '${widget.fiatCurrency.code}     ${widget.fiatCurrency.name}',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const Spacer(),
             Visibility(
               visible:
-                  fiatCurrency.code == defaultFiatCurrency.code ? true : false,
+                  widget.fiatCurrency.code == widget.defaultFiatCurrency.code
+                      ? true
+                      : false,
               child: const Icon(
                 CupertinoIcons.check_mark,
                 color: kYellowColor,

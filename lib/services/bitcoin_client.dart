@@ -62,11 +62,11 @@ class BitcoinClient {
     num spend = jsonDecode(responseBody)['chain_stats']['spent_txo_sum'];
     num amount = (funded - spend) / _denominator;
 
-    String _asset;
-    network == testnet ? _asset = 'tBTC' : _asset = 'BTC';
+    String asset;
+    network == testnet ? asset = 'tBTC' : asset = 'BTC';
 
     balances.add({
-      'asset': 'BTC.$_asset',
+      'asset': 'BTC.$asset',
       'amount': amount,
       'image': 'https://s2.coinmarketcap.com/static/img/coins/64x64/1.png'
     });
@@ -93,21 +93,21 @@ class BitcoinClient {
   }
 
   getFees() async {
-    String _uri = 'https://app.bitgo.com/api/v2/btc/tx/fee';
-    String _responseBody = await _networkHelper.getData(_uri);
-    Map _rawFeesPerKb = jsonDecode(_responseBody);
-    Map _feeByBlockTarget = _rawFeesPerKb['feeByBlockTarget'];
+    String uri = 'https://app.bitgo.com/api/v2/btc/tx/fee';
+    String responseBody = await _networkHelper.getData(uri);
+    Map rawFeesPerKb = jsonDecode(responseBody);
+    Map feeByBlockTarget = rawFeesPerKb['feeByBlockTarget'];
 
-    int _fastest = _rawFeesPerKb['feePerKb'];
-    int _slow = _feeByBlockTarget['6'] ?? _fastest;
-    int _average = _feeByBlockTarget['3'] ?? ((_fastest + _slow) / 2).ceil();
-    int _fast = _feeByBlockTarget['2'] ?? ((_fastest + _average) / 2).ceil();
+    int fastest = rawFeesPerKb['feePerKb'];
+    int slow = feeByBlockTarget['6'] ?? fastest;
+    int average = feeByBlockTarget['3'] ?? ((fastest + slow) / 2).ceil();
+    int fast = feeByBlockTarget['2'] ?? ((fastest + average) / 2).ceil();
 
     Map fees = {
       "type": "kilobyte",
-      "fastest": _fastest,
-      "fast": _fast,
-      "average": _average,
+      "fastest": fastest,
+      "fast": fast,
+      "average": average,
     };
     return fees;
   }
@@ -134,270 +134,270 @@ class BitcoinClient {
   }
 
   getTransactionData(txId) async {
-    var _txData = {};
+    var txData = {};
 
-    String _uri = '${getExplorerTransactionUrl(txId)}';
-    String _responseBody = await _networkHelper.getData(_uri);
-    var _rawTx = jsonDecode(_responseBody);
+    String uri = '${getExplorerTransactionUrl(txId)}';
+    String responseBody = await _networkHelper.getData(uri);
+    var rawTx = jsonDecode(responseBody);
 
-    var _confirmed = _rawTx['status']['confirmed'];
-    var _hash = _rawTx['status']['block_hash'];
-    var _date = DateTime.now();
-    if (_confirmed == true) {
-      var epoch = _rawTx['status']['block_time'];
-      _date = DateTime.fromMillisecondsSinceEpoch(epoch * 1000, isUtc: false);
+    var confirmed = rawTx['status']['confirmed'];
+    var hash = rawTx['status']['block_hash'];
+    var date = DateTime.now();
+    if (confirmed == true) {
+      var epoch = rawTx['status']['block_time'];
+      date = DateTime.fromMillisecondsSinceEpoch(epoch * 1000, isUtc: false);
     }
 
-    List<Map> _from = [];
-    _rawTx['vin'].forEach((tx) {
-      Map _txMap = tx;
-      _txMap.forEach((key, value) {
+    List<Map> from = [];
+    rawTx['vin'].forEach((tx) {
+      Map txMap = tx;
+      txMap.forEach((key, value) {
         if (key == 'prevout') {
-          Map _prevoutMap = value;
-          late String _address;
-          late double _amount;
-          _prevoutMap.forEach((subkey, subvalue) {
+          Map prevoutMap = value;
+          late String address;
+          late double amount;
+          prevoutMap.forEach((subkey, subvalue) {
             if (subkey == 'scriptpubkey_address') {
-              _address = subvalue;
+              address = subvalue;
             }
             if (subkey == 'value') {
-              _amount = subvalue / _denominator;
+              amount = subvalue / _denominator;
             }
           });
-          if (_address.isNotEmpty) {
-            var map = {'address': _address, 'amount': _amount};
-            _from.add(map);
+          if (address.isNotEmpty) {
+            var map = {'address': address, 'amount': amount};
+            from.add(map);
           }
         }
       });
     });
 
-    List<Map> _to = [];
-    _rawTx['vout'].forEach((tx) {
-      Map _txMap = tx;
-      late String _address;
-      late double _amount;
-      _txMap.forEach((key, value) {
+    List<Map> to = [];
+    rawTx['vout'].forEach((tx) {
+      Map txMap = tx;
+      late String address;
+      late double amount;
+      txMap.forEach((key, value) {
         if (key == 'scriptpubkey_address') {
-          _address = value;
+          address = value;
         }
 
         if (key == 'value') {
-          _amount = value / _denominator;
+          amount = value / _denominator;
         }
       });
-      if (_address.isNotEmpty) {
-        var map = {'address': _address, 'amount': _amount};
-        _to.add(map);
+      if (address.isNotEmpty) {
+        var map = {'address': address, 'amount': amount};
+        to.add(map);
       }
     });
 
-    String _asset;
-    network == testnet ? _asset = 'tBTC' : _asset = 'BTC';
+    String asset;
+    network == testnet ? asset = 'tBTC' : asset = 'BTC';
 
-    if (_rawTx != null) {
-      _txData.addAll({
-        'asset': 'BTC.$_asset',
-        'from': _from,
-        'to': _to,
-        'date': _date,
+    if (rawTx != null) {
+      txData.addAll({
+        'asset': 'BTC.$asset',
+        'from': from,
+        'to': to,
+        'date': date,
         'type': "transfer",
-        'hash': _hash,
-        'confirmations': _confirmed,
+        'hash': hash,
+        'confirmations': confirmed,
       });
     }
-    return _txData;
+    return txData;
   }
 
   getTransactionAddressStats(address) async {
     // Returns mempool and chain transaction stats
-    String _addressUri = '${getExplorerAddressUrl(address)}';
-    String _addrResponseBody = await _networkHelper.getData(_addressUri);
+    String addressUri = '${getExplorerAddressUrl(address)}';
+    String addrResponseBody = await _networkHelper.getData(addressUri);
 
-    return jsonDecode(_addrResponseBody);
+    return jsonDecode(addrResponseBody);
   }
 
   getTransactions(address, [limit]) async {
     // Current block
-    String _blockHeightUri = '${getExplorerUrl()}/blocks/tip/height';
-    String _blockResponseBody = await _networkHelper.getData(_blockHeightUri);
-    int _rawBlockHeight = jsonDecode(_blockResponseBody);
+    String blockHeightUri = '${getExplorerUrl()}/blocks/tip/height';
+    String blockResponseBody = await _networkHelper.getData(blockHeightUri);
+    int rawBlockHeight = jsonDecode(blockResponseBody);
 
-    String _addressUri = '${getExplorerAddressUrl(address)}';
-    String _addrResponseBody = await _networkHelper.getData(_addressUri);
-    var _rawAddressStats = jsonDecode(_addrResponseBody);
+    String addressUri = '${getExplorerAddressUrl(address)}';
+    String addrResponseBody = await _networkHelper.getData(addressUri);
+    var rawAddressStats = jsonDecode(addrResponseBody);
 
     // Retrieve the number of (mempool) transactions for an address.
-    int _txCount = _rawAddressStats['chain_stats']['tx_count'] ?? 0;
-    int _mtxCount = _rawAddressStats['mempool_stats']['tx_count'] ?? 0;
+    int txCount = rawAddressStats['chain_stats']['tx_count'] ?? 0;
+    int mtxCount = rawAddressStats['mempool_stats']['tx_count'] ?? 0;
 
     // Blockstream api limits tx results to 25 per page.
-    int _pages = (_txCount / 25).ceil();
+    int pages = (txCount / 25).ceil();
 
     // Avoid retrieving more data then explicitly requested.
     if (limit != null) {
-      int _limit = (limit / 25).ceil();
-      if (_limit < _pages) {
-        _pages = _limit;
+      int pageLimit = (limit / 25).ceil();
+      if (pageLimit < pages) {
+        pages = pageLimit;
       }
     }
 
-    List _txData = [];
+    List txData = [];
 
-    if (_txCount > 0) {
+    if (txCount > 0) {
       // Confirmed transactions
-      String _lastTx = '';
-      for (int i = 0; i < _pages; i++) {
-        String _txUri = '$_addressUri/txs/chain/$_lastTx';
-        String _txResponseBody = await _networkHelper.getData(_txUri);
-        var _rawTxs = jsonDecode(_txResponseBody);
-        _lastTx = _rawTxs.last['txid'];
+      String lastTx = '';
+      for (int i = 0; i < pages; i++) {
+        String txUri = '$addressUri/txs/chain/$lastTx';
+        String txResponseBody = await _networkHelper.getData(txUri);
+        var rawTxs = jsonDecode(txResponseBody);
+        lastTx = rawTxs.last['txid'];
 
-        for (var _rawTx in _rawTxs) {
-          int _block = _rawTx['status']['block_height'];
-          String _txid = _rawTx['txid'];
-          var _epoch = _rawTx['status']['block_time'];
-          int _blockConf = _rawBlockHeight - _block + 1;
-          var _date =
-              DateTime.fromMillisecondsSinceEpoch(_epoch * 1000, isUtc: false);
+        for (var rawTx in rawTxs) {
+          int block = rawTx['status']['block_height'];
+          String txid = rawTx['txid'];
+          var epoch = rawTx['status']['block_time'];
+          int blockConf = rawBlockHeight - block + 1;
+          var date =
+              DateTime.fromMillisecondsSinceEpoch(epoch * 1000, isUtc: false);
 
-          List<Map> _from = [];
-          _rawTx['vin'].forEach((tx) {
-            Map _txMap = tx;
-            _txMap.forEach((key, value) {
+          List<Map> from = [];
+          rawTx['vin'].forEach((tx) {
+            Map txMap = tx;
+            txMap.forEach((key, value) {
               if (key == 'prevout') {
-                Map _prevoutMap = value ?? {};
-                if (_prevoutMap.isNotEmpty) {
-                  String _address = '';
-                  double _amount = 0.0;
-                  _prevoutMap.forEach((subkey, subvalue) {
+                Map prevOutMap = value ?? {};
+                if (prevOutMap.isNotEmpty) {
+                  String address = '';
+                  double amount = 0.0;
+                  prevOutMap.forEach((subkey, subvalue) {
                     if (subkey == 'scriptpubkey_address') {
-                      _address = subvalue;
+                      address = subvalue;
                     }
                     if (subkey == 'value') {
-                      _amount = subvalue / _denominator;
+                      amount = subvalue / _denominator;
                     }
                   });
-                  if (_address.isNotEmpty) {
-                    var _map = {'address': _address, 'amount': _amount};
-                    _from.add(_map);
+                  if (address.isNotEmpty) {
+                    var map = {'address': address, 'amount': amount};
+                    from.add(map);
                   }
                 }
               }
             });
           });
 
-          List<Map> _to = [];
-          _rawTx['vout'].forEach((tx) {
-            Map _txMap = tx;
-            String _address = '';
-            double _amount = 0.0;
-            _txMap.forEach((key, value) {
+          List<Map> to = [];
+          rawTx['vout'].forEach((tx) {
+            Map txMap = tx;
+            String address = '';
+            double amount = 0.0;
+            txMap.forEach((key, value) {
               if (key == 'scriptpubkey_address') {
-                _address = value;
+                address = value;
               }
               if (key == 'value') {
-                _amount = value / _denominator;
+                amount = value / _denominator;
               }
             });
-            var _map = {'address': _address, 'amount': _amount};
-            _to.add(_map);
+            var map = {'address': address, 'amount': amount};
+            to.add(map);
           });
 
-          String _asset;
-          network == testnet ? _asset = 'tBTC' : _asset = 'BTC';
+          String asset;
+          network == testnet ? asset = 'tBTC' : asset = 'BTC';
 
-          _txData.add({
-            'asset': 'BTC.$_asset',
-            'from': _from,
-            'to': _to,
-            'date': _date,
+          txData.add({
+            'asset': 'BTC.$asset',
+            'from': from,
+            'to': to,
+            'date': date,
             'type': "transfer",
-            'txid': _txid,
-            'confirmations': _blockConf,
+            'txid': txid,
+            'confirmations': blockConf,
           });
         }
       }
     }
 
     // Unconfirmed transactions (mempool)
-    if (_mtxCount > 0) {
-      String _mempoolUri = '${getExplorerAddressUrl(address)}/txs/mempool';
-      String _txmResponseBody = await _networkHelper.getData(_mempoolUri);
-      var _rawTxs = jsonDecode(_txmResponseBody);
+    if (mtxCount > 0) {
+      String mempoolUri = '${getExplorerAddressUrl(address)}/txs/mempool';
+      String txmResponseBody = await _networkHelper.getData(mempoolUri);
+      var rawTxs = jsonDecode(txmResponseBody);
 
-      for (var _rawTx in _rawTxs) {
-        var _confirmed = _rawTx['status']['confirmed'];
-        String _txid = _rawTx['txid'];
-        var _date = DateTime.now();
-        if (_confirmed == true) {
-          var _epoch = _rawTx['status']['block_time'];
-          _date =
-              DateTime.fromMillisecondsSinceEpoch(_epoch * 1000, isUtc: false);
+      for (var rawTx in rawTxs) {
+        var confirmed = rawTx['status']['confirmed'];
+        String txid = rawTx['txid'];
+        var date = DateTime.now();
+        if (confirmed == true) {
+          var epoch = rawTx['status']['block_time'];
+          date =
+              DateTime.fromMillisecondsSinceEpoch(epoch * 1000, isUtc: false);
         }
 
-        List<Map> _from = [];
-        _rawTx['vin'].forEach((tx) {
-          Map _txMap = tx;
-          _txMap.forEach((key, value) {
+        List<Map> from = [];
+        rawTx['vin'].forEach((tx) {
+          Map txMap = tx;
+          txMap.forEach((key, value) {
             if (key == 'prevout') {
-              Map _prevoutMap = value ?? {};
-              if (_prevoutMap.isNotEmpty) {
-                String _address = '';
-                double _amount = 0.0;
-                _prevoutMap.forEach((subkey, subvalue) {
+              Map prevoutMap = value ?? {};
+              if (prevoutMap.isNotEmpty) {
+                String address = '';
+                double amount = 0.0;
+                prevoutMap.forEach((subkey, subvalue) {
                   if (subkey == 'scriptpubkey_address') {
-                    _address = subvalue;
+                    address = subvalue;
                   }
                   if (subkey == 'value') {
-                    _amount = subvalue / _denominator;
+                    amount = subvalue / _denominator;
                   }
                 });
-                if (_address.isNotEmpty) {
-                  var _map = {'address': _address, 'amount': _amount};
-                  _from.add(_map);
+                if (address.isNotEmpty) {
+                  var map = {'address': address, 'amount': amount};
+                  from.add(map);
                 }
               }
             }
           });
         });
 
-        List<Map> _to = [];
-        _rawTx['vout'].forEach((tx) {
-          Map _txMap = tx;
-          String _address = '';
-          double _amount = 0.0;
-          _txMap.forEach((key, value) {
+        List<Map> to = [];
+        rawTx['vout'].forEach((tx) {
+          Map txMap = tx;
+          String address = '';
+          double amount = 0.0;
+          txMap.forEach((key, value) {
             if (key == 'scriptpubkey_address') {
-              _address = value;
+              address = value;
             }
             if (key == 'value') {
-              _amount = value / _denominator;
+              amount = value / _denominator;
             }
           });
-          var _map = {'address': _address, 'amount': _amount};
-          _to.add(_map);
+          var map = {'address': address, 'amount': amount};
+          to.add(map);
         });
 
-        String _asset;
-        network == testnet ? _asset = 'tBTC' : _asset = 'BTC';
+        String asset;
+        network == testnet ? asset = 'tBTC' : asset = 'BTC';
 
-        _txData.add({
-          'asset': 'BTC.$_asset',
-          'from': _from,
-          'to': _to,
-          'date': _date,
+        txData.add({
+          'asset': 'BTC.$asset',
+          'from': from,
+          'to': to,
+          'date': date,
           'type': "transfer",
-          'txid': _txid,
+          'txid': txid,
           'confirmations': 0,
         });
       }
     }
 
     if (limit == null) {
-      return _txData;
+      return txData;
     } else {
-      return _txData.sublist(0, limit);
+      return txData.sublist(0, limit);
     }
   }
 

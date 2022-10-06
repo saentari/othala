@@ -120,6 +120,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
     if (inputType == InputType.lnurl) {
       final lnurlAuth = await getParams(input);
+      if (!mounted) return;
       if (lnurlAuth.authParams != null) {
         Navigator.pushNamed(
           context,

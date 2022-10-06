@@ -5,10 +5,9 @@ import 'package:hive/hive.dart';
 import '../models/unsplash_image.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
-// import '../screens/image_screen.dart';
 
 /// ImageTile displayed in StaggeredGridView.
-class ImageTile extends StatelessWidget {
+class ImageTile extends StatefulWidget {
   final UnsplashImage? image;
   final String? walletImageId;
   final int walletIndex;
@@ -16,6 +15,11 @@ class ImageTile extends StatelessWidget {
   const ImageTile(this.image, this.walletImageId, this.walletIndex, {Key? key})
       : super(key: key);
 
+  @override
+  State<ImageTile> createState() => _ImageTileState();
+}
+
+class _ImageTileState extends State<ImageTile> {
   /// Adds rounded corners to a given [widget].
   Widget _addRoundedCorners(Widget widget) =>
       // wrap in ClipRRect to achieve rounded corners
@@ -36,11 +40,13 @@ class ImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
+    final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
 
     return InkWell(
       onTap: () async {
-        await _walletManager.changeWalletBackgroundImage(walletIndex, image!);
+        await walletManager.changeWalletBackgroundImage(
+            widget.walletIndex, widget.image!);
+        if (!mounted) return;
         Navigator.pop(context);
         // item onclick
         // if (image != null) {
@@ -54,16 +60,16 @@ class ImageTile extends StatelessWidget {
         // }
       },
       // Hero Widget for Hero animation with [ImagePage]
-      child: image != null
+      child: widget.image != null
           ? Hero(
-              tag: image!.getId(),
+              tag: widget.image!.getId(),
               child: _addRoundedCorners(
                 Stack(fit: StackFit.expand, children: [
                   Positioned(
                     child: CachedNetworkImage(
-                      imageUrl: image!.getSmallUrl(),
+                      imageUrl: widget.image!.getSmallUrl(),
                       placeholder: (context, url) =>
-                          _buildImagePlaceholder(image: image),
+                          _buildImagePlaceholder(image: widget.image),
                       errorWidget: (context, url, obj) =>
                           _buildImageErrorWidget(),
                       fit: BoxFit.cover,
@@ -77,7 +83,7 @@ class ImageTile extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
-                          image!.getUser().getName(),
+                          widget.image!.getUser().getName(),
                           textDirection: TextDirection.ltr,
                           style: const TextStyle(
                             fontSize: 20,
@@ -88,7 +94,7 @@ class ImageTile extends StatelessWidget {
                     ),
                   ),
                   Visibility(
-                    visible: walletImageId == image!.getId(),
+                    visible: widget.walletImageId == widget.image!.getId(),
                     child: const Positioned(
                       top: 8.0,
                       right: 8.0,

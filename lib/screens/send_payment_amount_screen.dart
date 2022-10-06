@@ -13,11 +13,10 @@ class SendPaymentAmountScreen extends StatefulWidget {
   final num maxBalance;
 
   @override
-  _SendPaymentAmountScreenState createState() =>
-      _SendPaymentAmountScreenState();
+  SendPaymentAmountScreenState createState() => SendPaymentAmountScreenState();
 }
 
-class _SendPaymentAmountScreenState extends State<SendPaymentAmountScreen> {
+class SendPaymentAmountScreenState extends State<SendPaymentAmountScreen> {
   late String _amount;
   bool _confirmed = false;
 
@@ -126,8 +125,8 @@ class _SendPaymentAmountScreenState extends State<SendPaymentAmountScreen> {
 
   void _validateAmount() {
     if (_myTextController.text.isNotEmpty) {
-      double _inputAmount = double.parse(_myTextController.text);
-      if (_inputAmount <= widget.maxBalance && _inputAmount > 0) {
+      double inputAmount = double.parse(_myTextController.text);
+      if (inputAmount <= widget.maxBalance && inputAmount > 0) {
         _amount = _myTextController.text;
         _confirmed = true;
       } else {

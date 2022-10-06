@@ -11,10 +11,10 @@ class WalletNameScreen extends StatefulWidget {
   const WalletNameScreen({Key? key}) : super(key: key);
 
   @override
-  _WalletNameScreenState createState() => _WalletNameScreenState();
+  WalletNameScreenState createState() => WalletNameScreenState();
 }
 
-class _WalletNameScreenState extends State<WalletNameScreen> {
+class WalletNameScreenState extends State<WalletNameScreen> {
   late Wallet _wallet;
 
   bool _confirmed = false;
@@ -36,8 +36,8 @@ class _WalletNameScreenState extends State<WalletNameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final _walletIndex = ModalRoute.of(context)!.settings.arguments as int;
-    _wallet = _walletManager.value.getAt(_walletIndex);
+    final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    _wallet = _walletManager.value.getAt(walletIndex);
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -91,7 +91,7 @@ class _WalletNameScreenState extends State<WalletNameScreen> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () => _confirmed == true
-                          ? _setWalletName(_walletIndex, _myTextController.text)
+                          ? _setWalletName(walletIndex, _myTextController.text)
                           : null,
                       child: _confirmed == true
                           ? const CustomFlatButton(
@@ -127,9 +127,9 @@ class _WalletNameScreenState extends State<WalletNameScreen> {
   Future<void> _setWalletName(index, walletName) async {
     _walletManager.setWalletValue(index, name: walletName);
 
-    int _jumpToPage = _walletManager.value.length - 1;
+    int jumpToPage = _walletManager.value.length - 1;
     Navigator.pushReplacementNamed(context, '/home_screen',
-        arguments: _jumpToPage);
+        arguments: jumpToPage);
   }
 
   void _validateName() {

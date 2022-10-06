@@ -8,11 +8,11 @@ class SendPaymentConfirmationScreen extends StatefulWidget {
   const SendPaymentConfirmationScreen({Key? key}) : super(key: key);
 
   @override
-  _SendPaymentConfirmationScreenState createState() =>
-      _SendPaymentConfirmationScreenState();
+  SendPaymentConfirmationScreenState createState() =>
+      SendPaymentConfirmationScreenState();
 }
 
-class _SendPaymentConfirmationScreenState
+class SendPaymentConfirmationScreenState
     extends State<SendPaymentConfirmationScreen> {
   @override
   Widget build(BuildContext context) {

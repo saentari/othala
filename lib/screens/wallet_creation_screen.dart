@@ -14,10 +14,10 @@ class WalletCreationScreen extends StatefulWidget {
   const WalletCreationScreen({Key? key}) : super(key: key);
 
   @override
-  _WalletCreationScreenState createState() => _WalletCreationScreenState();
+  WalletCreationScreenState createState() => WalletCreationScreenState();
 }
 
-class _WalletCreationScreenState extends State<WalletCreationScreen> {
+class WalletCreationScreenState extends State<WalletCreationScreen> {
   bool _confirmed = false;
   String _randomMnemonic = '';
 
@@ -381,18 +381,20 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
   }
 
   Future<void> _encryptToKeyStore() async {
-    final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
-    await _walletManager.encryptToKeyStore(
+    final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
+    await walletManager.encryptToKeyStore(
         mnemonic: _randomMnemonic, generated: true);
-    int _jumpToPage = _walletManager.value.length - 1;
+    if (!mounted) return;
+    int jumpToPage = walletManager.value.length - 1;
     Navigator.pushReplacementNamed(context, '/home_screen',
-        arguments: _jumpToPage);
+        arguments: jumpToPage);
   }
 
   void _setClipboard() async {
     // clipboard
     ClipboardData data = ClipboardData(text: _randomMnemonic);
     await Clipboard.setData(data);
+    if (!mounted) return;
 
     // emoji
     var parser = EmojiParser();

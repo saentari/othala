@@ -13,25 +13,25 @@ class WalletSettingsScreen extends StatefulWidget {
   const WalletSettingsScreen({Key? key}) : super(key: key);
 
   @override
-  _WalletSettingsScreenState createState() => _WalletSettingsScreenState();
+  WalletSettingsScreenState createState() => WalletSettingsScreenState();
 }
 
-class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
+class WalletSettingsScreenState extends State<WalletSettingsScreen> {
   final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
   late Wallet _wallet;
   String _defaultFiatCurrency = 'US dollar';
 
   @override
   Widget build(BuildContext context) {
-    final _walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
     return SafeArea(
       child: ValueListenableBuilder(
           valueListenable: Hive.box('walletBox').listenable(),
           builder: (context, Box box, widget2) {
-            if (_walletIndex < box.length) {
-              _wallet = box.getAt(_walletIndex);
+            if (walletIndex < box.length) {
+              _wallet = box.getAt(walletIndex);
               _defaultFiatCurrency =
-                  _walletManager.getDefaultFiatCurrency(_walletIndex).name;
+                  _walletManager.getDefaultFiatCurrency(walletIndex).name;
             }
             return Scaffold(
               body: Container(
@@ -52,7 +52,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                         Navigator.pushNamed(
                           context,
                           '/wallet_name_screen',
-                          arguments: _walletIndex,
+                          arguments: walletIndex,
                         );
                       },
                       child: ListItem(
@@ -67,7 +67,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                         Navigator.pushNamed(
                           context,
                           '/wallet_currency_screen',
-                          arguments: _walletIndex,
+                          arguments: walletIndex,
                         );
                       },
                       child: ListItem(
@@ -82,7 +82,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                         Navigator.pushNamed(
                           context,
                           '/wallet_background_screen',
-                          arguments: _walletIndex,
+                          arguments: walletIndex,
                         );
                       },
                       child: const ListItem(
@@ -94,7 +94,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                     const ListDivider(),
                     GestureDetector(
                       onTap: () {
-                        _showDialog(_walletIndex);
+                        _showDialog(walletIndex);
                       },
                       child: const ListItem(
                         'Delete wallet',
@@ -110,9 +110,9 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                     GestureDetector(
                       onTap: () {
                         if (_wallet.network == 'bitcoin') {
-                          _walletManager.setNetwork(_walletIndex, 'testnet');
+                          _walletManager.setNetwork(walletIndex, 'testnet');
                         } else if (_wallet.network == 'testnet') {
-                          _walletManager.setNetwork(_walletIndex, 'testnet');
+                          _walletManager.setNetwork(walletIndex, 'testnet');
                         }
                       },
                       child: Visibility(
@@ -149,7 +149,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
     );
   }
 
-  void _showDialog(_walletIndex) {
+  void _showDialog(walletIndex) {
     showDialog(
       barrierDismissible: true,
       context: context,
@@ -222,7 +222,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
                               ),
                             ),
                           ),
-                          onTap: () => _deleteWallet(_walletIndex),
+                          onTap: () => _deleteWallet(walletIndex),
                         ),
                       ),
                       Expanded(
@@ -261,6 +261,7 @@ class _WalletSettingsScreenState extends State<WalletSettingsScreen> {
 
   Future<void> _deleteWallet(walletIndex) async {
     await _walletManager.deleteWallet(walletIndex);
+    if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil(
         '/home_screen', (Route<dynamic> route) => false);
   }
