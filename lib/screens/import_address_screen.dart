@@ -59,7 +59,7 @@ class ImportAddressScreenState extends State<ImportAddressScreen> {
                 padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                 alignment: Alignment.centerLeft,
                 child: const Text(
-                  'Enter your bitcoin address to import your wallets.',
+                  'Enter a bitcoin address.',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                 ),
               ),

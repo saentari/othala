@@ -38,7 +38,7 @@ class WalletImportScreenState extends State<WalletImportScreen> {
                 padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                 alignment: Alignment.centerLeft,
                 child: const Text(
-                  'Select an option for importing your wallet.',
+                  'Select one of the available options.',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -69,8 +69,8 @@ class WalletImportScreenState extends State<WalletImportScreen> {
                   Navigator.pushNamed(context, '/import_address_screen');
                 },
                 child: const ListItem(
-                  'Enter wallet address',
-                  subtitle: 'For importing a watch-only wallet',
+                  'Enter bitcoin address',
+                  subtitle: 'Addresses are watch-only',
                   chevron: true,
                 ),
               ),

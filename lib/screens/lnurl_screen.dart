@@ -85,7 +85,7 @@ class LnurlScreenState extends State<LnurlScreen> {
               Row(
                 children: [
                   Text(
-                    wallets.isNotEmpty ? 'Select a wallet:' : '',
+                    wallets.isNotEmpty ? 'Sign in with keys from:' : '',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -143,7 +143,7 @@ class LnurlScreenState extends State<LnurlScreen> {
                     child: GestureDetector(
                       onTap: () => _authenticate(callBackUrl),
                       child: CustomFlatButton(
-                        textLabel: 'Authenticate',
+                        textLabel: 'Sign in',
                         enabled: signed != -1 ? true : false,
                       ),
                     ),

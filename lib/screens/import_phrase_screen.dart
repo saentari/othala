@@ -59,7 +59,7 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
                 padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                 alignment: Alignment.centerLeft,
                 child: const Text(
-                  'Enter your recovery phrase to import your wallets.',
+                  'Enter a recovery phrase.',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                 ),
               ),

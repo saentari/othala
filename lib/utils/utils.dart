@@ -67,7 +67,7 @@ bool isValidAddress(String address) {
 // walletDescriptor
 String getAddressName(String address) {
   btc_address.Address addressData = btc_address.validate(address);
-  String description = 'Wallet';
+  String description = '';
   String type = describeEnum(addressData.type as Enum);
 
   if (addressData.network == btc_address.Network.testnet) {

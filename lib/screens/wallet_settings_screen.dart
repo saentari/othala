@@ -56,7 +56,7 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                         );
                       },
                       child: ListItem(
-                        'Wallet name',
+                        'Description',
                         subtitle: _wallet.name,
                         chevron: true,
                       ),
@@ -97,7 +97,7 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                         _showDialog(walletIndex);
                       },
                       child: const ListItem(
-                        'Delete wallet',
+                        'Delete',
                         subtitle: 'Warning: may cause loss of funds',
                         subtitleColor: kRedColor,
                         chevron: true,
@@ -118,7 +118,7 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                       child: Visibility(
                         visible: _wallet.type == 'mnemonic' ? true : false,
                         child: ListItem(
-                          'Toggle nework',
+                          'Toggle network',
                           subtitle: 'Selected network: ${_wallet.network}',
                           chevron: true,
                         ),
@@ -173,7 +173,7 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: const Center(
                           child: Text(
-                            "Delete wallet?",
+                            "Are you sure?",
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 22.0,
@@ -187,7 +187,7 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                         padding: const EdgeInsets.all(16.0),
                         child: const Center(
                           child: Text(
-                            "Warning: Deleting this wallet without a backup, may result in permanent loss of your assets.",
+                            "Warning: Deleting without a backup, may result in permanent loss of your funds.",
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16.0,

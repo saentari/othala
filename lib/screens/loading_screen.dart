@@ -57,7 +57,7 @@ class LoadingScreenState extends State<LoadingScreen> {
               ),
               const Spacer(),
               const Text(
-                'Your wallet, your bitcoin.\n100% open-source & open-design',
+                'Your keys, your bitcoin.\n100% open-source & open-design',
                 style: TextStyle(
                     color: kDarkNeutral7Color,
                     fontSize: 16.0,

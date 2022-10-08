@@ -21,9 +21,9 @@ class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
   final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
 
   bool _confirmed = false;
-  String _walletName = 'Unknown wallet';
+  String _walletName = '';
   final List<String> _address = [''];
-  final List<String> _amount = ['0 BTC'];
+  final List<String> _amount = [''];
   late String _mnemonic;
   late InputType _inputType;
 
@@ -54,7 +54,7 @@ class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
                 padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                 alignment: Alignment.centerLeft,
                 child: const Text(
-                  'A wallet was found',
+                  'Found something.',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                 ),
               ),

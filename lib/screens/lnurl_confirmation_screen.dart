@@ -35,7 +35,7 @@ class LnUrlConfirmationScreenState extends State<LnUrlConfirmationScreen> {
               ),
               const SizedBox(height: 8.0),
               const Text(
-                'Authenticated 🎉',
+                'Success 🎉',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
@@ -43,7 +43,7 @@ class LnUrlConfirmationScreenState extends State<LnUrlConfirmationScreen> {
               ),
               const SizedBox(height: 8.0),
               Text(
-                'You’ve successfully logged in at $lnurlAuth',
+                'You’ve successfully signed in at $lnurlAuth',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 20,
