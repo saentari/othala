@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:othala/screens/lnurl_error_screen.dart';
 
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
       initialRoute: '/loading_screen',
+      builder: EasyLoading.init(),
       routes: {
         '/camera_error_screen': (context) => const CameraErrorScreen(),
         '/camera_screen': (context) => const CameraScreen(),

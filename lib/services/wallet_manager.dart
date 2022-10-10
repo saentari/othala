@@ -85,9 +85,17 @@ class WalletManager extends ValueNotifier<Box> {
     }
 
     // Random background image
-    UnsplashImage imageData = await _loadRandomImage(keyword: 'nature');
-    String imageId = imageData.getId();
-    String localPath = await _downloadFile(imageData.getRegularUrl());
+    String imageId = '';
+    String localPath = '';
+
+    try {
+      UnsplashImage imageData = await _loadRandomImage(keyword: 'nature');
+      imageId = imageData.getId();
+      localPath = await _downloadFile(imageData.getRegularUrl());
+    } catch (e) {
+      // Use default image
+      localPath = 'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg';
+    }
 
     Currency defaultFiatCurrency =
         Currency('USD', id: 'usd-us-dollars', name: 'US dollar', symbol: r'$');

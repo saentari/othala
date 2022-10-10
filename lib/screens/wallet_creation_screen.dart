@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_emoji/flutter_emoji.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
@@ -376,14 +379,21 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
     // BIP39 English word list
     _randomMnemonic = generateMnemonic();
     _randomMnemonicList = _randomMnemonic.split(" ");
-
     setState(() {});
   }
 
   Future<void> _encryptToKeyStore() async {
-    final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
+    EasyLoading.show(
+      status: 'creating...',
+      maskType: EasyLoadingMaskType.black,
+      dismissOnTap: true,
+    );
+    final walletManager = WalletManager(Hive.box('walletBox'));
     await walletManager.encryptToKeyStore(
         mnemonic: _randomMnemonic, generated: true);
+    if (EasyLoading.isShow) {
+      EasyLoading.dismiss();
+    }
     if (!mounted) return;
     int jumpToPage = walletManager.value.length - 1;
     Navigator.pushReplacementNamed(context, '/home_screen',

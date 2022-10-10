@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
 
@@ -136,8 +137,16 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
   }
 
   Future<void> _encryptToKeyStore() async {
-    final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
+    EasyLoading.show(
+      status: 'importing...',
+      maskType: EasyLoadingMaskType.black,
+      dismissOnTap: true,
+    );
+    final walletManager = WalletManager(Hive.box('walletBox'));
     await walletManager.encryptToKeyStore(mnemonic: _mnemonic);
+    if (EasyLoading.isShow) {
+      EasyLoading.dismiss();
+    }
     if (!mounted) return;
     int jumpToPage = walletManager.value.length - 1;
     Navigator.pushReplacementNamed(context, '/home_screen',

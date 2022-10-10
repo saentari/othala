@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
 
@@ -21,7 +22,6 @@ class ImportAddressScreenState extends State<ImportAddressScreen> {
   bool _confirmed = false;
 
   final _myTextController = TextEditingController();
-  final _walletManager = WalletManager(Hive.box('walletBox'));
 
   @override
   void initState() {
@@ -133,9 +133,18 @@ class ImportAddressScreenState extends State<ImportAddressScreen> {
   }
 
   Future<void> _importWallet() async {
-    await _walletManager.encryptToKeyStore(address: _address);
+    EasyLoading.show(
+      status: 'importing...',
+      maskType: EasyLoadingMaskType.black,
+      dismissOnTap: true,
+    );
+    final walletManager = WalletManager(Hive.box('walletBox'));
+    await walletManager.encryptToKeyStore(address: _address);
+    if (EasyLoading.isShow) {
+      EasyLoading.dismiss();
+    }
     if (!mounted) return;
-    int jumpToPage = _walletManager.value.length - 1;
+    int jumpToPage = walletManager.value.length - 1;
     Navigator.pushReplacementNamed(context, '/home_screen',
         arguments: jumpToPage);
   }
