@@ -46,161 +46,164 @@ class WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
     _getTransactions(walletIndex);
-    return SafeArea(
-      child: ValueListenableBuilder(
-          valueListenable: Hive.box('walletBox').listenable(),
-          builder: (context, Box box, widget2) {
-            _updateValues(box, walletIndex);
-            return Scaffold(
-              body: Container(
-                padding: const EdgeInsets.only(
-                  bottom: 16.0,
-                  left: 8.0,
-                  right: 8.0,
-                ),
-                child: Column(
-                  children: <Widget>[
-                    Stack(
-                      alignment: AlignmentDirectional.center,
-                      children: [
-                        Hero(
-                          tag: 'imageHero',
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16.0),
-                            child: _showImage(_wallet.imagePath),
-                          ),
-                        ),
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: IconButton(
-                            onPressed: () {
-                              Navigator.pushNamed(
-                                context,
-                                '/wallet_settings_screen',
-                                arguments: walletIndex,
-                              );
-                            },
-                            icon: const Icon(Icons.more_vert),
-                          ),
-                        ),
-                        Positioned(
-                          top: 20.0,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Text(
-                                _wallet.name,
-                                style: const TextStyle(
-                                  color: kWhiteColor,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          top: 60.0,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Text(
-                                getNumberFormat(
-                                    currency: Currency('BTC'),
-                                    amount: _amount,
-                                    decimalDigits: 8,
-                                    symbol: unicodeBitcoin),
-                                style: const TextStyle(
-                                  color: kWhiteColor,
-                                  fontSize: 32.0,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          top: 110.0,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Text(
-                                getNumberFormat(
-                                    currency: _wallet.defaultFiatCurrency,
-                                    amount: _balance),
-                                style: const TextStyle(
-                                  color: kWhiteColor,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24.0),
-                    Expanded(
-                      child: ListView.separated(
-                        separatorBuilder: (BuildContext context, int index) =>
-                            const ListDivider(),
-                        itemCount: _wallet.transactions.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          String formattedDateTime =
-                              DateFormat('yyyy-MM-dd kk:mm').format(_wallet
-                                  .transactions[index].transactionBroadcast);
-                          double amount = 0.0;
-                          String address = '';
-                          List ioAmount = _checkInputOutput(
-                              _wallet.transactions[index],
-                              _wallet.address.first);
-                          address = ioAmount.elementAt(0);
-                          amount = ioAmount.elementAt(1);
-                          String confirmations = '';
-                          int blockConf =
-                              _wallet.transactions[index].confirmations;
-                          if (blockConf == 0) {
-                            confirmations = 'pending';
-                          } else if (blockConf < 6) {
-                            confirmations = '$blockConf conf.';
-                          }
-                          return ListItemTransaction(
-                            address,
-                            subtitle: formattedDateTime,
-                            value: amount,
-                            subtitleValue: confirmations,
-                          );
-                        },
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const CustomFlatButton(
-                              textLabel: 'Cancel',
-                              buttonColor: kDarkBackgroundColor,
-                              fontColor: kWhiteColor,
+    return Container(
+      color: kDarkBackgroundColor,
+      child: SafeArea(
+        child: ValueListenableBuilder(
+            valueListenable: Hive.box('walletBox').listenable(),
+            builder: (context, Box box, widget2) {
+              _updateValues(box, walletIndex);
+              return Scaffold(
+                body: Container(
+                  padding: const EdgeInsets.only(
+                    bottom: 16.0,
+                    left: 8.0,
+                    right: 8.0,
+                  ),
+                  child: Column(
+                    children: <Widget>[
+                      Stack(
+                        alignment: AlignmentDirectional.center,
+                        children: [
+                          Hero(
+                            tag: 'imageHero',
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16.0),
+                              child: _showImage(_wallet.imagePath),
                             ),
                           ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: IconButton(
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/wallet_settings_screen',
+                                  arguments: walletIndex,
+                                );
+                              },
+                              icon: const Icon(Icons.more_vert),
+                            ),
+                          ),
+                          Positioned(
+                            top: 20.0,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Text(
+                                  _wallet.name,
+                                  style: const TextStyle(
+                                    color: kWhiteColor,
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Positioned(
+                            top: 60.0,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Text(
+                                  getNumberFormat(
+                                      currency: Currency('BTC'),
+                                      amount: _amount,
+                                      decimalDigits: 8,
+                                      symbol: unicodeBitcoin),
+                                  style: const TextStyle(
+                                    color: kWhiteColor,
+                                    fontSize: 32.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Positioned(
+                            top: 110.0,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Text(
+                                  getNumberFormat(
+                                      currency: _wallet.defaultFiatCurrency,
+                                      amount: _balance),
+                                  style: const TextStyle(
+                                    color: kWhiteColor,
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24.0),
+                      Expanded(
+                        child: ListView.separated(
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const ListDivider(),
+                          itemCount: _wallet.transactions.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            String formattedDateTime =
+                                DateFormat('yyyy-MM-dd kk:mm').format(_wallet
+                                    .transactions[index].transactionBroadcast);
+                            double amount = 0.0;
+                            String address = '';
+                            List ioAmount = _checkInputOutput(
+                                _wallet.transactions[index],
+                                _wallet.address.first);
+                            address = ioAmount.elementAt(0);
+                            amount = ioAmount.elementAt(1);
+                            String confirmations = '';
+                            int blockConf =
+                                _wallet.transactions[index].confirmations;
+                            if (blockConf == 0) {
+                              confirmations = 'pending';
+                            } else if (blockConf < 6) {
+                              confirmations = '$blockConf conf.';
+                            }
+                            return ListItemTransaction(
+                              address,
+                              subtitle: formattedDateTime,
+                              value: amount,
+                              subtitleValue: confirmations,
+                            );
+                          },
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: const CustomFlatButton(
+                                textLabel: 'Cancel',
+                                buttonColor: kDarkBackgroundColor,
+                                fontColor: kWhiteColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+      ),
     );
   }
 

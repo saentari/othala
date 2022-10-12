@@ -24,128 +24,131 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
-    return SafeArea(
-      child: ValueListenableBuilder(
-          valueListenable: Hive.box('walletBox').listenable(),
-          builder: (context, Box box, widget2) {
-            if (walletIndex < box.length) {
-              _wallet = box.getAt(walletIndex);
-              _defaultFiatCurrency =
-                  _walletManager.getDefaultFiatCurrency(walletIndex).name;
-            }
-            return Scaffold(
-              body: Container(
-                padding: const EdgeInsets.only(
-                  bottom: 16.0,
-                  left: 8.0,
-                  right: 8.0,
-                ),
-                child: Column(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/logo.svg',
-                      color: kYellowColor,
-                      height: 40.0,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/wallet_name_screen',
-                          arguments: walletIndex,
-                        );
-                      },
-                      child: ListItem(
-                        'Description',
-                        subtitle: _wallet.name,
-                        chevron: true,
+    return Container(
+      color: kDarkBackgroundColor,
+      child: SafeArea(
+        child: ValueListenableBuilder(
+            valueListenable: Hive.box('walletBox').listenable(),
+            builder: (context, Box box, widget2) {
+              if (walletIndex < box.length) {
+                _wallet = box.getAt(walletIndex);
+                _defaultFiatCurrency =
+                    _walletManager.getDefaultFiatCurrency(walletIndex).name;
+              }
+              return Scaffold(
+                body: Container(
+                  padding: const EdgeInsets.only(
+                    bottom: 16.0,
+                    left: 8.0,
+                    right: 8.0,
+                  ),
+                  child: Column(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/logo.svg',
+                        color: kYellowColor,
+                        height: 40.0,
                       ),
-                    ),
-                    const ListDivider(),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/wallet_currency_screen',
-                          arguments: walletIndex,
-                        );
-                      },
-                      child: ListItem(
-                        'Local currency',
-                        subtitle: _defaultFiatCurrency,
-                        chevron: true,
-                      ),
-                    ),
-                    const ListDivider(),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/wallet_background_screen',
-                          arguments: walletIndex,
-                        );
-                      },
-                      child: const ListItem(
-                        'Background image',
-                        subtitle: 'Select a new background image',
-                        chevron: true,
-                      ),
-                    ),
-                    const ListDivider(),
-                    GestureDetector(
-                      onTap: () {
-                        _showDialog(walletIndex);
-                      },
-                      child: const ListItem(
-                        'Delete',
-                        subtitle: 'Warning: may cause loss of funds',
-                        subtitleColor: kRedColor,
-                        chevron: true,
-                      ),
-                    ),
-                    Visibility(
-                      visible: _wallet.type == 'mnemonic' ? true : false,
-                      child: const ListDivider(),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        if (_wallet.network == 'bitcoin') {
-                          _walletManager.setNetwork(walletIndex, 'testnet');
-                        } else if (_wallet.network == 'testnet') {
-                          _walletManager.setNetwork(walletIndex, 'testnet');
-                        }
-                      },
-                      child: Visibility(
-                        visible: _wallet.type == 'mnemonic' ? true : false,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/wallet_name_screen',
+                            arguments: walletIndex,
+                          );
+                        },
                         child: ListItem(
-                          'Toggle network',
-                          subtitle: 'Selected network: ${_wallet.network}',
+                          'Description',
+                          subtitle: _wallet.name,
                           chevron: true,
                         ),
                       ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const CustomFlatButton(
-                              textLabel: 'Close',
-                              buttonColor: kDarkBackgroundColor,
-                              fontColor: kWhiteColor,
-                            ),
+                      const ListDivider(),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/wallet_currency_screen',
+                            arguments: walletIndex,
+                          );
+                        },
+                        child: ListItem(
+                          'Local currency',
+                          subtitle: _defaultFiatCurrency,
+                          chevron: true,
+                        ),
+                      ),
+                      const ListDivider(),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/wallet_background_screen',
+                            arguments: walletIndex,
+                          );
+                        },
+                        child: const ListItem(
+                          'Background image',
+                          subtitle: 'Select a new background image',
+                          chevron: true,
+                        ),
+                      ),
+                      const ListDivider(),
+                      GestureDetector(
+                        onTap: () {
+                          _showDialog(walletIndex);
+                        },
+                        child: const ListItem(
+                          'Delete',
+                          subtitle: 'Warning: may cause loss of funds',
+                          subtitleColor: kRedColor,
+                          chevron: true,
+                        ),
+                      ),
+                      Visibility(
+                        visible: _wallet.type == 'mnemonic' ? true : false,
+                        child: const ListDivider(),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          if (_wallet.network == 'bitcoin') {
+                            _walletManager.setNetwork(walletIndex, 'testnet');
+                          } else if (_wallet.network == 'testnet') {
+                            _walletManager.setNetwork(walletIndex, 'testnet');
+                          }
+                        },
+                        child: Visibility(
+                          visible: _wallet.type == 'mnemonic' ? true : false,
+                          child: ListItem(
+                            'Toggle network',
+                            subtitle: 'Selected network: ${_wallet.network}',
+                            chevron: true,
                           ),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: const CustomFlatButton(
+                                textLabel: 'Close',
+                                buttonColor: kDarkBackgroundColor,
+                                fontColor: kWhiteColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+      ),
     );
   }
 

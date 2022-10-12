@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:othala/screens/lnurl_error_screen.dart';
 
 import '../models/currency.dart';
 import '../models/transaction.dart';
@@ -13,6 +12,7 @@ import '../screens/home_screen.dart';
 import '../screens/import_address_screen.dart';
 import '../screens/import_phrase_screen.dart';
 import '../screens/lnurl_confirmation_screen.dart';
+import '../screens/lnurl_error_screen.dart';
 import '../screens/lnurl_screen.dart';
 import '../screens/loading_screen.dart';
 import '../screens/send_payment_confirmation_screen.dart';
@@ -32,11 +32,9 @@ Future<void> main() async {
   Hive.registerAdapter(CurrencyAdapter());
   await Hive.initFlutter();
   await Hive.openBox('walletBox');
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((_) {
-    runApp(const MyApp());
-  });
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -46,7 +44,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Othala',
-      theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,

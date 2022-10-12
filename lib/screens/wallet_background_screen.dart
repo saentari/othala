@@ -43,32 +43,35 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   @override
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
-    return SafeArea(
-      child: ValueListenableBuilder(
-          valueListenable: Hive.box('walletBox').listenable(),
-          builder: (context, Box box, widget2) {
-            if (walletIndex < box.length) {
-              _wallet = box.getAt(walletIndex);
-            }
-            return Scaffold(
-              body: OrientationBuilder(
-                builder: (context, orientation) => CustomScrollView(
-                  slivers: [
-                    //App bar
-                    _buildSearchAppBar(),
+    return Container(
+      color: kDarkBackgroundColor,
+      child: SafeArea(
+        child: ValueListenableBuilder(
+            valueListenable: Hive.box('walletBox').listenable(),
+            builder: (context, Box box, widget2) {
+              if (walletIndex < box.length) {
+                _wallet = box.getAt(walletIndex);
+              }
+              return Scaffold(
+                body: OrientationBuilder(
+                  builder: (context, orientation) => CustomScrollView(
+                    slivers: [
+                      //App bar
+                      _buildSearchAppBar(),
 
-                    //Grid view with all the images
-                    _buildImageGrid(walletIndex, orientation: orientation),
+                      //Grid view with all the images
+                      _buildImageGrid(walletIndex, orientation: orientation),
 
-                    // loading indicator at the bottom of the list
-                    const SliverToBoxAdapter(
-                      child: LoadingIndicator(kDarkNeutral5Color),
-                    ),
-                  ],
+                      // loading indicator at the bottom of the list
+                      const SliverToBoxAdapter(
+                        child: LoadingIndicator(kDarkNeutral5Color),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+      ),
     );
   }
 

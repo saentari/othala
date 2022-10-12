@@ -29,137 +29,140 @@ class SendPaymentScreenState extends State<SendPaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ValueListenableBuilder(
-          valueListenable: Hive.box('walletBox').listenable(),
-          builder: (context, Box box, widget2) {
-            if (widget.walletIndex < box.length) {
-              _wallet = box.getAt(widget.walletIndex);
-            }
-            if (_recipientAddress.isNotEmpty && _recipientAmount.isNotEmpty) {
-              _confirmed = true;
-            }
-            return Scaffold(
-              body: Container(
-                padding: const EdgeInsets.only(
-                  bottom: 16.0,
-                  left: 8.0,
-                  right: 8.0,
-                ),
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: SvgPicture.asset(
-                        'assets/icons/logo.svg',
-                        color: kYellowColor,
-                        height: 40.0,
+    return Container(
+      color: kDarkBackgroundColor,
+      child: SafeArea(
+        child: ValueListenableBuilder(
+            valueListenable: Hive.box('walletBox').listenable(),
+            builder: (context, Box box, widget2) {
+              if (widget.walletIndex < box.length) {
+                _wallet = box.getAt(widget.walletIndex);
+              }
+              if (_recipientAddress.isNotEmpty && _recipientAmount.isNotEmpty) {
+                _confirmed = true;
+              }
+              return Scaffold(
+                body: Container(
+                  padding: const EdgeInsets.only(
+                    bottom: 16.0,
+                    left: 8.0,
+                    right: 8.0,
+                  ),
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: SvgPicture.asset(
+                          'assets/icons/logo.svg',
+                          color: kYellowColor,
+                          height: 40.0,
+                        ),
                       ),
-                    ),
-                    Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            _navigateAndDisplayAddress(context);
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            color: kTransparentColor,
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Recipient',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: kDarkNeutral5Color,
-                                  ),
-                                ),
-                                Text(
-                                  _recipientAddress.isNotEmpty
-                                      ? _recipientAddress
-                                      : 'Enter address...',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            _navigateAndDisplayAmount(context);
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            color: kTransparentColor,
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Amount',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: kDarkNeutral5Color,
-                                  ),
-                                ),
-                                Text(
-                                  _recipientAmount.isNotEmpty
-                                      ? '$_recipientAmount $_unit'
-                                      : 'Enter amount...',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () =>
-                                _confirmed == true ? _sendPayment() : null,
-                            child: _confirmed == true
-                                ? const CustomFlatButton(
-                                    textLabel: 'Send',
-                                  )
-                                : const CustomFlatButton(
-                                    textLabel: 'Send',
-                                    enabled: false,
-                                  ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
+                      Column(
+                        children: [
+                          GestureDetector(
                             onTap: () {
-                              Navigator.pop(context);
+                              _navigateAndDisplayAddress(context);
                             },
-                            child: const CustomFlatButton(
-                              textLabel: 'Cancel',
-                              buttonColor: kDarkBackgroundColor,
-                              fontColor: kWhiteColor,
+                            child: Container(
+                              width: double.infinity,
+                              color: kTransparentColor,
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Recipient',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: kDarkNeutral5Color,
+                                    ),
+                                  ),
+                                  Text(
+                                    _recipientAddress.isNotEmpty
+                                        ? _recipientAddress
+                                        : 'Enter address...',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          GestureDetector(
+                            onTap: () {
+                              _navigateAndDisplayAmount(context);
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              color: kTransparentColor,
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Amount',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: kDarkNeutral5Color,
+                                    ),
+                                  ),
+                                  Text(
+                                    _recipientAmount.isNotEmpty
+                                        ? '$_recipientAmount $_unit'
+                                        : 'Enter amount...',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () =>
+                                  _confirmed == true ? _sendPayment() : null,
+                              child: _confirmed == true
+                                  ? const CustomFlatButton(
+                                      textLabel: 'Send',
+                                    )
+                                  : const CustomFlatButton(
+                                      textLabel: 'Send',
+                                      enabled: false,
+                                    ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: const CustomFlatButton(
+                                textLabel: 'Cancel',
+                                buttonColor: kDarkBackgroundColor,
+                                fontColor: kWhiteColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+      ),
     );
   }
 

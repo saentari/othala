@@ -32,75 +32,79 @@ class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
     if (_confirmed == false) {
       getWalletData(ModalRoute.of(context)!.settings.arguments);
     }
-    return SafeArea(
-      child: Scaffold(
-        body: Container(
-          padding: const EdgeInsets.only(
-            bottom: 16.0,
-            left: 8.0,
-            right: 8.0,
-          ),
-          child: Column(
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: SvgPicture.asset(
-                  'assets/icons/logo.svg',
-                  color: kYellowColor,
-                  height: 40.0,
+    return Container(
+      color: kDarkBackgroundColor,
+      child: SafeArea(
+        child: Scaffold(
+          body: Container(
+            padding: const EdgeInsets.only(
+              bottom: 16.0,
+              left: 8.0,
+              right: 8.0,
+            ),
+            child: Column(
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: SvgPicture.asset(
+                    'assets/icons/logo.svg',
+                    color: kYellowColor,
+                    height: 40.0,
+                  ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                alignment: Alignment.centerLeft,
-                child: const Text(
-                  'Found something.',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                Container(
+                  padding:
+                      const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                  alignment: Alignment.centerLeft,
+                  child: const Text(
+                    'Found something.',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: ListView(
+                Expanded(
+                  child: ListView(
+                    children: [
+                      ListItem(
+                        _walletName,
+                        subtitle: _amount[0],
+                        icon: Icons.currency_bitcoin,
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
                   children: [
-                    ListItem(
-                      _walletName,
-                      subtitle: _amount[0],
-                      icon: Icons.currency_bitcoin,
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () =>
+                            _confirmed == true ? _encryptToKeyStore() : null,
+                        child: _confirmed == true
+                            ? const CustomFlatButton(
+                                textLabel: 'Import',
+                              )
+                            : const CustomFlatButton(
+                                textLabel: 'Import',
+                                enabled: false,
+                              ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                              '/home_screen', (Route<dynamic> route) => false);
+                        },
+                        child: const CustomFlatButton(
+                          textLabel: 'Close',
+                          buttonColor: kDarkBackgroundColor,
+                          fontColor: kWhiteColor,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () =>
-                          _confirmed == true ? _encryptToKeyStore() : null,
-                      child: _confirmed == true
-                          ? const CustomFlatButton(
-                              textLabel: 'Import',
-                            )
-                          : const CustomFlatButton(
-                              textLabel: 'Import',
-                              enabled: false,
-                            ),
-                    ),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/home_screen', (Route<dynamic> route) => false);
-                      },
-                      child: const CustomFlatButton(
-                        textLabel: 'Close',
-                        buttonColor: kDarkBackgroundColor,
-                        fontColor: kWhiteColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

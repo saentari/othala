@@ -40,83 +40,86 @@ class SendPaymentAmountScreenState extends State<SendPaymentAmountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Container(
-          padding: const EdgeInsets.only(
-            bottom: 16.0,
-            left: 8.0,
-            right: 8.0,
-          ),
-          child: Column(
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: SvgPicture.asset(
-                  'assets/icons/logo.svg',
-                  color: kYellowColor,
-                  height: 40.0,
+    return Container(
+      color: kDarkBackgroundColor,
+      child: SafeArea(
+        child: Scaffold(
+          body: Container(
+            padding: const EdgeInsets.only(
+              bottom: 16.0,
+              left: 8.0,
+              right: 8.0,
+            ),
+            child: Column(
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: SvgPicture.asset(
+                    'assets/icons/logo.svg',
+                    color: kYellowColor,
+                    height: 40.0,
+                  ),
                 ),
-              ),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Amount',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextField(
+                        style: const TextStyle(fontSize: 40.0),
+                        controller: _myTextController,
+                        textAlign: TextAlign.center,
+                        minLines: 1,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration.collapsed(
+                          hintText: '0.0 btc',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                Row(
                   children: [
-                    const Text(
-                      'Amount',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _confirmed == true
+                            ? Navigator.pop(context, _amount)
+                            : null,
+                        child: _confirmed == true
+                            ? const CustomFlatButton(
+                                textLabel: 'Confirm',
+                              )
+                            : const CustomFlatButton(
+                                textLabel: 'Confirm',
+                                enabled: false,
+                              ),
                       ),
                     ),
-                    const SizedBox(height: 16.0),
-                    TextField(
-                      style: const TextStyle(fontSize: 40.0),
-                      controller: _myTextController,
-                      textAlign: TextAlign.center,
-                      minLines: 1,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration.collapsed(
-                        hintText: '0.0 btc',
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context, '');
+                        },
+                        child: const CustomFlatButton(
+                          textLabel: 'Cancel',
+                          buttonColor: kDarkBackgroundColor,
+                          fontColor: kWhiteColor,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              const Spacer(),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => _confirmed == true
-                          ? Navigator.pop(context, _amount)
-                          : null,
-                      child: _confirmed == true
-                          ? const CustomFlatButton(
-                              textLabel: 'Confirm',
-                            )
-                          : const CustomFlatButton(
-                              textLabel: 'Confirm',
-                              enabled: false,
-                            ),
-                    ),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context, '');
-                      },
-                      child: const CustomFlatButton(
-                        textLabel: 'Cancel',
-                        buttonColor: kDarkBackgroundColor,
-                        fontColor: kWhiteColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

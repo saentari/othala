@@ -81,37 +81,41 @@ class ListTileAsset extends StatefulWidget {
 class _ListTileAssetState extends State<ListTileAsset> {
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        await _walletManager.setDefaultFiatCurrency(
-            widget.walletIndex, widget.fiatCurrency);
-        await _walletManager.setDefaultCurrency(
-            widget.walletIndex, widget.fiatCurrency);
-        if (!mounted) return;
-        Navigator.pop(context);
-      },
-      child: Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        height: 70,
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Row(
-          children: [
-            Text(
-              '${widget.fiatCurrency.code}     ${widget.fiatCurrency.name}',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            const Spacer(),
-            Visibility(
-              visible:
-                  widget.fiatCurrency.code == widget.defaultFiatCurrency.code
-                      ? true
-                      : false,
-              child: const Icon(
-                CupertinoIcons.check_mark,
-                color: kYellowColor,
+    return Container(
+      color: kDarkBackgroundColor,
+      child: GestureDetector(
+        onTap: () async {
+          await _walletManager.setDefaultFiatCurrency(
+              widget.walletIndex, widget.fiatCurrency);
+          await _walletManager.setDefaultCurrency(
+              widget.walletIndex, widget.fiatCurrency);
+          if (!mounted) return;
+          Navigator.pop(context);
+        },
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          height: 70,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            children: [
+              Text(
+                '${widget.fiatCurrency.code}     ${widget.fiatCurrency.name}',
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-            ),
-          ],
+              const Spacer(),
+              Visibility(
+                visible:
+                    widget.fiatCurrency.code == widget.defaultFiatCurrency.code
+                        ? true
+                        : false,
+                child: const Icon(
+                  CupertinoIcons.check_mark,
+                  color: kYellowColor,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
