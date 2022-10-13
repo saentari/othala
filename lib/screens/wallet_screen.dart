@@ -150,36 +150,45 @@ class WalletScreenState extends State<WalletScreen> {
                       ),
                       const SizedBox(height: 24.0),
                       Expanded(
-                        child: ListView.separated(
-                          separatorBuilder: (BuildContext context, int index) =>
-                              const ListDivider(),
-                          itemCount: _wallet.transactions.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            String formattedDateTime =
-                                DateFormat('yyyy-MM-dd kk:mm').format(_wallet
-                                    .transactions[index].transactionBroadcast);
-                            double amount = 0.0;
-                            String address = '';
-                            List ioAmount = _checkInputOutput(
-                                _wallet.transactions[index],
-                                _wallet.address.first);
-                            address = ioAmount.elementAt(0);
-                            amount = ioAmount.elementAt(1);
-                            String confirmations = '';
-                            int blockConf =
-                                _wallet.transactions[index].confirmations;
-                            if (blockConf == 0) {
-                              confirmations = 'pending';
-                            } else if (blockConf < 6) {
-                              confirmations = '$blockConf conf.';
-                            }
-                            return ListItemTransaction(
-                              address,
-                              subtitle: formattedDateTime,
-                              value: amount,
-                              subtitleValue: confirmations,
-                            );
+                        child: RefreshIndicator(
+                          color: kBlackColor,
+                          backgroundColor: kYellowColor,
+                          onRefresh: () async {
+                            await _getTransactions(walletIndex);
                           },
+                          child: ListView.separated(
+                            separatorBuilder:
+                                (BuildContext context, int index) =>
+                                    const ListDivider(),
+                            itemCount: _wallet.transactions.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              String formattedDateTime =
+                                  DateFormat('yyyy-MM-dd kk:mm').format(_wallet
+                                      .transactions[index]
+                                      .transactionBroadcast);
+                              double amount = 0.0;
+                              String address = '';
+                              List ioAmount = _checkInputOutput(
+                                  _wallet.transactions[index],
+                                  _wallet.address.first);
+                              address = ioAmount.elementAt(0);
+                              amount = ioAmount.elementAt(1);
+                              String confirmations = '';
+                              int blockConf =
+                                  _wallet.transactions[index].confirmations;
+                              if (blockConf == 0) {
+                                confirmations = 'pending';
+                              } else if (blockConf < 6) {
+                                confirmations = '$blockConf conf.';
+                              }
+                              return ListItemTransaction(
+                                address,
+                                subtitle: formattedDateTime,
+                                value: amount,
+                                subtitleValue: confirmations,
+                              );
+                            },
+                          ),
                         ),
                       ),
                       Row(

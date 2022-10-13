@@ -133,14 +133,19 @@ class WalletManager extends ValueNotifier<Box> {
       bitcoinClient.setNetwork(bitcoin.testnet);
     }
 
-    var stats =
+    final stats =
         await bitcoinClient.getTransactionAddressStats(bitcoinClient.address);
 
+    // compare the number of transactions
     int blockExplorerTx =
         stats['chain_stats']['tx_count'] + stats['mempool_stats']['tx_count'];
     int walletBoxTx = wallet.transactions.length;
 
-    if (blockExplorerTx == walletBoxTx) {
+    // check if last saved tx is still pending
+    bool pendingTx = wallet.transactions[0].confirmations > 6 ? false : true;
+
+    // consider synced if nothing is pending and same amount of tx
+    if (blockExplorerTx == walletBoxTx && pendingTx == false) {
       return true;
     }
     return false;
@@ -320,6 +325,7 @@ class WalletManager extends ValueNotifier<Box> {
       Transaction tx =
           Transaction(transactionId, transactionBroadcast, blockConf, from, to);
       transactions.add(tx);
+      print('blockConf: $blockConf');
     }
     wallet.transactions = transactions;
     value.putAt(index, wallet);
