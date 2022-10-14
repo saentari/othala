@@ -13,6 +13,8 @@ class BitcoinClient {
   late String seed;
 
   NetworkType network = bitcoin;
+  int purpose = 84;
+  int coinType = 0;
 
   final NetworkHelper _networkHelper = NetworkHelper();
 
@@ -38,18 +40,29 @@ class BitcoinClient {
     final seedUint8List = bip39.mnemonicToSeed(seed);
     final root = bip32.BIP32.fromSeed(seedUint8List);
 
-    // BIP84 (BIP44 for native segwit)
-    if (network == testnet) {
-      final node = root.derivePath("m/84'/1'/0'/0/$walletIndex");
-      address =
-          P2WPKH(data: PaymentData(pubkey: node.publicKey), network: testnet)
-              .data
-              .address;
-    } else {
-      final node = root.derivePath("m/84'/0'/0'/0/$walletIndex");
+    // BIP44 - Multi-account hierarchy for deterministic wallets (Legacy)
+    final node = root.derivePath("m/$purpose'/$coinType'/0'/0/$walletIndex");
+    if (purpose == 44) {
+      address = P2PKH(data: PaymentData(pubkey: node.publicKey)).data.address;
+    }
+    // BIP49 - Derivation scheme for P2WPKH-nested-in-P2SH based accounts (Segwit)
+    else if (purpose == 49) {
+      // not yet supported in bitcoin_dart library.
+      address = P2SH(
+              data: PaymentData(
+                  redeem:
+                      P2WPKH(data: PaymentData(pubkey: node.publicKey)).data))
+          .data
+          .address;
+    }
+    // BIP84 - Derivation scheme for P2WPKH based accounts (native Segwit)
+    else if (purpose == 84) {
       address = P2WPKH(data: PaymentData(pubkey: node.publicKey)).data.address;
     }
-
+    // Unsupported derivation scheme
+    else {
+      throw ('unsupported derivation scheme');
+    }
     return address;
   }
 
@@ -409,6 +422,14 @@ class BitcoinClient {
     network = newNetwork;
     if (readOnlyClient == false) {
       address = getAddress(0);
+    }
+    coinType = newNetwork == testnet ? 1 : 0;
+  }
+
+  setPurpose(p) {
+    // only support BIP44, BIP49, and BIP84
+    if (p == 44 || p == 49 || p == 84) {
+      purpose = p;
     }
   }
 

@@ -78,10 +78,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "20a5c33a58ca794eada9330969b93edd783fbed1"
+      resolved-ref: "93a26f7754e7a6ffa66b4d5f839ac001796a959d"
       url: "https://github.com/saentari/bitcoin_dart.git"
     source: git
-    version: "2.0.4"
+    version: "2.1.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -250,10 +250,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "480fb3b0b75734862864584f987428f9e8df3e5b"
+      resolved-ref: bf96a073f74d47454751a6cbae5b7d1d0c33e500
       url: "https://github.com/saentari/dart_lnurl.git"
     source: git
-    version: "0.2.0"
+    version: "0.2.1"
   dart_style:
     dependency: transitive
     description:
