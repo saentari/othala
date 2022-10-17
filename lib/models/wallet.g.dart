@@ -42,7 +42,7 @@ class WalletAdapter extends TypeAdapter<Wallet> {
       ..writeByte(2)
       ..write(obj.type)
       ..writeByte(3)
-      ..write(obj.network)
+      ..write(obj.derivationPath)
       ..writeByte(4)
       ..write(obj.address)
       ..writeByte(5)

@@ -14,7 +14,7 @@ class Wallet {
   @HiveField(2)
   String type;
   @HiveField(3)
-  String network;
+  String derivationPath;
   @HiveField(4)
   List<String> address;
   @HiveField(5)
@@ -34,7 +34,7 @@ class Wallet {
     this.key,
     this.name,
     this.type,
-    this.network,
+    this.derivationPath,
     this.address,
     this.balance,
     this.transactions,

@@ -52,6 +52,9 @@ class WalletScreenState extends State<WalletScreen> {
         child: ValueListenableBuilder(
             valueListenable: Hive.box('walletBox').listenable(),
             builder: (context, Box box, widget2) {
+              // print(_wallet.address);
+              // print(_wallet.derivationPath);
+              // print(_walletManager.getNetworkType(_wallet.derivationPath));
               _updateValues(box, walletIndex);
               return Scaffold(
                 body: Container(

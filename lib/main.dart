@@ -19,9 +19,11 @@ import '../screens/send_payment_confirmation_screen.dart';
 import '../screens/wallet_background_screen.dart';
 import '../screens/wallet_creation_screen.dart';
 import '../screens/wallet_currency_screen.dart';
+import '../screens/wallet_derivation_screen.dart';
 import '../screens/wallet_discovery_screen.dart';
 import '../screens/wallet_import_screen.dart';
 import '../screens/wallet_name_screen.dart';
+import '../screens/wallet_network_screen.dart';
 import '../screens/wallet_screen.dart';
 import '../screens/wallet_settings_screen.dart';
 import '../themes/theme_data.dart';
@@ -67,8 +69,11 @@ class MyApp extends StatelessWidget {
         '/wallet_creation_screen': (context) => const WalletCreationScreen(),
         '/wallet_currency_screen': (context) => const WalletCurrencyScreen(),
         '/wallet_discovery_screen': (context) => const WalletDiscoveryScreen(),
+        '/wallet_derivation_screen': (context) =>
+            const WalletDerivationScreen(),
         '/wallet_import_screen': (context) => const WalletImportScreen(),
         '/wallet_name_screen': (context) => const WalletNameScreen(),
+        '/wallet_network_screen': (context) => const WalletNetworkScreen(),
         '/wallet_settings_screen': (context) => const WalletSettingsScreen(),
         '/wallet_screen': (context) => const WalletScreen(),
       },

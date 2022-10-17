@@ -17,7 +17,7 @@ class WalletSettingsScreen extends StatefulWidget {
 }
 
 class WalletSettingsScreenState extends State<WalletSettingsScreen> {
-  final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
+  final _walletManager = WalletManager(Hive.box('walletBox'));
   late Wallet _wallet;
   String _defaultFiatCurrency = 'US dollar';
 
@@ -111,17 +111,39 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          if (_wallet.network == 'bitcoin') {
-                            _walletManager.setNetwork(walletIndex, 'testnet');
-                          } else if (_wallet.network == 'testnet') {
-                            _walletManager.setNetwork(walletIndex, 'testnet');
-                          }
+                          Navigator.pushNamed(
+                            context,
+                            '/wallet_network_screen',
+                            arguments: walletIndex,
+                          );
                         },
                         child: Visibility(
                           visible: _wallet.type == 'mnemonic' ? true : false,
                           child: ListItem(
                             'Toggle network',
-                            subtitle: 'Selected network: ${_wallet.network}',
+                            subtitle:
+                                'Selected network: ${_walletManager.getNetworkType(_wallet.derivationPath)}',
+                            chevron: true,
+                          ),
+                        ),
+                      ),
+                      Visibility(
+                        visible: _wallet.type == 'mnemonic' ? true : false,
+                        child: const ListDivider(),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/wallet_derivation_screen',
+                            arguments: walletIndex,
+                          );
+                        },
+                        child: Visibility(
+                          visible: _wallet.type == 'mnemonic' ? true : false,
+                          child: ListItem(
+                            'Change derivation path',
+                            subtitle: _wallet.derivationPath,
                             chevron: true,
                           ),
                         ),

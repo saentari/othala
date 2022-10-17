@@ -5,6 +5,7 @@ import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bitcoin_dart/bitcoin_dart.dart';
 
+import '../models/derivation_path.dart';
 import 'network_helper.dart';
 
 class BitcoinClient {
@@ -39,25 +40,35 @@ class BitcoinClient {
     final String? address;
     final seedUint8List = bip39.mnemonicToSeed(seed);
     final root = bip32.BIP32.fromSeed(seedUint8List);
+    final network = coinType == 1 ? testnet : bitcoin;
 
     // BIP44 - Multi-account hierarchy for deterministic wallets (Legacy)
     final node = root.derivePath("m/$purpose'/$coinType'/0'/0/$walletIndex");
     if (purpose == 44) {
-      address = P2PKH(data: PaymentData(pubkey: node.publicKey)).data.address;
+      address =
+          P2PKH(data: PaymentData(pubkey: node.publicKey), network: network)
+              .data
+              .address;
     }
     // BIP49 - Derivation scheme for P2WPKH-nested-in-P2SH based accounts (Segwit)
     else if (purpose == 49) {
       // not yet supported in bitcoin_dart library.
       address = P2SH(
               data: PaymentData(
-                  redeem:
-                      P2WPKH(data: PaymentData(pubkey: node.publicKey)).data))
+                  redeem: P2WPKH(
+                          data: PaymentData(pubkey: node.publicKey),
+                          network: network)
+                      .data),
+              network: network)
           .data
           .address;
     }
     // BIP84 - Derivation scheme for P2WPKH based accounts (native Segwit)
     else if (purpose == 84) {
-      address = P2WPKH(data: PaymentData(pubkey: node.publicKey)).data.address;
+      address =
+          P2WPKH(data: PaymentData(pubkey: node.publicKey), network: network)
+              .data
+              .address;
     }
     // Unsupported derivation scheme
     else {
@@ -416,6 +427,28 @@ class BitcoinClient {
 
   purgeClient() {
     // When a wallet is "locked" the private key should be purged in each client by setting it back to null.
+  }
+
+  setDerivationPath(derivationPath) {
+    final dp = DerivationPath();
+    final purpose = dp.getPurpose(derivationPath);
+    final coinType = dp.getCoinType(derivationPath);
+    final walletIndex = dp.getAddressIndex(derivationPath);
+
+    // set purpose
+    setPurpose(purpose);
+
+    // set network
+    if (coinType == 0) {
+      setNetwork(bitcoin);
+    } else if (coinType == 1) {
+      setNetwork(testnet);
+    }
+
+    // set address
+    if (readOnlyClient == false) {
+      address = getAddress(walletIndex);
+    }
   }
 
   setNetwork(newNetwork) {

@@ -9,6 +9,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as path_provider;
 
 import '../models/currency.dart';
+import '../models/derivation_path.dart';
 import '../models/secure_item.dart';
 import '../models/transaction.dart';
 import '../models/unsplash_image.dart';
@@ -22,9 +23,6 @@ import '../utils/utils.dart';
 class WalletManager extends ValueNotifier<Box> {
   final StorageService _storageService = StorageService();
   final ExchangeManager _exchangeManager = ExchangeManager();
-
-  // Wallet client can be either read-only or full.
-  late BitcoinClient _bitcoinClient;
 
   WalletManager(Box value) : super(value);
 
@@ -55,23 +53,40 @@ class WalletManager extends ValueNotifier<Box> {
       {String? mnemonic, String? address, bool generated = false}) async {
     String key = UniqueKey().toString();
     String secureData;
-
+    String derivationPath;
     String type;
+    int coinType = 0;
+    int purpose = 84;
+    String network = 'bitcoin';
+    BitcoinClient bitcoinClient;
     if (mnemonic != null && mnemonic.isNotEmpty) {
       secureData = mnemonic;
       type = 'mnemonic';
-      _bitcoinClient = BitcoinClient(mnemonic);
-      address = _bitcoinClient.address;
+      bitcoinClient = BitcoinClient(mnemonic);
+      derivationPath = "m/84'/0'/0'/0";
+      address = bitcoinClient.address;
     } else if (address != null && address.isNotEmpty) {
       secureData = address;
       type = 'address';
-      _bitcoinClient = BitcoinClient.readonly(address);
+      bitcoinClient = BitcoinClient.readonly(address);
+
+      btc_address.Address addressData = btc_address.validate(address);
+
+      // Discover if address is testnet.
+      if (addressData.network == btc_address.Network.testnet) {
+        coinType = 1;
+      }
+
+      if (addressData.segwit == false) {
+        purpose = 44;
+      }
+      if (addressData.type == btc_address.Type.p2sh) {
+        purpose = 49;
+      }
+      derivationPath = "m/$purpose'/$coinType'/0'/0";
     } else {
       throw ArgumentError('Missing input');
     }
-
-    // Discover if address is testnet.
-    String network = getNetworkType(address);
 
     // Secure storage
     _storageService.writeSecureData(SecureItem(key, secureData));
@@ -80,8 +95,8 @@ class WalletManager extends ValueNotifier<Box> {
     List<Transaction> transactions = [];
     // Retrieve balance and transactions when imported
     if (generated == false) {
-      balance = await getBalance(_bitcoinClient.address);
-      transactions = await getTransactions(_bitcoinClient.address, network);
+      balance = await getBalance(bitcoinClient.address);
+      transactions = await getTransactions(bitcoinClient.address, network);
     }
 
     // Random background image
@@ -102,7 +117,7 @@ class WalletManager extends ValueNotifier<Box> {
     Currency defaultCurrency =
         Currency('BTC', id: 'btc-bitcoin', name: 'Bitcoin', priceUsd: 1.0);
 
-    String walletName = getAddressName(address);
+    String walletName = getAddressName(bitcoinClient.address);
 
     // Store in Hive Box
     var walletBox = Hive.box('walletBox');
@@ -110,8 +125,8 @@ class WalletManager extends ValueNotifier<Box> {
         key,
         walletName,
         type,
-        network,
-        [address],
+        derivationPath,
+        [bitcoinClient.address],
         [balance],
         transactions,
         imageId,
@@ -129,7 +144,7 @@ class WalletManager extends ValueNotifier<Box> {
   Future<bool> isSynced(index) async {
     Wallet wallet = value.getAt(index);
     BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
-    if (wallet.network == 'testnet') {
+    if (getNetworkType(wallet.derivationPath) == 'testnet') {
       bitcoinClient.setNetwork(bitcoin.testnet);
     }
 
@@ -142,7 +157,10 @@ class WalletManager extends ValueNotifier<Box> {
     int walletBoxTx = wallet.transactions.length;
 
     // check if last saved tx is still pending
-    bool pendingTx = wallet.transactions[0].confirmations > 6 ? false : true;
+    bool pendingTx = false;
+    if (walletBoxTx > 0 && wallet.transactions[0].confirmations < 6) {
+      pendingTx = true;
+    }
 
     // consider synced if nothing is pending and same amount of tx
     if (blockExplorerTx == walletBoxTx && pendingTx == false) {
@@ -155,14 +173,14 @@ class WalletManager extends ValueNotifier<Box> {
   Future<double> getBalance(address) async {
     btc_address.Network? network = btc_address.validate(address).network;
 
-    _bitcoinClient = BitcoinClient.readonly(address);
+    BitcoinClient bitcoinClient = BitcoinClient.readonly(address);
     String asset = 'BTC';
     if (network == btc_address.Network.testnet) {
-      _bitcoinClient.setNetwork(bitcoin.testnet);
+      bitcoinClient.setNetwork(bitcoin.testnet);
       asset = 'tBTC';
     }
     List balances =
-        await _bitcoinClient.getBalance(_bitcoinClient.address, 'BTC.$asset');
+        await bitcoinClient.getBalance(bitcoinClient.address, 'BTC.$asset');
     double balance = balances[0]['amount'];
     return balance;
   }
@@ -197,13 +215,14 @@ class WalletManager extends ValueNotifier<Box> {
     return transactions;
   }
 
-  String getNetworkType(String address) {
-    BitcoinClient bitcoinClient = BitcoinClient.readonly(address);
-    bitcoinClient.setNetwork(bitcoin.testnet);
-    if (bitcoinClient.validateAddress(address) == true) {
+  String getNetworkType(String derivationPath) {
+    final dp = DerivationPath();
+    if (dp.getCoinType(derivationPath) == 0) {
+      return 'bitcoin';
+    } else if (dp.getCoinType(derivationPath) == 1) {
       return 'testnet';
     } else {
-      return 'bitcoin';
+      return 'unsupported';
     }
   }
 
@@ -241,6 +260,26 @@ class WalletManager extends ValueNotifier<Box> {
     value.putAt(walletIndex, wallet);
   }
 
+  Future<void> setPurpose(int walletIndex, int purpose) async {
+    Wallet wallet = value.getAt(walletIndex);
+
+    // Get the seed to update the address on the new network
+    String? seed = await _storageService.readSecureData(wallet.key);
+    BitcoinClient bitcoinClient = BitcoinClient(seed!);
+
+    // fetch stored network/cointype
+    final derivationPath = DerivationPath();
+    final coinType = derivationPath.getCoinType(wallet.derivationPath);
+
+    // set wallet values
+    wallet.derivationPath = "m/$purpose'/$coinType'/0'/0";
+    bitcoinClient.setDerivationPath(wallet.derivationPath);
+    wallet.address = [bitcoinClient.address];
+
+    // update box entry with new network & address.
+    value.putAt(walletIndex, wallet);
+  }
+
   Future<void> setNetwork(int walletIndex, String network) async {
     Wallet wallet = value.getAt(walletIndex);
 
@@ -248,13 +287,15 @@ class WalletManager extends ValueNotifier<Box> {
     String? seed = await _storageService.readSecureData(wallet.key);
     BitcoinClient bitcoinClient = BitcoinClient(seed!);
 
+    final dp = DerivationPath();
+    final purpose = dp.getPurpose(wallet.derivationPath);
+
     if (network == 'bitcoin') {
-      wallet.network = 'bitcoin';
-      bitcoinClient.setNetwork(bitcoin.bitcoin);
+      wallet.derivationPath = "m/$purpose'/0'/0'/0";
     } else if (network == 'testnet') {
-      wallet.network = 'testnet';
-      bitcoinClient.setNetwork(bitcoin.testnet);
+      wallet.derivationPath = "m/$purpose'/1'/0'/0";
     }
+    bitcoinClient.setDerivationPath(wallet.derivationPath);
     wallet.address = [bitcoinClient.getAddress(0)];
 
     // update box entry with new network & address.
@@ -266,7 +307,7 @@ class WalletManager extends ValueNotifier<Box> {
     for (var index = 0; index < value.length; index++) {
       Wallet wallet = value.getAt(index);
       BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
-      if (wallet.network == 'testnet') {
+      if (wallet.derivationPath == 'testnet') {
         bitcoinClient.setNetwork(bitcoin.testnet);
       }
       List balances =
@@ -280,9 +321,10 @@ class WalletManager extends ValueNotifier<Box> {
   Future<void> updateBalance(index) async {
     Wallet wallet = value.getAt(index);
     BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
-    if (wallet.network == 'testnet') {
-      bitcoinClient.setNetwork(bitcoin.testnet);
-    }
+    bitcoinClient.setDerivationPath(wallet.derivationPath);
+    // if (wallet.derivationPath == 'testnet') {
+    //   bitcoinClient.setNetwork(bitcoin.testnet);
+    // }
     List balances =
         await bitcoinClient.getBalance(bitcoinClient.address, 'BTC.BTC');
     wallet.balance = [balances[0]['amount']];
@@ -311,9 +353,10 @@ class WalletManager extends ValueNotifier<Box> {
   Future<void> updateTransactions(index) async {
     Wallet wallet = value.getAt(index);
     BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
-    if (wallet.network == 'testnet') {
-      bitcoinClient.setNetwork(bitcoin.testnet);
-    }
+    bitcoinClient.setDerivationPath(wallet.derivationPath);
+    // if (wallet.derivationPath == 'testnet') {
+    //   bitcoinClient.setNetwork(bitcoin.testnet);
+    // }
     List<Transaction> transactions = [];
     List rawTxs = await bitcoinClient.getTransactions(wallet.address[0]);
     for (var rawTx in rawTxs) {
@@ -325,7 +368,6 @@ class WalletManager extends ValueNotifier<Box> {
       Transaction tx =
           Transaction(transactionId, transactionBroadcast, blockConf, from, to);
       transactions.add(tx);
-      print('blockConf: $blockConf');
     }
     wallet.transactions = transactions;
     value.putAt(index, wallet);

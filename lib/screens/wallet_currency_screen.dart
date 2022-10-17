@@ -26,37 +26,40 @@ class WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
     _defaultFiatCurrency = _walletManager.getDefaultFiatCurrency(walletIndex);
-    return SafeArea(
-      child: Scaffold(
-        body: CustomScrollView(
-          slivers: [
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-                  return Column(
-                    children: <Widget>[
-                      ListTileAsset(
-                        walletIndex,
-                        _fiatCurrencies[index],
-                        _defaultFiatCurrency,
-                      ),
-                      const ListDivider(),
-                    ],
-                  );
-                },
-                childCount: _fiatCurrencies.length,
+    return Container(
+      color: kDarkBackgroundColor,
+      child: SafeArea(
+        child: Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    return Column(
+                      children: <Widget>[
+                        ListTileAsset(
+                          walletIndex,
+                          _fiatCurrencies[index],
+                          _defaultFiatCurrency,
+                        ),
+                        const ListDivider(),
+                      ],
+                    );
+                  },
+                  childCount: _fiatCurrencies.length,
+                ),
               ),
+            ],
+          ),
+          bottomNavigationBar: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const CustomFlatButton(
+              textLabel: 'Cancel',
+              buttonColor: kDarkBackgroundColor,
+              fontColor: kWhiteColor,
             ),
-          ],
-        ),
-        bottomNavigationBar: GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: const CustomFlatButton(
-            textLabel: 'Cancel',
-            buttonColor: kDarkBackgroundColor,
-            fontColor: kWhiteColor,
           ),
         ),
       ),

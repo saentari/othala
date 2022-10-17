@@ -66,20 +66,19 @@ bool isValidAddress(String address) {
 
 // walletDescriptor
 String getAddressName(String address) {
+  String description;
+
   btc_address.Address addressData = btc_address.validate(address);
-  String description = '';
-  String type = describeEnum(addressData.type as Enum);
+  if (addressData.segwit) {
+    description = 'Native Segwit';
+  } else {
+    description = 'Legacy';
+  }
 
   if (addressData.network == btc_address.Network.testnet) {
-    description = 'Testnet $description';
+    description = 'Testnet';
   }
 
-  if (addressData.segwit) {
-    description = 'Native Segwit $description';
-  } else {
-    description = 'Legacy $description';
-  }
-
-  description = '$description (${type.toLowerCase()})';
-  return description;
+  String type = describeEnum(addressData.type as Enum);
+  return '$description (${type.toLowerCase()})';
 }
