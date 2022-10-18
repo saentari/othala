@@ -147,7 +147,26 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
       dismissOnTap: true,
     );
     final walletManager = WalletManager(Hive.box('walletBox'));
-    await walletManager.encryptToKeyStore(mnemonic: _mnemonic);
+
+    int purpose = 84;
+    BitcoinClient bitcoinClient = BitcoinClient(_mnemonic);
+
+    // check if a derivation path has transactions
+    for (int p in [44, 49, 84]) {
+      String derivationPath = "m/$p'/0'/0'/0";
+      bitcoinClient.setDerivationPath(derivationPath);
+      final data =
+          await bitcoinClient.getTransactionAddressStats(bitcoinClient.address);
+      final txCount =
+          data['chain_stats']['tx_count'] + data['mempool_stats']['tx_count'];
+      if (txCount > 0) {
+        purpose = p;
+        break;
+      }
+    }
+
+    await walletManager.encryptToKeyStore(
+        mnemonic: _mnemonic, purpose: purpose);
     if (EasyLoading.isShow) {
       EasyLoading.dismiss();
     }

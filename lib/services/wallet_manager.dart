@@ -50,33 +50,33 @@ class WalletManager extends ValueNotifier<Box> {
 
   /// Secure store wallet
   encryptToKeyStore(
-      {String? mnemonic, String? address, bool generated = false}) async {
+      {String? mnemonic,
+      String? address,
+      bool generated = false,
+      int? purpose = 84}) async {
     String key = UniqueKey().toString();
     String secureData;
     String derivationPath;
     String type;
     int coinType = 0;
-    int purpose = 84;
     String network = 'bitcoin';
     BitcoinClient bitcoinClient;
     if (mnemonic != null && mnemonic.isNotEmpty) {
       secureData = mnemonic;
       type = 'mnemonic';
+      derivationPath = "m/$purpose'/$coinType'/0'/0";
       bitcoinClient = BitcoinClient(mnemonic);
-      derivationPath = "m/84'/0'/0'/0";
+      bitcoinClient.setDerivationPath(derivationPath);
       address = bitcoinClient.address;
     } else if (address != null && address.isNotEmpty) {
       secureData = address;
       type = 'address';
       bitcoinClient = BitcoinClient.readonly(address);
-
       btc_address.Address addressData = btc_address.validate(address);
-
       // Discover if address is testnet.
       if (addressData.network == btc_address.Network.testnet) {
         coinType = 1;
       }
-
       if (addressData.segwit == false) {
         purpose = 44;
       }
@@ -144,9 +144,7 @@ class WalletManager extends ValueNotifier<Box> {
   Future<bool> isSynced(index) async {
     Wallet wallet = value.getAt(index);
     BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
-    if (getNetworkType(wallet.derivationPath) == 'testnet') {
-      bitcoinClient.setNetwork(bitcoin.testnet);
-    }
+    bitcoinClient.setDerivationPath(wallet.derivationPath);
 
     final stats =
         await bitcoinClient.getTransactionAddressStats(bitcoinClient.address);
@@ -174,13 +172,10 @@ class WalletManager extends ValueNotifier<Box> {
     btc_address.Network? network = btc_address.validate(address).network;
 
     BitcoinClient bitcoinClient = BitcoinClient.readonly(address);
-    String asset = 'BTC';
     if (network == btc_address.Network.testnet) {
       bitcoinClient.setNetwork(bitcoin.testnet);
-      asset = 'tBTC';
     }
-    List balances =
-        await bitcoinClient.getBalance(bitcoinClient.address, 'BTC.$asset');
+    List balances = await bitcoinClient.getBalance(bitcoinClient.address);
     double balance = balances[0]['amount'];
     return balance;
   }
@@ -307,11 +302,8 @@ class WalletManager extends ValueNotifier<Box> {
     for (var index = 0; index < value.length; index++) {
       Wallet wallet = value.getAt(index);
       BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
-      if (wallet.derivationPath == 'testnet') {
-        bitcoinClient.setNetwork(bitcoin.testnet);
-      }
-      List balances =
-          await bitcoinClient.getBalance(bitcoinClient.address, 'BTC.BTC');
+      bitcoinClient.setDerivationPath(wallet.derivationPath);
+      List balances = await bitcoinClient.getBalance(bitcoinClient.address);
       wallet.balance = [balances[0]['amount']];
       value.putAt(index, wallet);
     }
@@ -322,11 +314,8 @@ class WalletManager extends ValueNotifier<Box> {
     Wallet wallet = value.getAt(index);
     BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
     bitcoinClient.setDerivationPath(wallet.derivationPath);
-    // if (wallet.derivationPath == 'testnet') {
-    //   bitcoinClient.setNetwork(bitcoin.testnet);
-    // }
-    List balances =
-        await bitcoinClient.getBalance(bitcoinClient.address, 'BTC.BTC');
+
+    List balances = await bitcoinClient.getBalance(bitcoinClient.address);
     wallet.balance = [balances[0]['amount']];
     value.putAt(index, wallet);
   }
@@ -354,9 +343,7 @@ class WalletManager extends ValueNotifier<Box> {
     Wallet wallet = value.getAt(index);
     BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
     bitcoinClient.setDerivationPath(wallet.derivationPath);
-    // if (wallet.derivationPath == 'testnet') {
-    //   bitcoinClient.setNetwork(bitcoin.testnet);
-    // }
+
     List<Transaction> transactions = [];
     List rawTxs = await bitcoinClient.getTransactions(wallet.address[0]);
     for (var rawTx in rawTxs) {

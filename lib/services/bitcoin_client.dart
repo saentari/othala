@@ -77,7 +77,7 @@ class BitcoinClient {
     return address;
   }
 
-  getBalance(address, assets) async {
+  getBalance(address) async {
     List balances = [];
 
     String uri = '${getExplorerAddressUrl(address)}';
@@ -86,13 +86,8 @@ class BitcoinClient {
     num spend = jsonDecode(responseBody)['chain_stats']['spent_txo_sum'];
     num amount = (funded - spend) / _denominator;
 
-    String asset;
-    network == testnet ? asset = 'tBTC' : asset = 'BTC';
-
     balances.add({
-      'asset': 'BTC.$asset',
       'amount': amount,
-      'image': 'https://s2.coinmarketcap.com/static/img/coins/64x64/1.png'
     });
 
     return balances;
@@ -141,19 +136,18 @@ class BitcoinClient {
   }
 
   getSeed(String mnemonic, {String passphrase = ""}) {
-    // if (!validateMnemonic(mnemonic)) {
-    //   throw new ArgumentError(_INVALID_MNEMONIC);
-    // }
+    if (!validateMnemonic(mnemonic)) {
+      throw ArgumentError('Invalid mnemonic ');
+    }
     Uint8List seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase);
     return seed;
   }
 
   getSeedHex(String mnemonic, {String passphrase = ""}) {
     if (!validateMnemonic(mnemonic)) {
-      throw ArgumentError('Invalid BIP39 phrase');
+      throw ArgumentError('Invalid mnemonic');
     }
     String seedHex = bip39.mnemonicToSeedHex(mnemonic, passphrase: passphrase);
-
     return seedHex;
   }
 
@@ -216,12 +210,8 @@ class BitcoinClient {
       }
     });
 
-    String asset;
-    network == testnet ? asset = 'tBTC' : asset = 'BTC';
-
     if (rawTx != null) {
       txData.addAll({
-        'asset': 'BTC.$asset',
         'from': from,
         'to': to,
         'date': date,
@@ -328,11 +318,7 @@ class BitcoinClient {
             to.add(map);
           });
 
-          String asset;
-          network == testnet ? asset = 'tBTC' : asset = 'BTC';
-
           txData.add({
-            'asset': 'BTC.$asset',
             'from': from,
             'to': to,
             'date': date,
@@ -403,11 +389,7 @@ class BitcoinClient {
           to.add(map);
         });
 
-        String asset;
-        network == testnet ? asset = 'tBTC' : asset = 'BTC';
-
         txData.add({
-          'asset': 'BTC.$asset',
           'from': from,
           'to': to,
           'date': date,
@@ -485,7 +467,7 @@ class BitcoinClient {
 }
 
 generateMnemonic({int size = 12}) {
-  // Generate a random mnemonic (uses crypto.randomBytes under the hood), defaults to 128-bits of entropy.
+  // Generate a random mnemonic, defaults to 128-bits of entropy.
 
   int entropy = size == 24 ? 256 : 128;
   String mnemonic = bip39.generateMnemonic(strength: entropy);
