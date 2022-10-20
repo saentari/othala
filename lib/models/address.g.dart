@@ -1,48 +1,41 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'transaction.dart';
+part of 'address.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class TransactionAdapter extends TypeAdapter<Transaction> {
+class AddressAdapter extends TypeAdapter<Address> {
   @override
-  final int typeId = 2;
+  final int typeId = 1;
 
   @override
-  Transaction read(BinaryReader reader) {
+  Address read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Transaction(
+    return Address(
       fields[0] as String,
-      fields[1] as DateTime,
-      fields[2] as int,
-      (fields[3] as List)
-          .map((dynamic e) => (e as Map).cast<dynamic, dynamic>())
-          .toList(),
-      (fields[4] as List)
-          .map((dynamic e) => (e as Map).cast<dynamic, dynamic>())
-          .toList(),
+      transactions: (fields[1] as List?)?.cast<Transaction>(),
+      chainStats: (fields[2] as Map?)?.cast<dynamic, dynamic>(),
+      mempoolStats: (fields[3] as Map?)?.cast<dynamic, dynamic>(),
     );
   }
 
   @override
-  void write(BinaryWriter writer, Transaction obj) {
+  void write(BinaryWriter writer, Address obj) {
     writer
-      ..writeByte(5)
-      ..writeByte(0)
-      ..write(obj.transactionId)
-      ..writeByte(1)
-      ..write(obj.transactionBroadcast)
-      ..writeByte(2)
-      ..write(obj.confirmations)
-      ..writeByte(3)
-      ..write(obj.from)
       ..writeByte(4)
-      ..write(obj.to);
+      ..writeByte(0)
+      ..write(obj.address)
+      ..writeByte(1)
+      ..write(obj.transactions)
+      ..writeByte(2)
+      ..write(obj.chainStats)
+      ..writeByte(3)
+      ..write(obj.mempoolStats);
   }
 
   @override
@@ -51,7 +44,7 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TransactionAdapter &&
+      other is AddressAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

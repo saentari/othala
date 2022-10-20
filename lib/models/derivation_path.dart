@@ -1,53 +1,50 @@
 class DerivationPath {
-  DerivationPath(
-      {this.purpose = 0,
-      this.coinType = 0,
-      this.account = 0,
-      this.change = 0,
-      this.addressIndex = 0});
+  String derivationPath = "m/0'/0'/0'/0/0";
+  int purpose = 0;
+  int coinType = 0;
+  int account = 0;
+  int change = 0;
+  int addressIndex = 0;
 
-  int purpose;
-  int coinType;
-  int account;
-  int change;
-  int addressIndex;
+  DerivationPath(String dp) {
+    dp = dp.replaceAll('m/', '');
+    dp = dp.replaceAll('\'', '');
+    List elements = dp.split('/');
 
-  String getDerivationPath() {
-    return "m/$purpose'/$coinType'/$account'/$change/$addressIndex";
+    purpose = elements.isNotEmpty ? int.parse(elements[0]) : 0;
+    coinType = elements.length > 1 ? int.parse(elements[1]) : 0;
+    account = elements.length > 2 ? int.parse(elements[2]) : 0;
+    change = elements.length > 3 ? int.parse(elements[3]) : 0;
+    addressIndex = elements.length > 4 ? int.parse(elements[4]) : 0;
+    derivationPath = "m/$purpose'/$coinType'/$account'/$change/$addressIndex";
   }
 
-  int getPurpose(String derivationPath) {
-    derivationPath = derivationPath.replaceAll('m/', '');
-    derivationPath = derivationPath.replaceAll('\'', '');
-    List elements = derivationPath.split('/');
-    return elements.isNotEmpty ? int.parse(elements[0]) : 0;
+  setDerivationPath(int prp, int cnt, int acc, int chng, int addr) {
+    derivationPath = "m/$prp'/$cnt'/$acc'/$chng/$addr";
   }
 
-  int getCoinType(String derivationPath) {
-    derivationPath = derivationPath.replaceAll('m/', '');
-    derivationPath = derivationPath.replaceAll('\'', '');
-    List elements = derivationPath.split('/');
-    return elements.length > 1 ? int.parse(elements[1]) : 0;
+  setPurpose(int value) {
+    addressIndex = value;
+    setDerivationPath(purpose, coinType, account, change, addressIndex);
   }
 
-  int getAccount(String derivationPath) {
-    derivationPath = derivationPath.replaceAll('m/', '');
-    derivationPath = derivationPath.replaceAll('\'', '');
-    List elements = derivationPath.split('/');
-    return elements.length > 2 ? int.parse(elements[2]) : 0;
+  setCoinType(int value) {
+    addressIndex = value;
+    setDerivationPath(purpose, coinType, account, change, addressIndex);
   }
 
-  int getChange(String derivationPath) {
-    derivationPath = derivationPath.replaceAll('m/', '');
-    derivationPath = derivationPath.replaceAll('\'', '');
-    List elements = derivationPath.split('/');
-    return elements.length > 3 ? int.parse(elements[3]) : 0;
+  setAccount(int value) {
+    addressIndex = value;
+    setDerivationPath(purpose, coinType, account, change, addressIndex);
   }
 
-  int getAddressIndex(String derivationPath) {
-    derivationPath = derivationPath.replaceAll('m/', '');
-    derivationPath = derivationPath.replaceAll('\'', '');
-    List elements = derivationPath.split('/');
-    return elements.length > 4 ? int.parse(elements[4]) : 0;
+  setChange(int value) {
+    addressIndex = value;
+    setDerivationPath(purpose, coinType, account, change, addressIndex);
+  }
+
+  setAddressIndex(int value) {
+    addressIndex = value;
+    setDerivationPath(purpose, coinType, account, change, addressIndex);
   }
 }

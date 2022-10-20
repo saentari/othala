@@ -21,7 +21,7 @@ class WalletAdapter extends TypeAdapter<Wallet> {
       fields[1] as String,
       fields[2] as String,
       fields[3] as String,
-      (fields[4] as List).cast<String>(),
+      (fields[4] as List).cast<Address>(),
       (fields[5] as List).cast<num>(),
       (fields[6] as List).cast<Transaction>(),
       fields[7] as String,
@@ -44,7 +44,7 @@ class WalletAdapter extends TypeAdapter<Wallet> {
       ..writeByte(3)
       ..write(obj.derivationPath)
       ..writeByte(4)
-      ..write(obj.address)
+      ..write(obj.addresses)
       ..writeByte(5)
       ..write(obj.balance)
       ..writeByte(6)

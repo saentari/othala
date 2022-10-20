@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as path_provider;
 
+import '../models/address.dart';
 import '../models/currency.dart';
 import '../models/derivation_path.dart';
 import '../models/secure_item.dart';
@@ -126,7 +127,12 @@ class WalletManager extends ValueNotifier<Box> {
         walletName,
         type,
         derivationPath,
-        [bitcoinClient.address],
+        [
+          Address(
+            bitcoinClient.address,
+            transactions: transactions,
+          ),
+        ],
         [balance],
         transactions,
         imageId,
@@ -143,7 +149,8 @@ class WalletManager extends ValueNotifier<Box> {
   /// Check if there are missing transactions
   Future<bool> isSynced(index) async {
     Wallet wallet = value.getAt(index);
-    BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
+    BitcoinClient bitcoinClient =
+        BitcoinClient.readonly(wallet.addresses.last.address);
     bitcoinClient.setDerivationPath(wallet.derivationPath);
 
     final stats =
@@ -211,14 +218,22 @@ class WalletManager extends ValueNotifier<Box> {
   }
 
   String getNetworkType(String derivationPath) {
-    final dp = DerivationPath();
-    if (dp.getCoinType(derivationPath) == 0) {
+    final dp = DerivationPath(derivationPath);
+    if (dp.coinType == 0) {
       return 'bitcoin';
-    } else if (dp.getCoinType(derivationPath) == 1) {
+    } else if (dp.coinType == 1) {
       return 'testnet';
     } else {
       return 'unsupported';
     }
+  }
+
+  // returns a specific wallet
+  getWalletSeed(int index) async {
+    final wallet = value.getAt(index);
+    final seed = await _storageService.readSecureData(wallet.key) ?? '';
+
+    return seed;
   }
 
   /// Returns a list of wallets (of a certain type)
@@ -263,13 +278,13 @@ class WalletManager extends ValueNotifier<Box> {
     BitcoinClient bitcoinClient = BitcoinClient(seed!);
 
     // fetch stored network/cointype
-    final derivationPath = DerivationPath();
-    final coinType = derivationPath.getCoinType(wallet.derivationPath);
+    final dp = DerivationPath(wallet.derivationPath);
+    final coinType = dp.coinType;
 
     // set wallet values
     wallet.derivationPath = "m/$purpose'/$coinType'/0'/0";
     bitcoinClient.setDerivationPath(wallet.derivationPath);
-    wallet.address = [bitcoinClient.address];
+    wallet.addresses[0] = Address(bitcoinClient.address);
 
     // update box entry with new network & address.
     value.putAt(walletIndex, wallet);
@@ -282,8 +297,8 @@ class WalletManager extends ValueNotifier<Box> {
     String? seed = await _storageService.readSecureData(wallet.key);
     BitcoinClient bitcoinClient = BitcoinClient(seed!);
 
-    final dp = DerivationPath();
-    final purpose = dp.getPurpose(wallet.derivationPath);
+    final dp = DerivationPath(wallet.derivationPath);
+    final purpose = dp.purpose;
 
     if (network == 'bitcoin') {
       wallet.derivationPath = "m/$purpose'/0'/0'/0";
@@ -291,7 +306,7 @@ class WalletManager extends ValueNotifier<Box> {
       wallet.derivationPath = "m/$purpose'/1'/0'/0";
     }
     bitcoinClient.setDerivationPath(wallet.derivationPath);
-    wallet.address = [bitcoinClient.getAddress(0)];
+    wallet.addresses[0] = Address(bitcoinClient.address);
 
     // update box entry with new network & address.
     value.putAt(walletIndex, wallet);
@@ -301,7 +316,8 @@ class WalletManager extends ValueNotifier<Box> {
   Future<void> updateAllBalances() async {
     for (var index = 0; index < value.length; index++) {
       Wallet wallet = value.getAt(index);
-      BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
+      BitcoinClient bitcoinClient =
+          BitcoinClient.readonly(wallet.addresses[0].address);
       bitcoinClient.setDerivationPath(wallet.derivationPath);
       List balances = await bitcoinClient.getBalance(bitcoinClient.address);
       wallet.balance = [balances[0]['amount']];
@@ -312,7 +328,8 @@ class WalletManager extends ValueNotifier<Box> {
   /// Update a single wallet balance.
   Future<void> updateBalance(index) async {
     Wallet wallet = value.getAt(index);
-    BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
+    BitcoinClient bitcoinClient =
+        BitcoinClient.readonly(wallet.addresses[0].address);
     bitcoinClient.setDerivationPath(wallet.derivationPath);
 
     List balances = await bitcoinClient.getBalance(bitcoinClient.address);
@@ -341,22 +358,26 @@ class WalletManager extends ValueNotifier<Box> {
 
   Future<void> updateTransactions(index) async {
     Wallet wallet = value.getAt(index);
-    BitcoinClient bitcoinClient = BitcoinClient.readonly(wallet.address[0]);
+    BitcoinClient bitcoinClient =
+        BitcoinClient.readonly(wallet.addresses[0].address);
     bitcoinClient.setDerivationPath(wallet.derivationPath);
 
-    List<Transaction> transactions = [];
-    List rawTxs = await bitcoinClient.getTransactions(wallet.address[0]);
-    for (var rawTx in rawTxs) {
-      String transactionId = rawTx['txid'];
-      DateTime transactionBroadcast = rawTx['date'];
-      int blockConf = rawTx['confirmations'];
-      List<Map> from = rawTx['from'];
-      List<Map> to = rawTx['to'];
-      Transaction tx =
-          Transaction(transactionId, transactionBroadcast, blockConf, from, to);
-      transactions.add(tx);
+    for (Address addressObj in wallet.addresses) {
+      List<Transaction> transactions = [];
+      List rawTxs = await bitcoinClient.getTransactions(addressObj.address);
+      for (var rawTx in rawTxs) {
+        String transactionId = rawTx['txid'];
+        DateTime transactionBroadcast = rawTx['date'];
+        int blockConf = rawTx['confirmations'];
+        List<Map> from = rawTx['from'];
+        List<Map> to = rawTx['to'];
+        Transaction tx = Transaction(
+            transactionId, transactionBroadcast, blockConf, from, to);
+        transactions.add(tx);
+      }
+      addressObj.transactions = transactions;
     }
-    wallet.transactions = transactions;
+
     value.putAt(index, wallet);
   }
 

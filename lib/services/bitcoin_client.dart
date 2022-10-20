@@ -412,10 +412,10 @@ class BitcoinClient {
   }
 
   setDerivationPath(derivationPath) {
-    final dp = DerivationPath();
-    final purpose = dp.getPurpose(derivationPath);
-    final coinType = dp.getCoinType(derivationPath);
-    final walletIndex = dp.getAddressIndex(derivationPath);
+    final dp = DerivationPath(derivationPath);
+    final purpose = dp.purpose;
+    final coinType = dp.coinType;
+    final walletIndex = dp.addressIndex;
 
     // set purpose
     setPurpose(purpose);

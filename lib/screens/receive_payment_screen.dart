@@ -61,7 +61,7 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
                           dataModuleStyle: const QrDataModuleStyle(
                               dataModuleShape: QrDataModuleShape.circle,
                               color: kDarkBackgroundColor),
-                          data: widget.wallet.address.first,
+                          data: widget.wallet.addresses.last.address,
                           version: QrVersions.auto,
                           size: 320,
                         ),
@@ -74,7 +74,7 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  widget.wallet.address.first,
+                                  widget.wallet.addresses.last.address,
                                   style: const TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w600,
@@ -121,7 +121,8 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
 
   void _setClipboard() async {
     // clipboard
-    ClipboardData data = ClipboardData(text: widget.wallet.address.first);
+    ClipboardData data =
+        ClipboardData(text: widget.wallet.addresses.first.address);
     await Clipboard.setData(data);
     if (!mounted) return;
 

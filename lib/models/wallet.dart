@@ -1,7 +1,8 @@
 import 'package:hive/hive.dart';
 
-import '../models/currency.dart';
-import '../models/transaction.dart';
+import 'address.dart';
+import 'currency.dart';
+import 'transaction.dart';
 
 part 'wallet.g.dart';
 
@@ -16,7 +17,7 @@ class Wallet {
   @HiveField(3)
   String derivationPath;
   @HiveField(4)
-  List<String> address;
+  List<Address> addresses;
   @HiveField(5)
   List<num> balance;
   @HiveField(6)
@@ -35,7 +36,7 @@ class Wallet {
     this.name,
     this.type,
     this.derivationPath,
-    this.address,
+    this.addresses,
     this.balance,
     this.transactions,
     this.imageId,

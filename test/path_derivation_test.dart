@@ -3,31 +3,27 @@ import 'package:othala/models/derivation_path.dart';
 
 void main() {
   group('derivation path', () {
-    DerivationPath path = DerivationPath();
+    final dp = DerivationPath("m/49'/1'/0'/0");
 
     test('get purpose', () async {
-      final res = path.getPurpose("m/49'/1'/0'/0");
-      expect(res, 49);
+      expect(dp.purpose, 49);
     });
     test('get coinType', () async {
-      final res = path.getCoinType("m/49'/1'/0'/0");
-      expect(res, 1);
+      expect(dp.coinType, 1);
     });
     test('get account', () async {
-      final res = path.getAccount("m/49'/1'/0'/0");
-      expect(res, 0);
+      expect(dp.account, 0);
     });
     test('get change', () async {
-      final res = path.getChange("m/49'/1'/0'/0");
-      expect(res, 0);
-    });
-    test('get default addressIndex', () async {
-      final res = path.getAddressIndex("m/49'/1'/0'/0");
-      expect(res, 0);
+      expect(dp.change, 0);
     });
     test('get addressIndex', () async {
-      final res = path.getAddressIndex("m/49'/1'/0'/0/5");
-      expect(res, 5);
+      expect(dp.addressIndex, 0);
+    });
+    test('set new addressIndex', () async {
+      dp.setAddressIndex(5);
+      expect(dp.addressIndex, 5);
+      expect(dp.derivationPath, "m/49'/1'/0'/0/5");
     });
   });
 }

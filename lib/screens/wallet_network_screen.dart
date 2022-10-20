@@ -79,8 +79,8 @@ class _ListTileAssetState extends State<ListTileAsset> {
     final box = Hive.box('walletBox');
     final walletManager = WalletManager(box);
     final wallet = box.getAt(widget.walletIndex);
-    final dp = DerivationPath();
-    final selectedCoinType = dp.getCoinType(wallet.derivationPath);
+    final dp = DerivationPath(wallet.derivationPath);
+    final selectedCoinType = dp.coinType;
     final coinType = widget.network == 'testnet' ? 1 : 0;
     return Container(
       color: kDarkBackgroundColor,

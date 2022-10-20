@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../models/address.dart';
 import '../models/currency.dart';
 import '../models/transaction.dart';
 import '../models/wallet.dart';
@@ -30,6 +31,7 @@ import '../themes/theme_data.dart';
 
 Future<void> main() async {
   Hive.registerAdapter(WalletAdapter());
+  Hive.registerAdapter(AddressAdapter());
   Hive.registerAdapter(TransactionAdapter());
   Hive.registerAdapter(CurrencyAdapter());
   await Hive.initFlutter();

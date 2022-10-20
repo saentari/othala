@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../models/address.dart';
 import '../models/currency.dart';
 import '../models/wallet.dart';
 import '../screens/receive_payment_screen.dart';
@@ -159,8 +160,8 @@ class _WalletCardState extends State<WalletCard> {
     if (widget.walletIndex < box.length) {
       _wallet = box.getAt(widget.walletIndex);
     }
-    if (_wallet.balance.isNotEmpty) {
-      amount = _wallet.balance.first;
+    for (Address addressObj in _wallet.addresses) {
+      amount = amount + addressObj.balance;
     }
     _defaultCurrency = _wallet.defaultCurrency;
     _defaultFiatCurrency = _wallet.defaultFiatCurrency;
