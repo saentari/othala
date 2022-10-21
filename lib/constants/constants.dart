@@ -1,5 +1,5 @@
 // Midgard Public API
-import 'models/currency.dart';
+import '../models/currency.dart';
 
 // CoinPaprika
 const coinPaprikaUrl = 'https://api.coinpaprika.com/v1';

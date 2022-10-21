@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
-import '../constants.dart';
+import '../constants/constants.dart';
 import '../models/address.dart';
 import '../models/currency.dart';
 import '../models/derivation_path.dart';
@@ -226,48 +226,49 @@ class WalletScreenState extends State<WalletScreen> {
 
   Future<void> _getTransactions(int walletIndex) async {
     Box box = Hive.box('walletBox');
+    try {
+      Wallet wallet = box.getAt(walletIndex);
+      String derivationPath = wallet.derivationPath;
+      final dp = DerivationPath(derivationPath);
+      dp.setAddressIndex(0);
+      final seed = await _walletManager.getWalletSeed(walletIndex);
+      final bitcoinClient = BitcoinClient(seed);
+      bool hasTxHistory = true;
+      List<Address> addresses = [];
 
-    Wallet wallet = box.getAt(walletIndex);
-    String derivationPath = wallet.derivationPath;
-    final dp = DerivationPath(derivationPath);
-    dp.setAddressIndex(0);
-    final seed = await _walletManager.getWalletSeed(walletIndex);
-    final bitcoinClient = BitcoinClient(seed);
-    bool hasTxHistory = true;
-    List<Address> addresses = [];
+      while (hasTxHistory) {
+        bitcoinClient.setDerivationPath(derivationPath);
+        String address = bitcoinClient.getAddress(dp.addressIndex);
+        var data = await bitcoinClient.getTransactionAddressStats(address);
 
-    while (hasTxHistory) {
-      bitcoinClient.setDerivationPath(derivationPath);
-      String address = bitcoinClient.getAddress(dp.addressIndex);
-      var data = await bitcoinClient.getTransactionAddressStats(address);
-
-      Map chainStats = data['chain_stats'];
-      Map mempoolStats = data['mempool_stats'];
-      mempoolStats = data['mempool_stats'];
-      Address addressObj =
-          Address(address, chainStats: chainStats, mempoolStats: mempoolStats);
-      addresses.add(addressObj);
-      final txCount = chainStats['tx_count'] + mempoolStats['tx_count'];
-      if (txCount > 0) {
-        dp.addressIndex = dp.addressIndex + 1;
-      } else {
-        hasTxHistory = false;
-        bitcoinClient.address = bitcoinClient.getAddress(dp.addressIndex);
+        Map chainStats = data['chain_stats'];
+        Map mempoolStats = data['mempool_stats'];
+        mempoolStats = data['mempool_stats'];
+        Address addressObj = Address(address,
+            chainStats: chainStats, mempoolStats: mempoolStats);
+        addresses.add(addressObj);
+        final txCount = chainStats['tx_count'] + mempoolStats['tx_count'];
+        if (txCount > 0) {
+          dp.addressIndex = dp.addressIndex + 1;
+        } else {
+          hasTxHistory = false;
+          bitcoinClient.address = bitcoinClient.getAddress(dp.addressIndex);
+        }
       }
-    }
-    dp.setAddressIndex(dp.addressIndex + 1);
+      dp.setAddressIndex(dp.addressIndex + 1);
 
-    wallet.derivationPath = dp.derivationPath;
-    wallet.addresses = addresses;
-    box.putAt(walletIndex, wallet);
+      wallet.derivationPath = dp.derivationPath;
+      wallet.addresses = addresses;
+      box.putAt(walletIndex, wallet);
 
-    await _walletManager.updateTransactions(walletIndex);
+      await _walletManager.updateTransactions(walletIndex);
 
-    // bool isSynced = await _walletManager.isSynced(walletIndex);
-    // if (isSynced == false) {
-    //   // await _walletManager.updateBalance(walletIndex);
-    //   await _walletManager.updateTransactions(walletIndex);
-    // }
+      // bool isSynced = await _walletManager.isSynced(walletIndex);
+      // if (isSynced == false) {
+      //   // await _walletManager.updateBalance(walletIndex);
+      //   await _walletManager.updateTransactions(walletIndex);
+      // }
+    } catch (e) {}
   }
 
   _showImage(String path) {

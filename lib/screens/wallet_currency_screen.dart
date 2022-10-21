@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
-import '../constants.dart';
+import '../constants/constants.dart';
 import '../models/currency.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
