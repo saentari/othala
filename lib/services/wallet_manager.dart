@@ -146,34 +146,6 @@ class WalletManager extends ValueNotifier<Box> {
     }
   }
 
-  /// Check if there are missing transactions
-  Future<bool> isSynced(index) async {
-    Wallet wallet = value.getAt(index);
-    BitcoinClient bitcoinClient =
-        BitcoinClient.readonly(wallet.addresses.last.address);
-    bitcoinClient.setDerivationPath(wallet.derivationPath);
-
-    final stats =
-        await bitcoinClient.getTransactionAddressStats(bitcoinClient.address);
-
-    // compare the number of transactions
-    int blockExplorerTx =
-        stats['chain_stats']['tx_count'] + stats['mempool_stats']['tx_count'];
-    int walletBoxTx = wallet.transactions.length;
-
-    // check if last saved tx is still pending
-    bool pendingTx = false;
-    if (walletBoxTx > 0 && wallet.transactions[0].confirmations < 6) {
-      pendingTx = true;
-    }
-
-    // consider synced if nothing is pending and same amount of tx
-    if (blockExplorerTx == walletBoxTx && pendingTx == false) {
-      return true;
-    }
-    return false;
-  }
-
   /// Retrieve wallet balance.
   Future<double> getBalance(address) async {
     btc_address.Network? network = btc_address.validate(address).network;
@@ -215,6 +187,104 @@ class WalletManager extends ValueNotifier<Box> {
       transactions.add(tx);
     }
     return transactions;
+  }
+
+  Future<void> setTransactions([int? walletIndex]) async {
+    // Add either one specific or all wallets.
+    List walletIndexes = [];
+    if (walletIndex != null) {
+      walletIndexes.add(walletIndex);
+    } else {
+      for (int i = 0; i < value.length; i++) {
+        walletIndexes.add(i);
+      }
+    }
+
+    for (int index in walletIndexes) {
+      Wallet wallet = value.getAt(index);
+      BitcoinClient bitcoinClient;
+      List<Address> addresses = [];
+      String address = wallet.addresses.first.address;
+      final dp = DerivationPath(wallet.derivationPath);
+
+      // For multi-address wallets scan for tx history.
+      if (wallet.type == 'mnemonic') {
+        final seed = await getWalletSeed(index);
+        bitcoinClient = BitcoinClient(seed);
+        dp.setAddressIndex(0);
+      } else {
+        bitcoinClient = BitcoinClient.readonly(address);
+      }
+
+      bool hasTxHistory = true;
+      while (hasTxHistory) {
+        bitcoinClient.setDerivationPath(wallet.derivationPath);
+        if (bitcoinClient.readOnlyClient == false) {
+          address = bitcoinClient.getAddress(dp.addressIndex);
+        }
+
+        final data = await bitcoinClient.getTransactionAddressStats(address);
+        Address addressObj = Address(
+          address,
+          chainStats: data['chain_stats'],
+          mempoolStats: data['mempool_stats'],
+        );
+
+        final txCountNew = data['chain_stats']['tx_count'] +
+                data['mempool_stats']['tx_count'] ??
+            0;
+        if (txCountNew > 0) {
+          int txCountOld;
+          List<Transaction>? txOld;
+          // Check if old wallet has txs.
+          try {
+            txOld = wallet.addresses[dp.addressIndex].transactions;
+            txCountOld = txOld!.length;
+          } catch (e) {
+            txCountOld = 0;
+          }
+          // Are there new tx on blockchain or mempool?
+          if (txCountNew != txCountOld) {
+            List<Transaction> txNew = [];
+            List rawTxs =
+                await bitcoinClient.getTransactions(addressObj.address);
+            for (var rawTx in rawTxs) {
+              String transactionId = rawTx['txid'];
+              DateTime transactionBroadcast = rawTx['date'];
+              int blockConf = rawTx['confirmations'];
+              List<Map> from = rawTx['from'];
+              List<Map> to = rawTx['to'];
+              Transaction tx = Transaction(
+                  transactionId, transactionBroadcast, blockConf, from, to);
+              txNew.add(tx);
+            }
+            addressObj.transactions = txNew;
+          } else {
+            // Add old list to new AddressObj
+            if (txCountNew != 0) {
+              addressObj.transactions = txOld;
+            }
+          }
+
+          if (bitcoinClient.readOnlyClient == true) {
+            // Read-only clients only have one address.
+            hasTxHistory = false;
+          } else {
+            // Increment derivation path by one.
+            dp.setAddressIndex(dp.addressIndex + 1);
+          }
+        } else {
+          // If an address has no tx history, then break the loop.
+          hasTxHistory = false;
+        }
+        // Add updated addressObj to wallet address list
+        addresses.add(addressObj);
+      }
+      // Update wallet in box with active addresses.
+      wallet.derivationPath = dp.derivationPath;
+      wallet.addresses = addresses;
+      value.putAt(index, wallet);
+    }
   }
 
   String getNetworkType(String derivationPath) {

@@ -7,11 +7,8 @@ import 'package:intl/intl.dart';
 import '../constants/constants.dart';
 import '../models/address.dart';
 import '../models/currency.dart';
-import '../models/derivation_path.dart';
 import '../models/transaction.dart';
-import '../models/unsplash_image.dart';
 import '../models/wallet.dart';
-import '../services/bitcoin_client.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
 import '../utils/utils.dart';
@@ -27,37 +24,22 @@ class WalletScreen extends StatefulWidget {
 }
 
 class WalletScreenState extends State<WalletScreen> {
-  /// Stores the current page index for the api requests.
-  int page = 0, totalPages = -1;
-
-  /// Stores the currently loaded loaded images.
-  List<UnsplashImage> images = [];
-
-  /// States whether there is currently a task running loading images.
-  bool loadingImages = false;
-
-  /// Stored the currently searched keyword.
-  late String keyword;
-
-  final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
-  num _balance = 0.0;
-  num _amount = 0.0;
-
+  final Box box = Hive.box('walletBox');
   late Wallet _wallet;
-  List<SimpleTransaction> simpleTx = [];
+  late double _balance;
+  late double _amount;
+  late List<SimpleTransaction> _transactions;
 
   @override
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
-    _getTransactions(walletIndex);
     return Container(
       color: kDarkBackgroundColor,
       child: SafeArea(
         child: ValueListenableBuilder(
-            valueListenable: Hive.box('walletBox').listenable(),
-            builder: (context, Box box, widget2) {
-              _updateBalance(box, walletIndex);
-              simpleTransactionBuilder();
+            valueListenable: box.listenable(),
+            builder: (context, Box box, widget) {
+              _getWalletData(box, walletIndex);
               return Scaffold(
                 body: Container(
                   padding: const EdgeInsets.only(
@@ -159,19 +141,21 @@ class WalletScreenState extends State<WalletScreen> {
                           color: kBlackColor,
                           backgroundColor: kYellowColor,
                           onRefresh: () async {
-                            await _getTransactions(walletIndex);
+                            final wm = WalletManager(box);
+                            await wm.setTransactions(walletIndex);
                           },
                           child: ListView.separated(
                             separatorBuilder:
                                 (BuildContext context, int index) =>
                                     const ListDivider(),
-                            itemCount: simpleTx.length,
+                            itemCount: _transactions.length,
                             itemBuilder: (BuildContext context, int index) {
                               return ListItemTransaction(
-                                simpleTx[index].address,
-                                subtitle: simpleTx[index].dateTime,
-                                value: simpleTx[index].amount,
-                                subtitleValue: simpleTx[index].confirmations,
+                                _transactions[index].address,
+                                subtitle: _transactions[index].dateTime,
+                                value: _transactions[index].amount,
+                                subtitleValue:
+                                    _transactions[index].confirmations,
                               );
                             },
                           ),
@@ -202,73 +186,27 @@ class WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  Future<void> _updateBalance(Box<dynamic> box, walletIndex) async {
+  Future<void> _getWalletData(Box<dynamic> box, walletIndex) async {
     if (walletIndex < box.length) {
       _wallet = box.getAt(walletIndex);
     }
+
+    // Balance
     _amount = 0;
     for (Address addressObj in _wallet.addresses) {
       _amount = _amount + addressObj.balance;
     }
     _balance = _amount * _wallet.defaultFiatCurrency.priceUsd;
-  }
 
-  simpleTransactionBuilder() {
-    simpleTx = [];
+    // Transactions
+    _transactions = [];
     for (Address addressObj in _wallet.addresses) {
       for (Transaction tx in addressObj.transactions ?? []) {
-        simpleTx.add(SimpleTransaction(addressObj.address, tx));
+        _transactions.add(SimpleTransaction(addressObj.address, tx));
       }
     }
     // Sort transactions by date/time
-    simpleTx.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-  }
-
-  Future<void> _getTransactions(int walletIndex) async {
-    Box box = Hive.box('walletBox');
-    try {
-      Wallet wallet = box.getAt(walletIndex);
-      String derivationPath = wallet.derivationPath;
-      final dp = DerivationPath(derivationPath);
-      dp.setAddressIndex(0);
-      final seed = await _walletManager.getWalletSeed(walletIndex);
-      final bitcoinClient = BitcoinClient(seed);
-      bool hasTxHistory = true;
-      List<Address> addresses = [];
-
-      while (hasTxHistory) {
-        bitcoinClient.setDerivationPath(derivationPath);
-        String address = bitcoinClient.getAddress(dp.addressIndex);
-        var data = await bitcoinClient.getTransactionAddressStats(address);
-
-        Map chainStats = data['chain_stats'];
-        Map mempoolStats = data['mempool_stats'];
-        mempoolStats = data['mempool_stats'];
-        Address addressObj = Address(address,
-            chainStats: chainStats, mempoolStats: mempoolStats);
-        addresses.add(addressObj);
-        final txCount = chainStats['tx_count'] + mempoolStats['tx_count'];
-        if (txCount > 0) {
-          dp.addressIndex = dp.addressIndex + 1;
-        } else {
-          hasTxHistory = false;
-          bitcoinClient.address = bitcoinClient.getAddress(dp.addressIndex);
-        }
-      }
-      dp.setAddressIndex(dp.addressIndex + 1);
-
-      wallet.derivationPath = dp.derivationPath;
-      wallet.addresses = addresses;
-      box.putAt(walletIndex, wallet);
-
-      await _walletManager.updateTransactions(walletIndex);
-
-      // bool isSynced = await _walletManager.isSynced(walletIndex);
-      // if (isSynced == false) {
-      //   // await _walletManager.updateBalance(walletIndex);
-      //   await _walletManager.updateTransactions(walletIndex);
-      // }
-    } catch (e) {}
+    _transactions.sort((a, b) => b.dateTime.compareTo(a.dateTime));
   }
 
   _showImage(String path) {
