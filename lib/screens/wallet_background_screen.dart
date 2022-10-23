@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:othala/models/unsplash_image.dart';
+import 'package:othala/widgets/safe_area.dart';
 
+import '../models/unsplash_image.dart';
 import '../models/wallet.dart';
 import '../services/unsplash_image_provider.dart';
+import '../themes/custom_icons.dart';
 import '../themes/theme_data.dart';
+import '../widgets/flat_button.dart';
 import '../widgets/image_tile.dart';
 import '../widgets/loading_indicator.dart';
 
@@ -43,36 +44,42 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   @override
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
-    return Container(
-      color: kDarkBackgroundColor,
-      child: SafeArea(
-        child: ValueListenableBuilder(
-            valueListenable: Hive.box('walletBox').listenable(),
-            builder: (context, Box box, widget2) {
-              if (walletIndex < box.length) {
-                _wallet = box.getAt(walletIndex);
-              }
-              return Scaffold(
-                body: OrientationBuilder(
-                  builder: (context, orientation) => CustomScrollView(
-                    slivers: [
-                      //App bar
-                      _buildSearchAppBar(),
+    return ValueListenableBuilder(
+        valueListenable: Hive.box('walletBox').listenable(),
+        builder: (context, Box box, widget2) {
+          if (walletIndex < box.length) {
+            _wallet = box.getAt(walletIndex);
+          }
+          return SafeAreaX(
+            appBar: AppBar(
+              centerTitle: true,
+              title: titleIcon,
+              backgroundColor: kBlackColor,
+              automaticallyImplyLeading: false,
+            ),
+            bottomBar: GestureDetector(
+              onTap: () => {Navigator.pop(context)},
+              child: const CustomFlatButton(
+                textLabel: 'Cancel',
+                buttonColor: kDarkBackgroundColor,
+                fontColor: kWhiteColor,
+              ),
+            ),
+            child: OrientationBuilder(
+              builder: (context, orientation) => CustomScrollView(
+                slivers: [
+                  //Grid view with all the images
+                  _buildImageGrid(walletIndex, orientation: orientation),
 
-                      //Grid view with all the images
-                      _buildImageGrid(walletIndex, orientation: orientation),
-
-                      // loading indicator at the bottom of the list
-                      const SliverToBoxAdapter(
-                        child: LoadingIndicator(kDarkNeutral5Color),
-                      ),
-                    ],
+                  // loading indicator at the bottom of the list
+                  const SliverToBoxAdapter(
+                    child: LoadingIndicator(kDarkNeutral5Color),
                   ),
-                ),
-              );
-            }),
-      ),
-    );
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   /// Requests a list of [UnsplashImage] for a given [keyword].
@@ -130,19 +137,6 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
       // set new loaded images
       _images.addAll(images!);
     });
-  }
-
-  /// Returns the SearchAppBar.
-  Widget _buildSearchAppBar() {
-    return SliverAppBar(
-      title: SvgPicture.asset(
-        'assets/icons/logo.svg',
-        color: kYellowColor,
-        height: 40.0,
-      ),
-      backgroundColor: Colors.transparent,
-      systemOverlayStyle: SystemUiOverlayStyle.dark,
-    );
   }
 
   /// Returns the grid that displays images.

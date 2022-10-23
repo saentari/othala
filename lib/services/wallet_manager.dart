@@ -77,6 +77,7 @@ class WalletManager extends ValueNotifier<Box> {
       // Discover if address is testnet.
       if (addressData.network == btc_address.Network.testnet) {
         coinType = 1;
+        network = 'testnet';
       }
       if (addressData.segwit == false) {
         purpose = 44;
@@ -85,6 +86,7 @@ class WalletManager extends ValueNotifier<Box> {
         purpose = 49;
       }
       derivationPath = "m/$purpose'/$coinType'/0'/0";
+      bitcoinClient.setDerivationPath(derivationPath);
     } else {
       throw ArgumentError('Missing input');
     }

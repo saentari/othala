@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
-import 'package:othala/services/wallet_manager.dart';
 
 import '../screens/home_screen.dart';
+import '../services/wallet_manager.dart';
+import '../themes/custom_icons.dart';
 import '../themes/theme_data.dart';
 
 class LoadingScreen extends StatefulWidget {
@@ -52,12 +52,7 @@ class LoadingScreenState extends State<LoadingScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(),
-                Center(
-                  child: SvgPicture.asset(
-                    'assets/icons/logo-text.svg',
-                    height: 40.0,
-                  ),
-                ),
+                Center(child: logoTextIcon),
                 const Spacer(),
                 const Text(
                   'Your keys, your bitcoin.\n100% open-source & open-design',

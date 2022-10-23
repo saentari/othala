@@ -5,9 +5,11 @@ import 'package:hive/hive.dart';
 
 import '../models/derivation_path.dart';
 import '../services/wallet_manager.dart';
+import '../themes/custom_icons.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 import '../widgets/list_divider.dart';
+import '../widgets/safe_area.dart';
 
 class WalletDerivationScreen extends StatefulWidget {
   const WalletDerivationScreen({Key? key}) : super(key: key);
@@ -21,43 +23,42 @@ class WalletDerivationScreenState extends State<WalletDerivationScreen> {
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
 
-    return Container(
-      color: kDarkBackgroundColor,
-      child: SafeArea(
-        child: Scaffold(
-          body: Column(
-            children: <Widget>[
-              const SizedBox(height: 16.0),
-              ListTileAsset(
-                walletIndex: walletIndex,
-                purpose: 44,
-                subtitle: "Legacy (P2PKH)",
-              ),
-              const ListDivider(),
-              ListTileAsset(
-                walletIndex: walletIndex,
-                purpose: 49,
-                subtitle: "SegWit (P2WPKH-in-P2SH)",
-              ),
-              const ListDivider(),
-              ListTileAsset(
-                walletIndex: walletIndex,
-                purpose: 84,
-                subtitle: "Native SegWit (P2WPKH)",
-              ),
-            ],
-          ),
-          bottomNavigationBar: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: const CustomFlatButton(
-              textLabel: 'Cancel',
-              buttonColor: kDarkBackgroundColor,
-              fontColor: kWhiteColor,
-            ),
-          ),
+    return SafeAreaX(
+      appBar: AppBar(
+        centerTitle: true,
+        title: titleIcon,
+        backgroundColor: kBlackColor,
+        automaticallyImplyLeading: false,
+      ),
+      bottomBar: GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: const CustomFlatButton(
+          textLabel: 'Cancel',
+          buttonColor: kDarkBackgroundColor,
+          fontColor: kWhiteColor,
         ),
+      ),
+      child: Column(
+        children: <Widget>[
+          const SizedBox(height: 16.0),
+          ListTileAsset(
+            walletIndex: walletIndex,
+            purpose: 44,
+            subtitle: "Legacy (P2PKH)",
+          ),
+          const ListDivider(),
+          ListTileAsset(
+            walletIndex: walletIndex,
+            purpose: 49,
+            subtitle: "SegWit (P2WPKH-in-P2SH)",
+          ),
+          const ListDivider(),
+          ListTileAsset(
+            walletIndex: walletIndex,
+            purpose: 84,
+            subtitle: "Native SegWit (P2WPKH)",
+          ),
+        ],
       ),
     );
   }

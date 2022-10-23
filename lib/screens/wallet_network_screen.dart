@@ -5,9 +5,11 @@ import 'package:hive/hive.dart';
 
 import '../models/derivation_path.dart';
 import '../services/wallet_manager.dart';
+import '../themes/custom_icons.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 import '../widgets/list_divider.dart';
+import '../widgets/safe_area.dart';
 
 class WalletNetworkScreen extends StatefulWidget {
   const WalletNetworkScreen({Key? key}) : super(key: key);
@@ -21,37 +23,36 @@ class WalletNetworkScreenState extends State<WalletNetworkScreen> {
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
 
-    return Container(
-      color: kDarkBackgroundColor,
-      child: SafeArea(
-        child: Scaffold(
-          body: Column(
-            children: <Widget>[
-              const SizedBox(height: 16.0),
-              ListTileAsset(
-                walletIndex: walletIndex,
-                network: 'bitcoin',
-                title: "Bitcoin mainnet",
-              ),
-              const ListDivider(),
-              ListTileAsset(
-                walletIndex: walletIndex,
-                network: 'testnet',
-                title: "Bitcoin testnet",
-              ),
-            ],
-          ),
-          bottomNavigationBar: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: const CustomFlatButton(
-              textLabel: 'Cancel',
-              buttonColor: kDarkBackgroundColor,
-              fontColor: kWhiteColor,
-            ),
-          ),
+    return SafeAreaX(
+      appBar: AppBar(
+        centerTitle: true,
+        title: titleIcon,
+        backgroundColor: kBlackColor,
+        automaticallyImplyLeading: false,
+      ),
+      bottomBar: GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: const CustomFlatButton(
+          textLabel: 'Cancel',
+          buttonColor: kDarkBackgroundColor,
+          fontColor: kWhiteColor,
         ),
+      ),
+      child: Column(
+        children: <Widget>[
+          const SizedBox(height: 16.0),
+          ListTileAsset(
+            walletIndex: walletIndex,
+            network: 'bitcoin',
+            title: "Bitcoin mainnet",
+          ),
+          const ListDivider(),
+          ListTileAsset(
+            walletIndex: walletIndex,
+            network: 'testnet',
+            title: "Bitcoin testnet",
+          ),
+        ],
       ),
     );
   }

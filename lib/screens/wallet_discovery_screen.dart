@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
 
 import '../enums/input_type.dart';
 import '../services/bitcoin_client.dart';
 import '../services/wallet_manager.dart';
+import '../themes/custom_icons.dart';
 import '../themes/theme_data.dart';
 import '../utils/utils.dart';
 import '../widgets/flat_button.dart';
 import '../widgets/list_item.dart';
+import '../widgets/safe_area.dart';
 
 class WalletDiscoveryScreen extends StatefulWidget {
   const WalletDiscoveryScreen({Key? key}) : super(key: key);
@@ -32,81 +33,65 @@ class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
     if (_confirmed == false) {
       getWalletData(ModalRoute.of(context)!.settings.arguments);
     }
-    return Container(
-      color: kDarkBackgroundColor,
-      child: SafeArea(
-        child: Scaffold(
-          body: Container(
-            padding: const EdgeInsets.only(
-              bottom: 16.0,
-              left: 8.0,
-              right: 8.0,
+    return SafeAreaX(
+      appBar: AppBar(
+        centerTitle: true,
+        title: titleIcon,
+        backgroundColor: kBlackColor,
+        automaticallyImplyLeading: false,
+      ),
+      bottomBar: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _confirmed == true ? _encryptToKeyStore() : null,
+              child: _confirmed == true
+                  ? const CustomFlatButton(
+                      textLabel: 'Import',
+                    )
+                  : const CustomFlatButton(
+                      textLabel: 'Import',
+                      enabled: false,
+                    ),
             ),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: SvgPicture.asset(
-                    'assets/icons/logo.svg',
-                    color: kYellowColor,
-                    height: 40.0,
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                  alignment: Alignment.centerLeft,
-                  child: const Text(
-                    'Found something.',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      ListItem(
-                        _walletName,
-                        subtitle: _amount[0],
-                        icon: Icons.currency_bitcoin,
-                      ),
-                    ],
-                  ),
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () =>
-                            _confirmed == true ? _encryptToKeyStore() : null,
-                        child: _confirmed == true
-                            ? const CustomFlatButton(
-                                textLabel: 'Import',
-                              )
-                            : const CustomFlatButton(
-                                textLabel: 'Import',
-                                enabled: false,
-                              ),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/home_screen', (Route<dynamic> route) => false);
-                        },
-                        child: const CustomFlatButton(
-                          textLabel: 'Close',
-                          buttonColor: kDarkBackgroundColor,
-                          fontColor: kWhiteColor,
-                        ),
-                      ),
-                    ),
-                  ],
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/home_screen', (Route<dynamic> route) => false);
+              },
+              child: const CustomFlatButton(
+                textLabel: 'Close',
+                buttonColor: kDarkBackgroundColor,
+                fontColor: kWhiteColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+            alignment: Alignment.centerLeft,
+            child: const Text(
+              'Found something.',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              children: [
+                ListItem(
+                  _walletName,
+                  subtitle: _amount[0],
+                  icon: Icons.currency_bitcoin,
                 ),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }

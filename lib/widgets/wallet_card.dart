@@ -208,12 +208,12 @@ class _WalletCardState extends State<WalletCard> {
 }
 
 bool _checkVisibility(Wallet wallet) {
-  if (wallet.type != 'address') {
-    if (wallet.balance.isNotEmpty) {
-      if (wallet.balance.first > 0) {
-        return true;
-      }
-    }
+  double maxBalance = 0;
+  for (Address addressObj in wallet.addresses) {
+    maxBalance = maxBalance + addressObj.balance;
+  }
+  if (wallet.type != 'address' && maxBalance > 0) {
+    return true;
   }
   return false;
 }

@@ -5,17 +5,18 @@ import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:dart_lnurl/dart_lnurl.dart' as lnurl;
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:hex/hex.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:othala/services/network_helper.dart';
-import 'package:othala/services/secure_storage.dart';
-import 'package:othala/widgets/list_divider.dart';
 
 import '../models/wallet.dart';
+import '../services/network_helper.dart';
+import '../services/secure_storage.dart';
 import '../services/wallet_manager.dart';
+import '../themes/custom_icons.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
+import '../widgets/list_divider.dart';
+import '../widgets/safe_area.dart';
 
 class LnurlScreen extends StatefulWidget {
   const LnurlScreen({Key? key}) : super(key: key);
@@ -35,141 +36,124 @@ class LnurlScreenState extends State<LnurlScreen> {
     final lnURL = ModalRoute.of(context)!.settings.arguments as String;
     _getLnAuth(lnURL);
     final List<Wallet> wallets = _walletManager.getWallets(['mnemonic']);
-    return Container(
-      color: kDarkBackgroundColor,
-      child: SafeArea(
-        child: Scaffold(
-          body: Container(
-            padding: const EdgeInsets.only(
-              bottom: 16.0,
-              left: 8.0,
-              right: 8.0,
-            ),
-            child: Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/logo.svg',
-                      color: kYellowColor,
-                      height: 40.0,
-                    ),
-                  ],
-                ),
-                Row(
-                  children: const [
-                    Text(
-                      'Website',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: kDarkNeutral5Color,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      domain,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                  child: ListDivider(),
-                ),
-                Row(
-                  children: [
-                    Text(
-                      wallets.isNotEmpty ? 'Sign in with keys from:' : '',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: kDarkNeutral5Color,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24.0),
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 200,
-                            childAspectRatio: 3 / 2,
-                            crossAxisSpacing: 20,
-                            mainAxisSpacing: 20),
-                    itemCount: wallets.length,
-                    itemBuilder: (BuildContext ctx, index) {
-                      Wallet wallet = wallets[index];
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            signed = index;
-                            _sign(wallet, lnURL);
-                          });
-                        },
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(16.0),
-                              child: _showImage(wallet.imagePath,
-                                  signed == index || signed == -1 ? 1.0 : 0.5),
-                            ),
-                            Visibility(
-                              visible: signed == index ? true : false,
-                              child: const Positioned(
-                                top: 8.0,
-                                right: 8.0,
-                                child: Icon(
-                                  Icons.check_circle_rounded,
-                                  color: kYellowColor,
-                                  size: 28,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => _authenticate(callBackUrl),
-                        child: CustomFlatButton(
-                          textLabel: 'Sign in',
-                          enabled: signed != -1 ? true : false,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/home_screen', (Route<dynamic> route) => false);
-                        },
-                        child: const CustomFlatButton(
-                          textLabel: 'Close',
-                          buttonColor: kDarkBackgroundColor,
-                          fontColor: kWhiteColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+    return SafeAreaX(
+      appBar: AppBar(
+        centerTitle: true,
+        title: titleIcon,
+        backgroundColor: kBlackColor,
+        automaticallyImplyLeading: false,
+      ),
+      bottomBar: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _authenticate(callBackUrl),
+              child: CustomFlatButton(
+                textLabel: 'Sign in',
+                enabled: signed != -1 ? true : false,
+              ),
             ),
           ),
-        ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/home_screen', (Route<dynamic> route) => false);
+              },
+              child: const CustomFlatButton(
+                textLabel: 'Close',
+                buttonColor: kDarkBackgroundColor,
+                fontColor: kWhiteColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: const [
+              Text(
+                'Website',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: kDarkNeutral5Color,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Text(
+                domain,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0),
+            child: ListDivider(),
+          ),
+          Row(
+            children: [
+              Text(
+                wallets.isNotEmpty ? 'Sign in with keys from:' : '',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: kDarkNeutral5Color,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24.0),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 200,
+                  childAspectRatio: 3 / 2,
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 20),
+              itemCount: wallets.length,
+              itemBuilder: (BuildContext ctx, index) {
+                Wallet wallet = wallets[index];
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      signed = index;
+                      _sign(wallet, lnURL);
+                    });
+                  },
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(16.0),
+                        child: _showImage(wallet.imagePath,
+                            signed == index || signed == -1 ? 1.0 : 0.5),
+                      ),
+                      Visibility(
+                        visible: signed == index ? true : false,
+                        child: const Positioned(
+                          top: 8.0,
+                          right: 8.0,
+                          child: Icon(
+                            Icons.check_circle_rounded,
+                            color: kYellowColor,
+                            size: 28,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

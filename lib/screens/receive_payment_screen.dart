@@ -2,12 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_emoji/flutter_emoji.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../models/wallet.dart';
+import '../themes/custom_icons.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
+import '../widgets/safe_area.dart';
 
 class ReceivePaymentScreen extends StatefulWidget {
   const ReceivePaymentScreen(this.wallet, {Key? key}) : super(key: key);
@@ -21,100 +22,79 @@ class ReceivePaymentScreen extends StatefulWidget {
 class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: kDarkBackgroundColor,
-      child: SafeArea(
-        child: Scaffold(
-          body: Container(
-            padding: const EdgeInsets.only(
-              bottom: 16.0,
-              left: 8.0,
-              right: 8.0,
-            ),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: SvgPicture.asset(
-                    'assets/icons/logo.svg',
-                    color: kYellowColor,
-                    height: 40.0,
-                  ),
+    return SafeAreaX(
+      appBar: AppBar(
+        centerTitle: true,
+        title: titleIcon,
+        backgroundColor: kBlackColor,
+        automaticallyImplyLeading: false,
+      ),
+      bottomBar: GestureDetector(
+        onTap: () {
+          Navigator.pop(context);
+        },
+        child: const CustomFlatButton(
+          textLabel: 'Close',
+          buttonColor: kDarkBackgroundColor,
+          fontColor: kWhiteColor,
+        ),
+      ),
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: const BoxDecoration(
+                color: kWhiteColor,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(16.0),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: const BoxDecoration(
-                      color: kWhiteColor,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(16.0),
-                      ),
+              ),
+              child: Column(
+                children: [
+                  QrImageView(
+                    eyeStyle: const QrEyeStyle(
+                      eyeShape: QrEyeShape.square,
+                      color: kDarkBackgroundColor,
                     ),
-                    child: Column(
+                    dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.circle,
+                        color: kDarkBackgroundColor),
+                    data: widget.wallet.addresses.last.address,
+                    version: QrVersions.auto,
+                    size: 320,
+                  ),
+                  const SizedBox(height: 24.0),
+                  GestureDetector(
+                    onTap: () {
+                      _setClipboard();
+                    },
+                    child: Row(
                       children: [
-                        QrImageView(
-                          eyeStyle: const QrEyeStyle(
-                            eyeShape: QrEyeShape.square,
-                            color: kDarkBackgroundColor,
+                        Expanded(
+                          child: Text(
+                            widget.wallet.addresses.last.address,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                              color: kDarkNeutral4Color,
+                            ),
                           ),
-                          dataModuleStyle: const QrDataModuleStyle(
-                              dataModuleShape: QrDataModuleShape.circle,
-                              color: kDarkBackgroundColor),
-                          data: widget.wallet.addresses.last.address,
-                          version: QrVersions.auto,
-                          size: 320,
                         ),
-                        const SizedBox(height: 24.0),
-                        GestureDetector(
-                          onTap: () {
-                            _setClipboard();
-                          },
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  widget.wallet.addresses.last.address,
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w600,
-                                    color: kDarkNeutral4Color,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16.0),
-                              const Icon(
-                                CupertinoIcons.doc_on_doc_fill,
-                                color: kDarkNeutral4Color,
-                              ),
-                            ],
-                          ),
+                        const SizedBox(width: 16.0),
+                        const Icon(
+                          CupertinoIcons.doc_on_doc_fill,
+                          color: kDarkNeutral4Color,
                         ),
                       ],
                     ),
                   ),
-                ),
-                const Spacer(),
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: const CustomFlatButton(
-                          textLabel: 'Cancel',
-                          buttonColor: kDarkBackgroundColor,
-                          fontColor: kWhiteColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -122,7 +102,7 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
   void _setClipboard() async {
     // clipboard
     ClipboardData data =
-        ClipboardData(text: widget.wallet.addresses.first.address);
+        ClipboardData(text: widget.wallet.addresses.last.address);
     await Clipboard.setData(data);
     if (!mounted) return;
 

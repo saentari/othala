@@ -5,9 +5,11 @@ import 'package:hive/hive.dart';
 import '../constants/constants.dart';
 import '../models/currency.dart';
 import '../services/wallet_manager.dart';
+import '../themes/custom_icons.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 import '../widgets/list_divider.dart';
+import '../widgets/safe_area.dart';
 
 class WalletCurrencyScreen extends StatefulWidget {
   const WalletCurrencyScreen({Key? key}) : super(key: key);
@@ -26,42 +28,43 @@ class WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
     _defaultFiatCurrency = _walletManager.getDefaultFiatCurrency(walletIndex);
-    return Container(
-      color: kDarkBackgroundColor,
-      child: SafeArea(
-        child: Scaffold(
-          body: CustomScrollView(
-            slivers: [
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    return Column(
-                      children: <Widget>[
-                        ListTileAsset(
-                          walletIndex,
-                          _fiatCurrencies[index],
-                          _defaultFiatCurrency,
-                        ),
-                        const ListDivider(),
-                      ],
-                    );
-                  },
-                  childCount: _fiatCurrencies.length,
-                ),
-              ),
-            ],
-          ),
-          bottomNavigationBar: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: const CustomFlatButton(
-              textLabel: 'Cancel',
-              buttonColor: kDarkBackgroundColor,
-              fontColor: kWhiteColor,
+    return SafeAreaX(
+      appBar: AppBar(
+        centerTitle: true,
+        title: titleIcon,
+        backgroundColor: kBlackColor,
+        automaticallyImplyLeading: false,
+      ),
+      bottomBar: GestureDetector(
+        onTap: () {
+          Navigator.pop(context);
+        },
+        child: const CustomFlatButton(
+          textLabel: 'Cancel',
+          buttonColor: kDarkBackgroundColor,
+          fontColor: kWhiteColor,
+        ),
+      ),
+      child: CustomScrollView(
+        slivers: [
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                return Column(
+                  children: <Widget>[
+                    ListTileAsset(
+                      walletIndex,
+                      _fiatCurrencies[index],
+                      _defaultFiatCurrency,
+                    ),
+                    const ListDivider(),
+                  ],
+                );
+              },
+              childCount: _fiatCurrencies.length,
             ),
           ),
-        ),
+        ],
       ),
     );
   }
