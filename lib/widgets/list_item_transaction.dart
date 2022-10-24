@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../themes/theme_data.dart';
 
 class ListItemTransaction extends StatelessWidget {
-  // default value is empty, unless argument is set.
+  // Default value is empty, unless argument is set.
   const ListItemTransaction(this.title,
       {Key? key,
       this.value = 0.0,

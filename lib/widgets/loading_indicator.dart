@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// A Widget wrapping a [CircularProgressIndicator] in [Center].
+// A Widget wrapping a [CircularProgressIndicator] in [Center].
 class LoadingIndicator extends StatelessWidget {
   final Color color;
 

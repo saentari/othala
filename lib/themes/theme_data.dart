@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Othala Colors
+// Othala brand colors.
 const kYellowColor = Color(0xFFFBD42C);
 const kRedColor = Color(0xFFEB5757);
 const kDarkForegroundColor = Color(0xFFFFFFFF);
@@ -17,7 +17,7 @@ const kBlackColor = Color(0xFF000000);
 const kBlackOverlayColor = Color(0xCC000000);
 const kTransparentColor = Colors.transparent;
 
-/// Dark theme
+// Dark theme.
 ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   scaffoldBackgroundColor: kDarkBackgroundColor,
@@ -25,11 +25,11 @@ ThemeData darkTheme = ThemeData(
   dividerColor: kDarkNeutral4Color,
   backgroundColor: kDarkBackgroundColor,
 
-  // Text
+  // Text.
   fontFamily: 'Rajdhani',
 );
 
-/// Light theme
+// Light theme.
 ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   scaffoldBackgroundColor: kWhiteColor,
@@ -37,6 +37,6 @@ ThemeData lightTheme = ThemeData(
   dividerColor: kDarkNeutral4Color,
   backgroundColor: kWhiteColor,
 
-  // Text
+  // Text.
   fontFamily: 'Rajdhani',
 );

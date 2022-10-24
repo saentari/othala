@@ -22,7 +22,7 @@ class Address {
   @HiveField(3)
   Map? mempoolStats;
 
-  // Total transaction balance of the address
+  // Total transaction balance of the address.
   num balance = 0;
 
   Address(
@@ -34,6 +34,7 @@ class Address {
     balance = balanceTotal();
   }
 
+  // Returns the blockchain [amount] denominated in bitcoin unit.
   num balanceConfirmed() {
     num funded = chainStats?['funded_txo_sum'] ?? 0;
     num spend = chainStats?['spent_txo_sum'] ?? 0;
@@ -41,6 +42,7 @@ class Address {
     return amount;
   }
 
+  // Returns the mempool [amount] denominated in bitcoin unit.
   num balanceUnconfirmed() {
     num funded = mempoolStats?['funded_txo_sum'] ?? 0;
     num spend = mempoolStats?['spent_txo_sum'] ?? 0;
@@ -48,6 +50,7 @@ class Address {
     return amount;
   }
 
+  // Returns the total [amount] denominated in bitcoin unit.
   num balanceTotal() {
     num confirmed = balanceConfirmed();
     num unconfirmed = balanceUnconfirmed();

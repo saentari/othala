@@ -27,10 +27,10 @@ class WalletManager extends ValueNotifier<Box> {
 
   WalletManager(Box value) : super(value);
 
-  changeWalletBackgroundImage(int walletIndex, UnsplashImage imageData) async {
+  setWalletBackground(int walletIndex, UnsplashImage imageData) async {
     Wallet wallet = value.getAt(walletIndex);
     wallet.imageId = imageData.getId();
-    // delete any previous background files.
+    // Delete any previous background files.
     if (wallet.imagePath.isNotEmpty) {
       _deleteFile(wallet.imagePath);
     }
@@ -49,7 +49,7 @@ class WalletManager extends ValueNotifier<Box> {
     value.deleteAt(walletIndex);
   }
 
-  /// Secure store wallet
+  // Store the wallet in a Hive Box and the recovery in secure storage.
   encryptToKeyStore(
       {String? mnemonic,
       String? address,
@@ -74,7 +74,7 @@ class WalletManager extends ValueNotifier<Box> {
       type = 'address';
       bitcoinClient = BitcoinClient.readonly(address);
       btc_address.Address addressData = btc_address.validate(address);
-      // Discover if address is testnet.
+      // Discover if address is on testnet.
       if (addressData.network == btc_address.Network.testnet) {
         coinType = 1;
         network = 'testnet';
@@ -90,28 +90,24 @@ class WalletManager extends ValueNotifier<Box> {
     } else {
       throw ArgumentError('Missing input');
     }
-
-    // Secure storage
+    // Write the [secureData] to secure storage.
     _storageService.writeSecureData(SecureItem(key, secureData));
 
-    num balance = 0;
     List<Transaction> transactions = [];
-    // Retrieve balance and transactions when imported
+    // Retrieve balance and transactions when imported.
     if (generated == false) {
-      balance = await getBalance(bitcoinClient.address);
       transactions = await getTransactions(bitcoinClient.address, network);
     }
 
-    // Random background image
     String imageId = '';
     String localPath = '';
-
+    // Retrieve a random `nature` background image.
     try {
       UnsplashImage imageData = await _loadRandomImage(keyword: 'nature');
       imageId = imageData.getId();
       localPath = await _downloadFile(imageData.getRegularUrl());
     } catch (e) {
-      // Use default image
+      // If it fails, use the default image.
       localPath = 'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg';
     }
 
@@ -122,7 +118,7 @@ class WalletManager extends ValueNotifier<Box> {
 
     String walletName = getAddressName(bitcoinClient.address);
 
-    // Store in Hive Box
+    // Store in Hive Box.
     var walletBox = Hive.box('walletBox');
     walletBox.add(Wallet(
         key,
@@ -135,20 +131,18 @@ class WalletManager extends ValueNotifier<Box> {
             transactions: transactions,
           ),
         ],
-        [balance],
-        transactions,
         imageId,
         localPath,
         defaultFiatCurrency,
         defaultCurrency));
 
-    // Get BTC/USD price for imported wallet
+    // Get BTC/USD price for imported wallet.
     if (generated == false) {
       updateFiatPrices();
     }
   }
 
-  /// Retrieve wallet balance.
+  // Retrieve wallet balance.
   Future<double> getBalance(address) async {
     btc_address.Network? network = btc_address.validate(address).network;
 
@@ -245,7 +239,7 @@ class WalletManager extends ValueNotifier<Box> {
           } catch (e) {
             txCountOld = 0;
           }
-          // Are there new tx on blockchain or mempool?
+          // Check for new txs on blockchain and mempool.
           if (txCountNew != txCountOld) {
             List<Transaction> txNew = [];
             List rawTxs =
@@ -262,7 +256,7 @@ class WalletManager extends ValueNotifier<Box> {
             }
             addressObj.transactions = txNew;
           } else {
-            // Add old list to new AddressObj
+            // Add old list to new AddressObj.
             if (txCountNew != 0) {
               addressObj.transactions = txOld;
             }
@@ -279,7 +273,7 @@ class WalletManager extends ValueNotifier<Box> {
           // If an address has no tx history, then break the loop.
           hasTxHistory = false;
         }
-        // Add updated addressObj to wallet address list
+        // Add updated addressObj to wallet address list.
         addresses.add(addressObj);
       }
       // Update wallet in box with active addresses.
@@ -300,15 +294,14 @@ class WalletManager extends ValueNotifier<Box> {
     }
   }
 
-  // returns a specific wallet
+  // Returns the recovery phrase if a [Wallet] has one.
   getWalletSeed(int index) async {
     final wallet = value.getAt(index);
-    final seed = await _storageService.readSecureData(wallet.key) ?? '';
-
-    return seed;
+    final phrase = await _storageService.readSecureData(wallet.key) ?? '';
+    return phrase;
   }
 
-  /// Returns a list of wallets (of a certain type)
+  // Returns a list of [Wallet] (of a certain type).
   getWallets(List<String> walletTypes) {
     List<Wallet> wallets = [];
     for (Wallet wallet in value.values) {
@@ -345,20 +338,20 @@ class WalletManager extends ValueNotifier<Box> {
   Future<void> setPurpose(int walletIndex, int purpose) async {
     Wallet wallet = value.getAt(walletIndex);
 
-    // Get the seed to update the address on the new network
+    // Get the seed to update the address on the new network.
     String? seed = await _storageService.readSecureData(wallet.key);
     BitcoinClient bitcoinClient = BitcoinClient(seed!);
 
-    // fetch stored network/cointype
+    // Fetch stored network/cointype.
     final dp = DerivationPath(wallet.derivationPath);
     final coinType = dp.coinType;
 
-    // set wallet values
+    // Set wallet values.
     wallet.derivationPath = "m/$purpose'/$coinType'/0'/0";
     bitcoinClient.setDerivationPath(wallet.derivationPath);
     wallet.addresses[0] = Address(bitcoinClient.address);
 
-    // update box entry with new network & address.
+    // Update box entry with new network & address.
     value.putAt(walletIndex, wallet);
   }
 
@@ -380,37 +373,12 @@ class WalletManager extends ValueNotifier<Box> {
     bitcoinClient.setDerivationPath(wallet.derivationPath);
     wallet.addresses[0] = Address(bitcoinClient.address);
 
-    // update box entry with new network & address.
+    // Update box entry with new network & address.
     value.putAt(walletIndex, wallet);
   }
 
-  /// Update all wallet balances.
-  Future<void> updateAllBalances() async {
-    for (var index = 0; index < value.length; index++) {
-      Wallet wallet = value.getAt(index);
-      BitcoinClient bitcoinClient =
-          BitcoinClient.readonly(wallet.addresses[0].address);
-      bitcoinClient.setDerivationPath(wallet.derivationPath);
-      List balances = await bitcoinClient.getBalance(bitcoinClient.address);
-      wallet.balance = [balances[0]['amount']];
-      value.putAt(index, wallet);
-    }
-  }
-
-  /// Update a single wallet balance.
-  Future<void> updateBalance(index) async {
-    Wallet wallet = value.getAt(index);
-    BitcoinClient bitcoinClient =
-        BitcoinClient.readonly(wallet.addresses[0].address);
-    bitcoinClient.setDerivationPath(wallet.derivationPath);
-
-    List balances = await bitcoinClient.getBalance(bitcoinClient.address);
-    wallet.balance = [balances[0]['amount']];
-    value.putAt(index, wallet);
-  }
-
   updateFiatPrices() async {
-    // Avoids fetching duplicate prices
+    // Avoids fetching duplicate prices.
     var walletBox = Hive.box('walletBox');
     Map prices = {};
     for (int index = 0; index < walletBox.length; index++) {
@@ -457,8 +425,9 @@ class WalletManager extends ValueNotifier<Box> {
     return validateMnemonic(input);
   }
 
-  /// Requests a [UnsplashImage] for a given [keyword] query.
-  /// If the given [keyword] is null, any random image is loaded.
+  // Requests a [UnsplashImage] for a given [keyword] query.
+  //
+  // If the given [keyword] is null, any random image is loaded.
   Future<UnsplashImage> _loadRandomImage({String? keyword}) async {
     UnsplashImage imageData =
         await UnsplashImageProvider.loadRandomImage(keyword: keyword);
@@ -467,21 +436,21 @@ class WalletManager extends ValueNotifier<Box> {
   }
 
   Future<String> _downloadFile(String url) async {
-    // Default background image
+    // Default background image.
     String localPath =
         'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg';
 
     final response = await http.get(Uri.parse(url));
 
-    // Get the image name
+    // Get the image name.
     final imageName = path.basename(url);
 
-    // Get the document directory path
+    // Get the document directory path.
     final appDir = await path_provider.getApplicationDocumentsDirectory();
-    // This is the saved image path
+    // This is the saved image path.
     localPath = path.join(appDir.path, imageName);
 
-    // Downloading
+    // Download locally.
     final imageFile = File(localPath);
     await imageFile.writeAsBytes(response.bodyBytes);
     return localPath;

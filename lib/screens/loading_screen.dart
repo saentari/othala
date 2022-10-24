@@ -21,9 +21,11 @@ class LoadingScreenState extends State<LoadingScreen> {
   @override
   initState() {
     super.initState();
+    // Fetches prices and updates transactions at start-up.
     _walletManager.updateFiatPrices();
     _walletManager.setTransactions();
-    // placeholder for verifying data.
+
+    // Show a placeholder when data is being retrieved.
     Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,

@@ -1,3 +1,4 @@
+// Units used as a denominator for bitcoin.
 enum BitcoinUnit {
   btc,
   sats,

@@ -1,15 +1,15 @@
-// Midgard Public API
 import '../models/currency.dart';
 
-// CoinPaprika
+// CoinPaprika API for bitcoin and fiat prices.
 const coinPaprikaUrl = 'https://api.coinpaprika.com/v1';
 const coinPaprikaAssets = '$coinPaprikaUrl/tickers';
 const coinPaprikaIconUrl = 'https://static.coinpaprika.com/coin';
 const coinPaprikaConversion = 'https://api.coinpaprika.com/v1/price-converter';
 
-// Unicode Characters
+// Unicode Characters.
 String unicodeBitcoin = String.fromCharCodes(Runes('\u{20BF}'));
 
+// Fiat currencies supported by CoinPaprika.
 List<Currency> fiatCurrencies = [
   Currency('ARS',
       id: 'ars-argentine-peso', name: 'Argentine peso', symbol: r'$'),

@@ -5,7 +5,7 @@ import 'network_helper.dart';
 class ExchangeManager {
   final NetworkHelper _networkHelper = NetworkHelper();
 
-  /// Retrieve bitcoin price
+  // Retrieve bitcoin price.
   Future<double> getPrice(String fiatCurrency) async {
     String uri =
         'https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=$fiatCurrency';

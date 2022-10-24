@@ -1,4 +1,4 @@
-/// Model for image location.
+// Model for Unsplash image location.
 class Location {
   var data = {};
 

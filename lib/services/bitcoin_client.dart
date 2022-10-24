@@ -42,7 +42,7 @@ class BitcoinClient {
     final root = bip32.BIP32.fromSeed(seedUint8List);
     final network = coinType == 1 ? testnet : bitcoin;
 
-    // BIP44 - Multi-account hierarchy for deterministic wallets (Legacy)
+    // BIP44 - Multi-account hierarchy for deterministic wallets (Legacy).
     final node = root.derivePath("m/$purpose'/$coinType'/0'/0/$walletIndex");
     if (purpose == 44) {
       address =
@@ -50,9 +50,8 @@ class BitcoinClient {
               .data
               .address;
     }
-    // BIP49 - Derivation scheme for P2WPKH-nested-in-P2SH based accounts (Segwit)
+    // BIP49 - Derivation scheme for P2WPKH-nested-in-P2SH based accounts (Segwit).
     else if (purpose == 49) {
-      // not yet supported in bitcoin_dart library.
       address = P2SH(
               data: PaymentData(
                   redeem: P2WPKH(
@@ -63,14 +62,14 @@ class BitcoinClient {
           .data
           .address;
     }
-    // BIP84 - Derivation scheme for P2WPKH based accounts (native Segwit)
+    // BIP84 - Derivation scheme for P2WPKH based accounts (native Segwit).
     else if (purpose == 84) {
       address =
           P2WPKH(data: PaymentData(pubkey: node.publicKey), network: network)
               .data
               .address;
     }
-    // Unsupported derivation scheme
+    // Unsupported derivation scheme.
     else {
       throw ('unsupported derivation scheme');
     }
@@ -224,7 +223,7 @@ class BitcoinClient {
   }
 
   getTransactionAddressStats(address) async {
-    // Returns mempool and chain transaction stats
+    // Returns mempool and chain transaction stats.
     String addressUri = '${getExplorerAddressUrl(address)}';
     String addrResponseBody = await _networkHelper.getData(addressUri);
 
@@ -232,7 +231,7 @@ class BitcoinClient {
   }
 
   getTransactions(address, [limit]) async {
-    // Current block
+    // Current block.
     String blockHeightUri = '${getExplorerUrl()}/blocks/tip/height';
     String blockResponseBody = await _networkHelper.getData(blockHeightUri);
     int rawBlockHeight = jsonDecode(blockResponseBody);
@@ -259,7 +258,7 @@ class BitcoinClient {
     List txData = [];
 
     if (txCount > 0) {
-      // Confirmed transactions
+      // Confirmed transactions.
       String lastTx = '';
       for (int i = 0; i < pages; i++) {
         String txUri = '$addressUri/txs/chain/$lastTx';
@@ -408,7 +407,10 @@ class BitcoinClient {
   }
 
   purgeClient() {
-    // When a wallet is "locked" the private key should be purged in each client by setting it back to null.
+    // TODO: implement clearing sensitive data when done.
+    //
+    // When a wallet is "locked" the private key should be purged in each
+    // client by setting it back to null.
   }
 
   setDerivationPath(derivationPath) {
@@ -417,17 +419,17 @@ class BitcoinClient {
     final coinType = dp.coinType;
     final walletIndex = dp.addressIndex;
 
-    // set purpose
+    // Sets the purpose.
     setPurpose(purpose);
 
-    // set network
+    // Sets the network.
     if (coinType == 0) {
       setNetwork(bitcoin);
     } else if (coinType == 1) {
       setNetwork(testnet);
     }
 
-    // set address
+    // Sets the address.
     if (readOnlyClient == false) {
       address = getAddress(walletIndex);
     }
@@ -442,7 +444,7 @@ class BitcoinClient {
   }
 
   setPurpose(p) {
-    // only support BIP44, BIP49, and BIP84
+    // Only support BIP44, BIP49, and BIP84.
     if (p == 44 || p == 49 || p == 84) {
       purpose = p;
     }
@@ -454,6 +456,7 @@ class BitcoinClient {
     return address;
   }
 
+  // TODO: implement function.
   transfer(params) {
     String txHash =
         '59bbb95bbe740ad6acf24509d38f13f83ca49d6f11207f6a162999ffc5863b77';
@@ -468,7 +471,6 @@ class BitcoinClient {
 
 generateMnemonic({int size = 12}) {
   // Generate a random mnemonic, defaults to 128-bits of entropy.
-
   int entropy = size == 24 ? 256 : 128;
   String mnemonic = bip39.generateMnemonic(strength: entropy);
   return mnemonic;

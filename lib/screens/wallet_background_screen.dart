@@ -82,76 +82,77 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
         });
   }
 
-  /// Requests a list of [UnsplashImage] for a given [keyword].
-  /// If the given [keyword] is null, trending images are loaded.
+  // Requests a list of [UnsplashImage] for a given [keyword].
+  //
+  // If the given [keyword] is null, trending images are loaded.
   _loadImages({String? keyword}) async {
-    // check if there is currently a loading task running
+    // Check if there is currently a loading task running.
     if (loadingImages) {
-      // there is currently a task running
+      // There is currently a task running.
       return;
     }
-    // check if all pages are already loaded
+    // Check if all pages are already loaded.
     if (totalPages != -1 && page >= totalPages) {
-      // all pages already loaded
+      // All pages already loaded.
       return;
     }
-    // set loading state
-    // delay setState, otherwise: Unhandled Exception: setState() or markNeedsBuild() called during build.
+    // Set loading state.
+    //
+    // Delay setState, otherwise: Unhandled Exception: setState()
+    // or markNeedsBuild() called during build.
     await Future.delayed(const Duration(microseconds: 1));
     setState(() {
-      // set loading
+      // Set loading.
       loadingImages = true;
-      // check if new search
+      // Check if new search.
       if (this.keyword != keyword) {
-        // clear images for new search
+        // Clear images and reset page counter for new search.
         _images = [];
-        // reset page counter
         page = 0;
       }
-      // keyword null
+      // Keyword null.
       this.keyword = keyword;
     });
 
-    // load images
+    // Load images.
     List<UnsplashImage>? images;
     if (keyword == null) {
-      // load images from the next page of trending images
+      // Load images from the next page of trending images.
       images = (await UnsplashImageProvider.loadImages(page: ++page))
           .cast<UnsplashImage>();
     } else {
-      // load images from the next page with a keyword
+      // Load images from the next page with a keyword.
       List res = await UnsplashImageProvider.loadImagesWithKeyword(keyword,
           page: ++page);
-      // set totalPages
+      // Set totalPages.
       totalPages = res[0];
-      // set images
+      // Set images.
       images = res[1];
     }
 
-    // TODO: handle errors
-
-    // update the state
+    // Update the state.
     setState(() {
-      // done loading
+      // Done loading.
       loadingImages = false;
-      // set new loaded images
+      // Set new loaded images.
       _images.addAll(images!);
     });
   }
 
-  /// Returns the grid that displays images.
-  /// [orientation] can be used to adjust the grid column count.
+  // Returns the grid that displays images.
+  //
+  // [orientation] can be used to adjust the grid column count.
   Widget _buildImageGrid(walletIndex, {orientation = Orientation.portrait}) {
-    // calc columnCount based on orientation
+    // Calculate [columnCount] based on orientation.
     int columnCount = orientation == Orientation.portrait ? 2 : 3;
-    // return staggered grid
+    // Return staggered grid.
     return SliverPadding(
       padding: const EdgeInsets.all(16.0),
       sliver: SliverStaggeredGrid.countBuilder(
-        // set column count
+        // Set column count.
         crossAxisCount: columnCount,
         itemCount: _images.length,
-        // set itemBuilder
+        // Set itemBuilder.
         itemBuilder: (BuildContext context, int index) =>
             _buildImageItemBuilder(index, walletIndex),
         staggeredTileBuilder: (int index) =>
@@ -162,13 +163,13 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
     );
   }
 
-  /// Returns a FutureBuilder to load a [UnsplashImage] for a given [index].
+  // Returns a FutureBuilder to load a [UnsplashImage] for a given [index].
   Widget _buildImageItemBuilder(int imageIndex, int walletIndex) {
     return FutureBuilder(
-      // pass image loader
+      // Pass image loader.
       future: _loadImage(imageIndex),
       builder: (context, snapshot) {
-        // image loaded return [_ImageTile]
+        // Image loaded return [_ImageTile].
         UnsplashImage? image;
         if (snapshot.data != null) {
           image = snapshot.data as UnsplashImage;
@@ -178,20 +179,20 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
     );
   }
 
-  /// Returns a StaggeredTile for a given [image].
+  // Returns a StaggeredTile for a given [image].
   StaggeredTile _buildStaggeredTile(UnsplashImage image, int columnCount) {
-    // calc image aspect ration
+    // Calculate image aspect ratio.
     double aspectRatio =
         image.getHeight().toDouble() / image.getWidth().toDouble();
-    // calc columnWidth
+    // Calculate column width.
     double columnWidth = MediaQuery.of(context).size.width / columnCount;
-    // not using [StaggeredTile.fit(1)] because during loading StaggeredGrid is really jumpy.
+    // Not using [StaggeredTile.fit(1)] because during loading StaggeredGrid is really jumpy.
     return StaggeredTile.extent(1, aspectRatio * columnWidth);
   }
 
-  /// Asynchronously loads a [UnsplashImage] for a given [index].
+  // Asynchronously loads a [UnsplashImage] for a given [index].
   Future<UnsplashImage?> _loadImage(int index) async {
-    // check if new images need to be loaded
+    // Check if new images need to be loaded.
     if (index >= _images.length - 2) {
       // Reached the end of the list. Try to load more images.
       _loadImages(keyword: keyword);

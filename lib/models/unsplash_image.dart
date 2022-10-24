@@ -3,13 +3,11 @@ import 'package:date_format/date_format.dart';
 import 'location.dart';
 import 'unsplash_user.dart';
 
-/// Model for Unsplash Image
+// Model for Unsplash Image
 class UnsplashImage {
   var data = {};
 
   UnsplashImage(this.data);
-
-  // Getter
 
   String getId() {
     return data['id'] ?? '';
@@ -108,13 +106,11 @@ class UnsplashImage {
   }
 }
 
-/// Model for the exif data of an image.
+// Model for the exif data of an image.
 class Exif {
   var data = {};
 
   Exif(this.data);
-
-  // Getter
 
   String getMake() {
     return data['make'] ?? '';

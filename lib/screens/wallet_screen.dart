@@ -275,7 +275,7 @@ List _checkInputOutput(Transaction transaction, String address) {
       voutAmount = vout.values.elementAt(1);
       break;
     }
-    // Ignore empty OP_RETURN entries
+    // Ignore empty OP_RETURN entries.
     if (vout.values.elementAt(0) != '' &&
         vout.values.elementAt(0).toString().toLowerCase() !=
             address.toLowerCase()) {

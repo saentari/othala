@@ -47,7 +47,7 @@ class LnurlScreenState extends State<LnurlScreen> {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => _authenticate(callBackUrl),
+              onTap: () => signed != -1 ? _authenticate(callBackUrl) : null,
               child: CustomFlatButton(
                 textLabel: 'Sign in',
                 enabled: signed != -1 ? true : false,

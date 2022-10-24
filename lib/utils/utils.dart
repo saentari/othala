@@ -36,18 +36,18 @@ String getNumberFormat(
 InputType? getInputType(String input, {String? language}) {
   String defaultLanguage = language ?? 'english';
 
-  // Strip any bitcoin prefix
+  // Strip any bitcoin prefix.
   input = input.replaceFirst(RegExp(r'bitcoin:', caseSensitive: false), '');
 
-  // Check if valid mnemonic
+  // Check if valid mnemonic.
   if (validateMnemonic(input, language: defaultLanguage)) {
     return InputType.mnemonic;
   }
-  // Check if valid address
+  // Check if valid address.
   else if (isValidAddress(input)) {
     return InputType.address;
   }
-  // Check if valid lnurl
+  // Check if valid lnurl.
   else if (validateLnUrl(input)) {
     return InputType.lnurl;
   } else {
@@ -64,7 +64,7 @@ bool isValidAddress(String address) {
   }
 }
 
-// walletDescriptor
+// Returns a generated wallet name.
 String getAddressName(String address) {
   String description;
 

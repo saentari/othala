@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:othala/widgets/safe_area.dart';
 
 import '../enums/bitcoin_unit_enum.dart';
 import '../models/address.dart';
@@ -10,6 +9,7 @@ import '../screens/send_payment_amount_screen.dart';
 import '../themes/custom_icons.dart';
 import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
+import '../widgets/safe_area.dart';
 
 class SendPaymentScreen extends StatefulWidget {
   const SendPaymentScreen(this.walletIndex, {Key? key}) : super(key: key);
@@ -21,9 +21,12 @@ class SendPaymentScreen extends StatefulWidget {
 }
 
 class SendPaymentScreenState extends State<SendPaymentScreen> {
+  // TODO: implement TransactionBuilder.
+
   bool _confirmed = false;
   // String _recipientAddress = '';
   // String _recipientAmount = '';
+  // TODO: replace temporary values for testing the IXD flow.
   String _recipientAddress = 'tb1q669kqq0ykrzgx337w3sj0kdf6zcuznvff34z85';
   String _recipientAmount = '0.0001';
   final String _unit = BitcoinUnit.btc.toShortString();
@@ -151,8 +154,6 @@ class SendPaymentScreenState extends State<SendPaymentScreen> {
   }
 
   Future<void> _navigateAndDisplayAddress(BuildContext context) async {
-    // Navigator.push returns a Future that completes after calling
-    // Navigator.pop on the Selection Screen.
     _recipientAddress = await Navigator.push(
       context,
       // Create the SelectionScreen in the next step.
@@ -163,8 +164,6 @@ class SendPaymentScreenState extends State<SendPaymentScreen> {
   }
 
   Future<void> _navigateAndDisplayAmount(BuildContext context) async {
-    // Navigator.push returns a Future that completes after calling
-    // Navigator.pop on the Selection Screen.
     num maxBalance = 0;
     for (Address addressObj in _wallet.addresses) {
       maxBalance = maxBalance + addressObj.balance;

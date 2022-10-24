@@ -12,20 +12,20 @@ class Currency {
   @HiveField(1)
   final String id;
 
-  // The name of the currency. (e.g. US dollar)
+  // The name of the currency (e.g. US dollar).
   @HiveField(2)
   final String name;
 
-  // The currency symbol (e.g. $)
+  // The currency symbol (e.g. $).
   @HiveField(3)
   final String symbol;
 
-  // The locale of the currency. (e.g. en_US)
+  // The locale of the currency (e.g. en_US).
   @HiveField(4)
   final String locale;
 
   @HiveField(5)
-  // The USD price of the currency. (e.g. 0.88321)
+  // The USD price of the currency (e.g. 0.88321).
   double priceUsd;
 
   Currency(

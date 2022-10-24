@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../themes/theme_data.dart';
 
 class ListItem extends StatelessWidget {
-  // default value is empty, unless argument is set.
+  // Default value is empty, unless argument is set.
   const ListItem(this.title,
       {Key? key,
       this.value = '',

@@ -363,7 +363,7 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
   }
 
   _createMnemonic() {
-    // BIP39 English word list
+    // BIP39 English word list.
     _randomMnemonic = generateMnemonic();
     _randomMnemonicList = _randomMnemonic.split(" ");
     setState(() {});
@@ -388,18 +388,18 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
   }
 
   void _setClipboard() async {
-    // clipboard
+    // Clipboard.
     ClipboardData data = ClipboardData(text: _randomMnemonic);
     await Clipboard.setData(data);
     if (!mounted) return;
 
-    // emoji
+    // Emoji.
     var parser = EmojiParser();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          // returns: 'Copied to clipboard 👍'
+          // Returns: `Copied to clipboard 👍`.
           parser.emojify('Copied to clipboard :thumbsup:'),
           style: const TextStyle(color: kWhiteColor, fontSize: 16.0),
         ),
