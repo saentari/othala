@@ -21,15 +21,15 @@ class WalletImportScreenState extends State<WalletImportScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: GestureDetector(
         onTap: () => Navigator.pop(context),
         child: const CustomFlatButton(
           textLabel: 'Cancel',
-          buttonColor: kDarkBackgroundColor,
-          fontColor: kWhiteColor,
+          buttonColor: customDarkBackground,
+          fontColor: customWhite,
         ),
       ),
       child: Column(

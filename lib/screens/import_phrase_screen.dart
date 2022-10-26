@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive/hive.dart';
 
-import '../services/bitcoin_client.dart';
+import '../services/bitcoin_client.dart' as bitcoin_client;
 import '../services/wallet_manager.dart';
 import '../themes/custom_icons.dart';
 import '../themes/theme_data.dart';
@@ -18,22 +18,22 @@ class ImportPhraseScreen extends StatefulWidget {
 }
 
 class ImportPhraseScreenState extends State<ImportPhraseScreen> {
-  final _myTextController = TextEditingController();
+  final myTextController = TextEditingController();
 
-  bool _confirmed = false;
-  String _mnemonic = '';
+  bool confirmed = false;
+  String mnemonic = '';
 
   @override
   void initState() {
     super.initState();
     // Start listening to changes.
-    _myTextController.addListener(_validateMnemonic);
+    myTextController.addListener(validateMnemonic);
   }
 
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
-    _myTextController.dispose();
+    myTextController.dispose();
     super.dispose();
   }
 
@@ -43,15 +43,15 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: Row(
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => _confirmed == true ? _encryptToKeyStore() : null,
-              child: _confirmed == true
+              onTap: () => confirmed == true ? encryptToKeyStore() : null,
+              child: confirmed == true
                   ? const CustomFlatButton(
                       textLabel: 'Import',
                     )
@@ -68,8 +68,8 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
               },
               child: const CustomFlatButton(
                 textLabel: 'Cancel',
-                buttonColor: kDarkBackgroundColor,
-                fontColor: kWhiteColor,
+                buttonColor: customDarkBackground,
+                fontColor: customWhite,
               ),
             ),
           ),
@@ -90,13 +90,13 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
             decoration: const BoxDecoration(
               shape: BoxShape.rectangle,
               borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              color: kBlackColor,
+              color: customBlack,
             ),
             child: Column(
               children: [
                 TextField(
                   style: const TextStyle(fontSize: 20),
-                  controller: _myTextController,
+                  controller: myTextController,
                   decoration: const InputDecoration(
                     hintText: 'use spaces between words.',
                   ),
@@ -104,14 +104,14 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
                 const SizedBox(height: 8.0),
                 GestureDetector(
                   onTap: () {
-                    _getClipboard();
+                    getClipboard();
                   },
                   child: const Text(
                     'Paste from clipboard',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: kYellowColor,
+                      color: customYellow,
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -124,7 +124,7 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
     );
   }
 
-  Future<void> _encryptToKeyStore() async {
+  Future<void> encryptToKeyStore() async {
     EasyLoading.show(
       status: 'importing...',
       maskType: EasyLoadingMaskType.black,
@@ -133,7 +133,7 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
     final walletManager = WalletManager(Hive.box('walletBox'));
 
     int purpose = 84;
-    BitcoinClient bitcoinClient = BitcoinClient(_mnemonic);
+    final bitcoinClient = bitcoin_client.BitcoinClient(mnemonic);
 
     // check if a derivation path has transactions
     for (int p in [44, 49, 84]) {
@@ -149,8 +149,7 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
       }
     }
 
-    await walletManager.encryptToKeyStore(
-        mnemonic: _mnemonic, purpose: purpose);
+    await walletManager.encryptToKeyStore(mnemonic: mnemonic, purpose: purpose);
     if (EasyLoading.isShow) {
       EasyLoading.dismiss();
     }
@@ -160,23 +159,23 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
         arguments: jumpToPage);
   }
 
-  void _getClipboard() async {
+  void getClipboard() async {
     ClipboardData? data = await Clipboard.getData('text/plain');
-    _mnemonic = data!.text!;
-    _myTextController.text = _mnemonic;
+    mnemonic = data!.text!;
+    myTextController.text = mnemonic;
   }
 
-  void _validateMnemonic() {
-    if (_myTextController.text.isNotEmpty) {
-      _mnemonic = _myTextController.text;
-      if (validateMnemonic(_mnemonic) == true) {
+  void validateMnemonic() {
+    if (myTextController.text.isNotEmpty) {
+      mnemonic = myTextController.text;
+      if (bitcoin_client.validateMnemonic(mnemonic) == true) {
         setState(() {
-          _confirmed = true;
+          confirmed = true;
         });
       }
-      if (validateMnemonic(_mnemonic) == false) {
+      if (bitcoin_client.validateMnemonic(mnemonic) == false) {
         setState(() {
-          _confirmed = false;
+          confirmed = false;
         });
       }
     }

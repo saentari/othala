@@ -19,33 +19,33 @@ class WalletDiscoveryScreen extends StatefulWidget {
 }
 
 class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
-  final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
+  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
 
-  bool _confirmed = false;
-  String _walletName = '';
-  final List<String> _address = [''];
-  final List<String> _amount = [''];
-  late String _mnemonic;
-  late InputType _inputType;
+  bool confirmed = false;
+  String walletName = '';
+  final List<String> address = [''];
+  final List<String> amount = [''];
+  late String mnemonic;
+  late InputType inputType;
 
   @override
   Widget build(BuildContext context) {
-    if (_confirmed == false) {
+    if (confirmed == false) {
       getWalletData(ModalRoute.of(context)!.settings.arguments);
     }
     return SafeAreaX(
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: Row(
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => _confirmed == true ? _encryptToKeyStore() : null,
-              child: _confirmed == true
+              onTap: () => confirmed == true ? encryptToKeyStore() : null,
+              child: confirmed == true
                   ? const CustomFlatButton(
                       textLabel: 'Import',
                     )
@@ -63,8 +63,8 @@ class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
               },
               child: const CustomFlatButton(
                 textLabel: 'Close',
-                buttonColor: kDarkBackgroundColor,
-                fontColor: kWhiteColor,
+                buttonColor: customDarkBackground,
+                fontColor: customWhite,
               ),
             ),
           ),
@@ -84,8 +84,8 @@ class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
             child: ListView(
               children: [
                 ListItem(
-                  _walletName,
-                  subtitle: _amount[0],
+                  walletName,
+                  subtitle: amount[0],
                   icon: Icons.currency_bitcoin,
                 ),
               ],
@@ -96,37 +96,37 @@ class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
     );
   }
 
-  Future<void> _encryptToKeyStore() async {
-    if (_inputType == InputType.address) {
-      await _walletManager.encryptToKeyStore(address: _address[0]);
-    } else if (_inputType == InputType.mnemonic) {
-      await _walletManager.encryptToKeyStore(mnemonic: _mnemonic);
+  Future<void> encryptToKeyStore() async {
+    if (inputType == InputType.address) {
+      await walletManager.encryptToKeyStore(address: address[0]);
+    } else if (inputType == InputType.mnemonic) {
+      await walletManager.encryptToKeyStore(mnemonic: mnemonic);
     }
     if (!mounted) return;
-    int jumpToPage = _walletManager.value.length - 1;
+    int jumpToPage = walletManager.value.length - 1;
     Navigator.of(context).pushNamedAndRemoveUntil(
         '/home_screen', (Route<dynamic> route) => false,
         arguments: jumpToPage);
   }
 
   Future<void> getWalletData(input) async {
-    _inputType = input[0];
+    inputType = input[0];
     late String firstAddress;
 
-    if (_inputType == InputType.mnemonic) {
-      _mnemonic = input[1];
-      BitcoinClient client = BitcoinClient(_mnemonic);
+    if (inputType == InputType.mnemonic) {
+      mnemonic = input[1];
+      BitcoinClient client = BitcoinClient(mnemonic);
       firstAddress = client.address;
     } else {
       firstAddress = input[1];
     }
-    _walletName = getAddressName(firstAddress);
+    walletName = getAddressName(firstAddress);
 
-    double doubleAmount = await _walletManager.getBalance(firstAddress);
+    double doubleAmount = await walletManager.getBalance(firstAddress);
 
-    _address.insert(0, firstAddress);
-    _amount.insert(0, '$doubleAmount BTC');
-    _confirmed = true;
+    address.insert(0, firstAddress);
+    amount.insert(0, '$doubleAmount BTC');
+    confirmed = true;
     setState(() {});
   }
 }

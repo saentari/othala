@@ -23,14 +23,14 @@ class WalletCard extends StatefulWidget {
 }
 
 class _WalletCardState extends State<WalletCard> {
-  final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
-  final Currency _bitcoin = Currency('BTC', priceUsd: 1.0);
-  final Currency _satoshi = Currency('SATS', priceUsd: 100000000.0);
-  num _balance = 0.0;
+  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
+  final Currency bitcoin = Currency('BTC', priceUsd: 1.0);
+  final Currency satoshi = Currency('SATS', priceUsd: 100000000.0);
+  num balance = 0.0;
 
-  late Currency _defaultCurrency;
-  late Currency _defaultFiatCurrency;
-  late Wallet _wallet;
+  late Currency defaultCurrency;
+  late Currency defaultFiatCurrency;
+  late Wallet wallet;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class _WalletCardState extends State<WalletCard> {
       child: ValueListenableBuilder(
           valueListenable: Hive.box('walletBox').listenable(),
           builder: (context, Box box, widget2) {
-            _updateValues(box);
+            updateValues(box);
             return Scaffold(
               body: Column(
                 children: [
@@ -56,18 +56,18 @@ class _WalletCardState extends State<WalletCard> {
                           },
                           child: Hero(
                             tag: 'imageHero',
-                            child: _showImage(),
+                            child: showImage(),
                           ),
                         ),
                         Visibility(
-                          visible: _balance > 0 ? true : false,
+                          visible: balance > 0 ? true : false,
                           child: Positioned(
                             top: 48,
                             child: GestureDetector(
-                              onTap: () => _toggleDefaultCurrency(),
+                              onTap: () => toggleDefaultCurrency(),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: kBlackColor.withOpacity(0.5),
+                                  color: customBlack.withOpacity(0.5),
                                   borderRadius: const BorderRadius.only(
                                     topRight: Radius.circular(40.0),
                                     bottomRight: Radius.circular(40.0),
@@ -85,19 +85,19 @@ class _WalletCardState extends State<WalletCard> {
                                   children: [
                                     Text(
                                       getNumberFormat(
-                                          currency: _defaultCurrency,
-                                          amount: _balance),
+                                          currency: defaultCurrency,
+                                          amount: balance),
                                       style: const TextStyle(
-                                        color: kWhiteColor,
+                                        color: customWhite,
                                         fontSize: 40.0,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                     const SizedBox(width: 8.0),
                                     Text(
-                                      _wallet.defaultCurrency.code,
+                                      wallet.defaultCurrency.code,
                                       style: const TextStyle(
-                                        color: kWhiteColor,
+                                        color: customWhite,
                                         fontSize: 24.0,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -114,7 +114,7 @@ class _WalletCardState extends State<WalletCard> {
                   Row(
                     children: [
                       Visibility(
-                        visible: _checkVisibility(_wallet),
+                        visible: checkVisibility(wallet),
                         child: Expanded(
                             child: GestureDetector(
                                 onTap: () {
@@ -136,14 +136,14 @@ class _WalletCardState extends State<WalletCard> {
                             context,
                             MaterialPageRoute<void>(
                               builder: (BuildContext context) =>
-                                  ReceivePaymentScreen(_wallet),
+                                  ReceivePaymentScreen(wallet),
                             ),
                           );
                         },
                         child: const CustomFlatButton(
                           textLabel: 'Receive',
-                          buttonColor: kDarkBackgroundColor,
-                          fontColor: kWhiteColor,
+                          buttonColor: customDarkBackground,
+                          fontColor: customWhite,
                         ),
                       )),
                     ],
@@ -155,22 +155,33 @@ class _WalletCardState extends State<WalletCard> {
     );
   }
 
-  void _updateValues(Box<dynamic> box) {
-    num amount = 0;
-    if (widget.walletIndex < box.length) {
-      _wallet = box.getAt(widget.walletIndex);
+  bool checkVisibility(Wallet wallet) {
+    double maxBalance = 0;
+    for (Address addressObj in wallet.addresses) {
+      maxBalance = maxBalance + addressObj.balance;
     }
-    for (Address addressObj in _wallet.addresses) {
-      amount = amount + addressObj.balance;
+    if (wallet.type != 'address' && maxBalance > 0) {
+      return true;
     }
-    _defaultCurrency = _wallet.defaultCurrency;
-    _defaultFiatCurrency = _wallet.defaultFiatCurrency;
-    // use stored price
-    _balance = amount * _defaultCurrency.priceUsd;
+    return false;
   }
 
-  _showImage() {
-    if (FileSystemEntity.typeSync(_wallet.imagePath) ==
+  void updateValues(Box<dynamic> box) {
+    num amount = 0;
+    if (widget.walletIndex < box.length) {
+      wallet = box.getAt(widget.walletIndex);
+    }
+    for (Address addressObj in wallet.addresses) {
+      amount = amount + addressObj.balance;
+    }
+    defaultCurrency = wallet.defaultCurrency;
+    defaultFiatCurrency = wallet.defaultFiatCurrency;
+    // use stored price
+    balance = amount * defaultCurrency.priceUsd;
+  }
+
+  showImage() {
+    if (FileSystemEntity.typeSync(wallet.imagePath) ==
         FileSystemEntityType.notFound) {
       return Image.asset(
         'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg',
@@ -178,42 +189,31 @@ class _WalletCardState extends State<WalletCard> {
       );
     } else {
       return Image.file(
-        File(_wallet.imagePath),
+        File(wallet.imagePath),
         fit: BoxFit.cover,
       );
     }
   }
 
-  _toggleDefaultCurrency() async {
-    if (_defaultCurrency.code == _bitcoin.code) {
-      _updateCurrency(_satoshi);
-    } else if (_defaultCurrency.code == _satoshi.code) {
-      _updateCurrency(_defaultFiatCurrency);
+  toggleDefaultCurrency() async {
+    if (defaultCurrency.code == bitcoin.code) {
+      updateCurrency(satoshi);
+    } else if (defaultCurrency.code == satoshi.code) {
+      updateCurrency(defaultFiatCurrency);
     } else {
-      _updateCurrency(_bitcoin);
+      updateCurrency(bitcoin);
     }
   }
 
-  _updateCurrency(Currency newCurrency) async {
-    if (newCurrency.code == _bitcoin.code) {
-      _defaultCurrency = _bitcoin;
-    } else if (newCurrency.code == _satoshi.code) {
-      _defaultCurrency = _satoshi;
+  updateCurrency(Currency newCurrency) async {
+    if (newCurrency.code == bitcoin.code) {
+      defaultCurrency = bitcoin;
+    } else if (newCurrency.code == satoshi.code) {
+      defaultCurrency = satoshi;
     } else {
       // if newCurrency is not bitcoin or satoshi, then fiat.
-      _defaultCurrency = newCurrency;
+      defaultCurrency = newCurrency;
     }
-    _walletManager.setDefaultCurrency(widget.walletIndex, _defaultCurrency);
+    walletManager.setDefaultCurrency(widget.walletIndex, defaultCurrency);
   }
-}
-
-bool _checkVisibility(Wallet wallet) {
-  double maxBalance = 0;
-  for (Address addressObj in wallet.addresses) {
-    maxBalance = maxBalance + addressObj.balance;
-  }
-  if (wallet.type != 'address' && maxBalance > 0) {
-    return true;
-  }
-  return false;
 }

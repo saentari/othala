@@ -18,9 +18,9 @@ class WalletSettingsScreen extends StatefulWidget {
 }
 
 class WalletSettingsScreenState extends State<WalletSettingsScreen> {
-  final _walletManager = WalletManager(Hive.box('walletBox'));
-  late Wallet _wallet;
-  String _defaultFiatCurrency = 'US dollar';
+  final walletManager = WalletManager(Hive.box('walletBox'));
+  late Wallet wallet;
+  String defaultFiatCurrency = 'US dollar';
 
   @override
   Widget build(BuildContext context) {
@@ -29,23 +29,23 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
       valueListenable: Hive.box('walletBox').listenable(),
       builder: (context, Box box, widget2) {
         if (walletIndex < box.length) {
-          _wallet = box.getAt(walletIndex);
-          _defaultFiatCurrency =
-              _walletManager.getDefaultFiatCurrency(walletIndex).name;
+          wallet = box.getAt(walletIndex);
+          defaultFiatCurrency =
+              walletManager.getDefaultFiatCurrency(walletIndex).name;
         }
         return SafeAreaX(
           appBar: AppBar(
             centerTitle: true,
             title: titleIcon,
-            backgroundColor: kBlackColor,
+            backgroundColor: customBlack,
             automaticallyImplyLeading: false,
           ),
           bottomBar: GestureDetector(
             onTap: () => Navigator.pop(context),
             child: const CustomFlatButton(
               textLabel: 'Close',
-              buttonColor: kDarkBackgroundColor,
-              fontColor: kWhiteColor,
+              buttonColor: customDarkBackground,
+              fontColor: customWhite,
             ),
           ),
           child: Column(
@@ -60,7 +60,7 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                 },
                 child: ListItem(
                   'Description',
-                  subtitle: _wallet.name,
+                  subtitle: wallet.name,
                   chevron: true,
                 ),
               ),
@@ -75,7 +75,7 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                 },
                 child: ListItem(
                   'Local currency',
-                  subtitle: _defaultFiatCurrency,
+                  subtitle: defaultFiatCurrency,
                   chevron: true,
                 ),
               ),
@@ -97,17 +97,17 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
               const ListDivider(),
               GestureDetector(
                 onTap: () {
-                  _showDialog(walletIndex);
+                  deleteWalletDialog(walletIndex);
                 },
                 child: const ListItem(
                   'Delete',
                   subtitle: 'Warning: may cause loss of funds',
-                  subtitleColor: kRedColor,
+                  subtitleColor: customRed,
                   chevron: true,
                 ),
               ),
               Visibility(
-                visible: _wallet.type == 'mnemonic' ? true : false,
+                visible: wallet.type == 'mnemonic' ? true : false,
                 child: const ListDivider(),
               ),
               GestureDetector(
@@ -119,17 +119,17 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                   );
                 },
                 child: Visibility(
-                  visible: _wallet.type == 'mnemonic' ? true : false,
+                  visible: wallet.type == 'mnemonic' ? true : false,
                   child: ListItem(
                     'Toggle network',
                     subtitle:
-                        'Selected network: ${_walletManager.getNetworkType(_wallet.derivationPath)}',
+                        'Selected network: ${walletManager.getNetworkType(wallet.derivationPath)}',
                     chevron: true,
                   ),
                 ),
               ),
               Visibility(
-                visible: _wallet.type == 'mnemonic' ? true : false,
+                visible: wallet.type == 'mnemonic' ? true : false,
                 child: const ListDivider(),
               ),
               GestureDetector(
@@ -141,10 +141,10 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                   );
                 },
                 child: Visibility(
-                  visible: _wallet.type == 'mnemonic' ? true : false,
+                  visible: wallet.type == 'mnemonic' ? true : false,
                   child: ListItem(
                     'Change derivation path',
-                    subtitle: _wallet.derivationPath,
+                    subtitle: wallet.derivationPath,
                     chevron: true,
                   ),
                 ),
@@ -156,13 +156,13 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
     );
   }
 
-  void _showDialog(walletIndex) {
+  void deleteWalletDialog(walletIndex) {
     showDialog(
       barrierDismissible: true,
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor: kDarkNeutral1Color,
+          backgroundColor: customDarkNeutral1,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -217,19 +217,19 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                               borderRadius: BorderRadius.only(
                                 bottomLeft: Radius.circular(16),
                               ),
-                              color: kYellowColor,
+                              color: customYellow,
                             ),
                             child: const Center(
                               child: Text(
                                 "Delete",
                                 style: TextStyle(
-                                    color: kDarkBackgroundColor,
+                                    color: customDarkBackground,
                                     fontSize: 18.0,
                                     fontWeight: FontWeight.w600),
                               ),
                             ),
                           ),
-                          onTap: () => _deleteWallet(walletIndex),
+                          onTap: () => deleteWallet(walletIndex),
                         ),
                       ),
                       Expanded(
@@ -244,7 +244,7 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
                               child: Text(
                                 "Cancel",
                                 style: TextStyle(
-                                    color: kDarkForegroundColor,
+                                    color: customDarkForeground,
                                     fontSize: 18.0,
                                     fontWeight: FontWeight.w600),
                               ),
@@ -266,8 +266,8 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
     );
   }
 
-  Future<void> _deleteWallet(walletIndex) async {
-    await _walletManager.deleteWallet(walletIndex);
+  Future<void> deleteWallet(walletIndex) async {
+    await walletManager.deleteWallet(walletIndex);
     if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil(
         '/home_screen', (Route<dynamic> route) => false);

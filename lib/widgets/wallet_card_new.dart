@@ -14,7 +14,7 @@ class _WalletCardNewState extends State<WalletCardNew> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBlackColor,
+      backgroundColor: customBlack,
       body: SafeArea(
         child: Column(
           children: [
@@ -40,8 +40,8 @@ class _WalletCardNewState extends State<WalletCardNew> {
                     },
                     child: const CustomFlatButton(
                       textLabel: 'Import',
-                      buttonColor: kDarkBackgroundColor,
-                      fontColor: kWhiteColor,
+                      buttonColor: customDarkBackground,
+                      fontColor: customWhite,
                     ),
                   ),
                 ),

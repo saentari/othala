@@ -18,24 +18,24 @@ class SendPaymentAmountScreen extends StatefulWidget {
 }
 
 class SendPaymentAmountScreenState extends State<SendPaymentAmountScreen> {
-  late String _amount;
-  bool _confirmed = false;
+  late String amount;
+  bool confirmed = false;
 
-  final _myTextController = TextEditingController();
+  final textController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _myTextController.addListener(_validateAmount);
+    textController.addListener(validateAmount);
     // replace default amount if previously set.
     if (widget.recipientAmount.isNotEmpty) {
-      _myTextController.text = widget.recipientAmount;
+      textController.text = widget.recipientAmount;
     }
   }
 
   @override
   void dispose() {
-    _myTextController.dispose();
+    textController.dispose();
     super.dispose();
   }
 
@@ -45,7 +45,7 @@ class SendPaymentAmountScreenState extends State<SendPaymentAmountScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: Row(
@@ -53,8 +53,8 @@ class SendPaymentAmountScreenState extends State<SendPaymentAmountScreen> {
           Expanded(
             child: GestureDetector(
               onTap: () =>
-                  _confirmed == true ? Navigator.pop(context, _amount) : null,
-              child: _confirmed == true
+                  confirmed == true ? Navigator.pop(context, amount) : null,
+              child: confirmed == true
                   ? const CustomFlatButton(
                       textLabel: 'Confirm',
                     )
@@ -69,8 +69,8 @@ class SendPaymentAmountScreenState extends State<SendPaymentAmountScreen> {
               onTap: () => Navigator.pop(context, ''),
               child: const CustomFlatButton(
                 textLabel: 'Cancel',
-                buttonColor: kDarkBackgroundColor,
-                fontColor: kWhiteColor,
+                buttonColor: customDarkBackground,
+                fontColor: customWhite,
               ),
             ),
           ),
@@ -93,7 +93,7 @@ class SendPaymentAmountScreenState extends State<SendPaymentAmountScreen> {
                 const SizedBox(height: 16.0),
                 TextField(
                   style: const TextStyle(fontSize: 40.0),
-                  controller: _myTextController,
+                  controller: textController,
                   textAlign: TextAlign.center,
                   minLines: 1,
                   keyboardType: TextInputType.number,
@@ -109,17 +109,17 @@ class SendPaymentAmountScreenState extends State<SendPaymentAmountScreen> {
     );
   }
 
-  void _validateAmount() {
-    if (_myTextController.text.isNotEmpty) {
-      double inputAmount = double.parse(_myTextController.text);
+  void validateAmount() {
+    if (textController.text.isNotEmpty) {
+      double inputAmount = double.parse(textController.text);
       if (inputAmount <= widget.maxBalance && inputAmount > 0) {
-        _amount = _myTextController.text;
-        _confirmed = true;
+        amount = textController.text;
+        confirmed = true;
       } else {
-        _confirmed = false;
+        confirmed = false;
       }
     } else {
-      _confirmed = false;
+      confirmed = false;
     }
     setState(() {});
   }

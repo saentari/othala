@@ -7,8 +7,8 @@ class FlatRoundedButton extends StatelessWidget {
   const FlatRoundedButton({
     Key? key,
     required this.textLabel,
-    this.buttonColor = kYellowColor,
-    this.fontColor = kBlackColor,
+    this.buttonColor = customYellow,
+    this.fontColor = customBlack,
     this.enabled = true,
     this.primary = true,
   }) : super(key: key);
@@ -34,7 +34,7 @@ class FlatRoundedButton extends StatelessWidget {
       child: Text(
         textLabel.toLowerCase(),
         style: const TextStyle(
-            color: kDarkBackgroundColor,
+            color: customDarkBackground,
             fontSize: 18.0,
             fontWeight: FontWeight.w600),
       ),

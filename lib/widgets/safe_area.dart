@@ -16,11 +16,11 @@ class SafeAreaX extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: kDarkBackgroundColor,
+      color: customDarkBackground,
       child: SafeArea(
         child: Scaffold(
           appBar: appBar,
-          backgroundColor: kBlackColor,
+          backgroundColor: customBlack,
           body: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: child),

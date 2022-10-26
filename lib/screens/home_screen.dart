@@ -16,15 +16,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  PageController? _controller;
-  final _currentPageNotifier = ValueNotifier<int>(0);
-  final Box _walletBox = Hive.box('walletBox');
+  PageController? pageController;
+  final currentPageNotifier = ValueNotifier<int>(0);
+  final Box walletBox = Hive.box('walletBox');
 
   @override
   Widget build(BuildContext context) {
     final initialPage = ModalRoute.of(context)!.settings.arguments ?? 0;
-    _controller = PageController(initialPage: initialPage as int);
-    _currentPageNotifier.value = initialPage;
+    pageController = PageController(initialPage: initialPage as int);
+    currentPageNotifier.value = initialPage;
     return ValueListenableBuilder(
         valueListenable: Hive.box('walletBox').listenable(),
         builder: (context, Box box, widget) {
@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
             appBar: AppBar(
               centerTitle: true,
               title: titleIcon,
-              backgroundColor: kTransparentColor,
+              backgroundColor: customTransparent,
               automaticallyImplyLeading: false,
               actions: [
                 IconButton(
@@ -53,32 +53,32 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: PageView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: _walletBox.length + 1,
-                        controller: _controller,
+                        itemCount: walletBox.length + 1,
+                        controller: pageController,
                         itemBuilder: (BuildContext context, int index) {
-                          if (index == _walletBox.length) {
+                          if (index == walletBox.length) {
                             return const WalletCardNew();
                           } else {
                             return WalletCard(index);
                           }
                         },
                         onPageChanged: (int index) {
-                          _currentPageNotifier.value = index;
+                          currentPageNotifier.value = index;
                         }),
                   ),
                   // Ignore CirclePageIndicator when fewer than 2 screens.
                   Visibility(
-                    visible: _walletBox.length > 0,
+                    visible: walletBox.length > 0,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Center(
                         child: CirclePageIndicator(
                           size: 8.0,
                           selectedSize: 12.0,
-                          dotColor: kWhiteColor,
-                          selectedDotColor: kYellowColor,
-                          itemCount: _walletBox.length + 1,
-                          currentPageNotifier: _currentPageNotifier,
+                          dotColor: customWhite,
+                          selectedDotColor: customYellow,
+                          itemCount: walletBox.length + 1,
+                          currentPageNotifier: currentPageNotifier,
                         ),
                       ),
                     ),

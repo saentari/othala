@@ -27,10 +27,10 @@ class WalletScreen extends StatefulWidget {
 
 class WalletScreenState extends State<WalletScreen> {
   final Box box = Hive.box('walletBox');
-  late Wallet _wallet;
-  late double _balance;
-  late double _amount;
-  late List<SimpleTransaction> _transactions;
+  late Wallet wallet;
+  late double balance;
+  late double amount;
+  late List<SimpleTransaction> transactions;
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +38,12 @@ class WalletScreenState extends State<WalletScreen> {
     return ValueListenableBuilder(
       valueListenable: box.listenable(),
       builder: (context, Box box, widget) {
-        _getWalletData(box, walletIndex);
+        getWalletData(box, walletIndex);
         return SafeAreaX(
           appBar: AppBar(
             centerTitle: true,
             title: titleIcon,
-            backgroundColor: kBlackColor,
+            backgroundColor: customBlack,
             automaticallyImplyLeading: false,
           ),
           child: Column(
@@ -55,7 +55,7 @@ class WalletScreenState extends State<WalletScreen> {
                     tag: 'imageHero',
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16.0),
-                      child: _showImage(_wallet.imagePath),
+                      child: showImage(wallet.imagePath),
                     ),
                   ),
                   Positioned(
@@ -80,9 +80,9 @@ class WalletScreenState extends State<WalletScreen> {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          _wallet.name,
+                          wallet.name,
                           style: const TextStyle(
-                            color: kWhiteColor,
+                            color: customWhite,
                             fontSize: 20.0,
                             fontWeight: FontWeight.w600,
                           ),
@@ -100,11 +100,11 @@ class WalletScreenState extends State<WalletScreen> {
                         Text(
                           getNumberFormat(
                               currency: Currency('BTC'),
-                              amount: _amount,
+                              amount: amount,
                               decimalDigits: 8,
                               symbol: unicodeBitcoin),
                           style: const TextStyle(
-                            color: kWhiteColor,
+                            color: customWhite,
                             fontSize: 32.0,
                             fontWeight: FontWeight.w600,
                           ),
@@ -121,10 +121,10 @@ class WalletScreenState extends State<WalletScreen> {
                       children: [
                         Text(
                           getNumberFormat(
-                              currency: _wallet.defaultFiatCurrency,
-                              amount: _balance),
+                              currency: wallet.defaultFiatCurrency,
+                              amount: balance),
                           style: const TextStyle(
-                            color: kWhiteColor,
+                            color: customWhite,
                             fontSize: 20.0,
                             fontWeight: FontWeight.w600,
                           ),
@@ -137,8 +137,8 @@ class WalletScreenState extends State<WalletScreen> {
               const SizedBox(height: 24.0),
               Expanded(
                 child: RefreshIndicator(
-                  color: kBlackColor,
-                  backgroundColor: kYellowColor,
+                  color: customBlack,
+                  backgroundColor: customYellow,
                   onRefresh: () async {
                     final wm = WalletManager(box);
                     await wm.setTransactions(walletIndex);
@@ -146,13 +146,13 @@ class WalletScreenState extends State<WalletScreen> {
                   child: ListView.separated(
                     separatorBuilder: (BuildContext context, int index) =>
                         const ListDivider(),
-                    itemCount: _transactions.length,
+                    itemCount: transactions.length,
                     itemBuilder: (BuildContext context, int index) {
                       return ListItemTransaction(
-                        _transactions[index].address,
-                        subtitle: _transactions[index].dateTime,
-                        value: _transactions[index].amount,
-                        subtitleValue: _transactions[index].confirmations,
+                        transactions[index].address,
+                        subtitle: transactions[index].dateTime,
+                        value: transactions[index].amount,
+                        subtitleValue: transactions[index].confirmations,
                       );
                     },
                   ),
@@ -167,8 +167,8 @@ class WalletScreenState extends State<WalletScreen> {
                       },
                       child: const CustomFlatButton(
                         textLabel: 'Cancel',
-                        buttonColor: kDarkBackgroundColor,
-                        fontColor: kWhiteColor,
+                        buttonColor: customDarkBackground,
+                        fontColor: customWhite,
                       ),
                     ),
                   ),
@@ -181,30 +181,30 @@ class WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  Future<void> _getWalletData(Box<dynamic> box, walletIndex) async {
+  Future<void> getWalletData(Box<dynamic> box, walletIndex) async {
     if (walletIndex < box.length) {
-      _wallet = box.getAt(walletIndex);
+      wallet = box.getAt(walletIndex);
     }
 
     // Balance
-    _amount = 0;
-    for (Address addressObj in _wallet.addresses) {
-      _amount = _amount + addressObj.balance;
+    amount = 0;
+    for (Address addressObj in wallet.addresses) {
+      amount = amount + addressObj.balance;
     }
-    _balance = _amount * _wallet.defaultFiatCurrency.priceUsd;
+    balance = amount * wallet.defaultFiatCurrency.priceUsd;
 
     // Transactions
-    _transactions = [];
-    for (Address addressObj in _wallet.addresses) {
+    transactions = [];
+    for (Address addressObj in wallet.addresses) {
       for (Transaction tx in addressObj.transactions ?? []) {
-        _transactions.add(SimpleTransaction(addressObj.address, tx));
+        transactions.add(SimpleTransaction(addressObj.address, tx));
       }
     }
     // Sort transactions by date/time
-    _transactions.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    transactions.sort((a, b) => b.dateTime.compareTo(a.dateTime));
   }
 
-  _showImage(String path) {
+  showImage(String path) {
     if (FileSystemEntity.typeSync(path) == FileSystemEntityType.notFound) {
       return Image.asset(
         'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg',
@@ -239,7 +239,7 @@ class SimpleTransaction {
     dateTime =
         DateFormat('yyyy-MM-dd kk:mm').format(transaction.transactionBroadcast);
 
-    List ioAmount = _checkInputOutput(transaction, address);
+    List ioAmount = checkInputOutput(transaction, address);
     address = ioAmount.elementAt(0);
     amount = ioAmount.elementAt(1);
 
@@ -250,47 +250,47 @@ class SimpleTransaction {
       confirmations = '$blockConf conf.';
     }
   }
-}
 
-List _checkInputOutput(Transaction transaction, String address) {
-  bool sender = false;
-  bool receiver = false;
-  double vinAmount = 0.0;
-  double voutAmount = 0.0;
-  String recipient = '';
+  List checkInputOutput(Transaction transaction, String address) {
+    bool sender = false;
+    bool receiver = false;
+    double vinAmount = 0.0;
+    double voutAmount = 0.0;
+    String recipient = '';
 
-  for (Map vin in transaction.from) {
-    if (vin.values.elementAt(0).toString().toLowerCase() ==
-        address.toLowerCase()) {
-      sender = true;
-      vinAmount = vinAmount + vin.values.elementAt(1);
+    for (Map vin in transaction.from) {
+      if (vin.values.elementAt(0).toString().toLowerCase() ==
+          address.toLowerCase()) {
+        sender = true;
+        vinAmount = vinAmount + vin.values.elementAt(1);
+      }
     }
-  }
 
-  for (Map vout in transaction.to) {
-    if (sender == false &&
-        vout.values.elementAt(0).toString().toLowerCase() ==
-            address.toLowerCase()) {
-      recipient = vout.values.elementAt(0);
-      voutAmount = vout.values.elementAt(1);
-      break;
+    for (Map vout in transaction.to) {
+      if (sender == false &&
+          vout.values.elementAt(0).toString().toLowerCase() ==
+              address.toLowerCase()) {
+        recipient = vout.values.elementAt(0);
+        voutAmount = vout.values.elementAt(1);
+        break;
+      }
+      // Ignore empty OP_RETURN entries.
+      if (vout.values.elementAt(0) != '' &&
+          vout.values.elementAt(0).toString().toLowerCase() !=
+              address.toLowerCase()) {
+        recipient = vout.values.elementAt(0);
+        voutAmount = voutAmount - vout.values.elementAt(1);
+      } else {
+        receiver = true;
+      }
     }
-    // Ignore empty OP_RETURN entries.
-    if (vout.values.elementAt(0) != '' &&
-        vout.values.elementAt(0).toString().toLowerCase() !=
-            address.toLowerCase()) {
-      recipient = vout.values.elementAt(0);
-      voutAmount = voutAmount - vout.values.elementAt(1);
-    } else {
-      receiver = true;
+
+    // Use tx outputs of sender instead of tx input of receiver
+    if (sender == true && receiver == false) {
+      voutAmount = 0 - vinAmount;
     }
-  }
 
-  // Use tx outputs of sender instead of tx input of receiver
-  if (sender == true && receiver == false) {
-    voutAmount = 0 - vinAmount;
+    List ioAmount = [recipient, voutAmount];
+    return ioAmount;
   }
-
-  List ioAmount = [recipient, voutAmount];
-  return ioAmount;
 }

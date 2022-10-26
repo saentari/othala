@@ -18,21 +18,21 @@ class ImportAddressScreen extends StatefulWidget {
 }
 
 class ImportAddressScreenState extends State<ImportAddressScreen> {
-  late String _address;
+  late String address;
 
-  bool _confirmed = false;
+  bool confirmed = false;
 
-  final _myTextController = TextEditingController();
+  final textController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _myTextController.addListener(_validateAddress);
+    textController.addListener(validateAddress);
   }
 
   @override
   void dispose() {
-    _myTextController.dispose();
+    textController.dispose();
     super.dispose();
   }
 
@@ -42,15 +42,15 @@ class ImportAddressScreenState extends State<ImportAddressScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: Row(
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => _confirmed == true ? _importWallet() : null,
-              child: _confirmed == true
+              onTap: () => confirmed == true ? importWallet() : null,
+              child: confirmed == true
                   ? const CustomFlatButton(
                       textLabel: 'Import',
                     )
@@ -65,8 +65,8 @@ class ImportAddressScreenState extends State<ImportAddressScreen> {
               onTap: () => Navigator.pop(context),
               child: const CustomFlatButton(
                 textLabel: 'Cancel',
-                buttonColor: kDarkBackgroundColor,
-                fontColor: kWhiteColor,
+                buttonColor: customDarkBackground,
+                fontColor: customWhite,
               ),
             ),
           ),
@@ -87,26 +87,26 @@ class ImportAddressScreenState extends State<ImportAddressScreen> {
             decoration: const BoxDecoration(
               shape: BoxShape.rectangle,
               borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              color: kBlackColor,
+              color: customBlack,
             ),
             child: Column(
               children: [
                 TextField(
                   style: const TextStyle(fontSize: 20),
-                  controller: _myTextController,
+                  controller: textController,
                   decoration: const InputDecoration(
                     hintText: 'bitcoin address, e.g. bc1...',
                   ),
                 ),
                 const SizedBox(height: 8.0),
                 GestureDetector(
-                  onTap: () => _getClipboard(),
+                  onTap: () => getClipboard(),
                   child: const Text(
                     'Paste from clipboard',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: kYellowColor,
+                      color: customYellow,
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -119,14 +119,14 @@ class ImportAddressScreenState extends State<ImportAddressScreen> {
     );
   }
 
-  Future<void> _importWallet() async {
+  Future<void> importWallet() async {
     EasyLoading.show(
       status: 'importing...',
       maskType: EasyLoadingMaskType.black,
       dismissOnTap: true,
     );
     final walletManager = WalletManager(Hive.box('walletBox'));
-    await walletManager.encryptToKeyStore(address: _address);
+    await walletManager.encryptToKeyStore(address: address);
     if (EasyLoading.isShow) {
       EasyLoading.dismiss();
     }
@@ -136,17 +136,17 @@ class ImportAddressScreenState extends State<ImportAddressScreen> {
         arguments: jumpToPage);
   }
 
-  void _getClipboard() async {
+  void getClipboard() async {
     ClipboardData? data = await Clipboard.getData('text/plain');
-    _myTextController.text = data!.text!;
+    textController.text = data!.text!;
   }
 
-  void _validateAddress() {
+  void validateAddress() {
     // Strip any bitcoin prefix
-    _address = _myTextController.text
+    address = textController.text
         .replaceFirst(RegExp(r'bitcoin:', caseSensitive: false), '');
-    if (_myTextController.text.isNotEmpty) {
-      _confirmed = isValidAddress(_address);
+    if (textController.text.isNotEmpty) {
+      confirmed = isValidAddress(address);
       setState(() {});
     }
   }

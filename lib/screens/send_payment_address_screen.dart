@@ -19,24 +19,24 @@ class SendPaymentAddressScreen extends StatefulWidget {
 }
 
 class SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
-  late String _address;
-  bool _confirmed = false;
+  late String address;
+  bool confirmed = false;
 
-  final _myTextController = TextEditingController();
+  final textController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _myTextController.addListener(_validateAddress);
+    textController.addListener(validateAddress);
     // replace default amount if previously set.
     if (widget.recipientAddress.isNotEmpty) {
-      _myTextController.text = widget.recipientAddress;
+      textController.text = widget.recipientAddress;
     }
   }
 
   @override
   void dispose() {
-    _myTextController.dispose();
+    textController.dispose();
     super.dispose();
   }
 
@@ -46,7 +46,7 @@ class SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: Row(
@@ -54,8 +54,8 @@ class SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
           Expanded(
             child: GestureDetector(
               onTap: () =>
-                  _confirmed == true ? Navigator.pop(context, _address) : null,
-              child: _confirmed == true
+                  confirmed == true ? Navigator.pop(context, address) : null,
+              child: confirmed == true
                   ? const CustomFlatButton(
                       textLabel: 'Confirm',
                     )
@@ -70,8 +70,8 @@ class SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
               onTap: () => Navigator.pop(context, ''),
               child: const CustomFlatButton(
                 textLabel: 'Cancel',
-                buttonColor: kDarkBackgroundColor,
-                fontColor: kWhiteColor,
+                buttonColor: customDarkBackground,
+                fontColor: customWhite,
               ),
             ),
           ),
@@ -94,7 +94,7 @@ class SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
                 const SizedBox(height: 16.0),
                 TextField(
                   style: const TextStyle(fontSize: 40.0),
-                  controller: _myTextController,
+                  controller: textController,
                   textAlign: TextAlign.center,
                   minLines: 1,
                   maxLines: 3,
@@ -106,13 +106,13 @@ class SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
                 ),
                 const SizedBox(height: 16.0),
                 GestureDetector(
-                  onTap: () => _getClipboard(),
+                  onTap: () => getClipboard(),
                   child: const Text(
                     'paste from clipboard',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: kYellowColor,
+                      color: customYellow,
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -125,15 +125,15 @@ class SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
     );
   }
 
-  void _getClipboard() async {
+  void getClipboard() async {
     ClipboardData? data = await Clipboard.getData('text/plain');
-    _myTextController.text = data!.text!;
+    textController.text = data!.text!;
   }
 
-  void _validateAddress() {
-    _address = _myTextController.text;
-    if (_myTextController.text.isNotEmpty) {
-      _confirmed = isValidAddress(_address);
+  void validateAddress() {
+    address = textController.text;
+    if (textController.text.isNotEmpty) {
+      confirmed = isValidAddress(address);
       setState(() {});
     }
   }

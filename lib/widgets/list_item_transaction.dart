@@ -10,7 +10,7 @@ class ListItemTransaction extends StatelessWidget {
       this.value = 0.0,
       this.subtitle = '',
       this.subtitleValue = '',
-      this.subtitleColor = kDarkNeutral7Color,
+      this.subtitleColor = customDarkNeutral7,
       this.icon})
       : super(key: key);
 
@@ -38,7 +38,7 @@ class ListItemTransaction extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         shape: BoxShape.rectangle,
-        color: kBlackColor,
+        color: customBlack,
       ),
       padding: const EdgeInsets.only(left: 16.0, right: 8.0),
       height: 70,

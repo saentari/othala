@@ -27,15 +27,15 @@ class WalletNetworkScreenState extends State<WalletNetworkScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: GestureDetector(
         onTap: () => Navigator.pop(context),
         child: const CustomFlatButton(
           textLabel: 'Cancel',
-          buttonColor: kDarkBackgroundColor,
-          fontColor: kWhiteColor,
+          buttonColor: customDarkBackground,
+          fontColor: customWhite,
         ),
       ),
       child: Column(
@@ -84,7 +84,7 @@ class _ListTileAssetState extends State<ListTileAsset> {
     final selectedCoinType = dp.coinType;
     final coinType = widget.network == 'testnet' ? 1 : 0;
     return Container(
-      color: kDarkBackgroundColor,
+      color: customDarkBackground,
       child: GestureDetector(
         onTap: () async {
           try {
@@ -127,7 +127,7 @@ class _ListTileAssetState extends State<ListTileAsset> {
                 visible: coinType == selectedCoinType ? true : false,
                 child: const Icon(
                   CupertinoIcons.check_mark,
-                  color: kYellowColor,
+                  color: customYellow,
                 ),
               ),
             ],

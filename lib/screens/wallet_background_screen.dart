@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:othala/widgets/safe_area.dart';
 
 import '../models/unsplash_image.dart';
 import '../models/wallet.dart';
@@ -11,6 +10,7 @@ import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 import '../widgets/image_tile.dart';
 import '../widgets/loading_indicator.dart';
+import '../widgets/safe_area.dart';
 
 class WalletBackgroundScreen extends StatefulWidget {
   const WalletBackgroundScreen({Key? key}) : super(key: key);
@@ -20,13 +20,13 @@ class WalletBackgroundScreen extends StatefulWidget {
 }
 
 class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
-  late Wallet _wallet;
+  late Wallet wallet;
 
   /// Stores the current page index for the api requests.
   int page = 0, totalPages = -1;
 
   /// Stores the currently loaded loaded images.
-  List<UnsplashImage> _images = [];
+  List<UnsplashImage> unsplashImages = [];
 
   /// States whether there is currently a task running loading images.
   bool loadingImages = false;
@@ -38,7 +38,7 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   void initState() {
     super.initState();
     // initial image Request
-    _loadImages(keyword: 'nature');
+    loadImages(keyword: 'nature');
   }
 
   @override
@@ -48,32 +48,32 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
         valueListenable: Hive.box('walletBox').listenable(),
         builder: (context, Box box, widget2) {
           if (walletIndex < box.length) {
-            _wallet = box.getAt(walletIndex);
+            wallet = box.getAt(walletIndex);
           }
           return SafeAreaX(
             appBar: AppBar(
               centerTitle: true,
               title: titleIcon,
-              backgroundColor: kBlackColor,
+              backgroundColor: customBlack,
               automaticallyImplyLeading: false,
             ),
             bottomBar: GestureDetector(
               onTap: () => {Navigator.pop(context)},
               child: const CustomFlatButton(
                 textLabel: 'Cancel',
-                buttonColor: kDarkBackgroundColor,
-                fontColor: kWhiteColor,
+                buttonColor: customDarkBackground,
+                fontColor: customWhite,
               ),
             ),
             child: OrientationBuilder(
               builder: (context, orientation) => CustomScrollView(
                 slivers: [
                   //Grid view with all the images
-                  _buildImageGrid(walletIndex, orientation: orientation),
+                  buildImageGrid(walletIndex, orientation: orientation),
 
                   // loading indicator at the bottom of the list
                   const SliverToBoxAdapter(
-                    child: LoadingIndicator(kDarkNeutral5Color),
+                    child: LoadingIndicator(customDarkNeutral5),
                   ),
                 ],
               ),
@@ -85,7 +85,7 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   // Requests a list of [UnsplashImage] for a given [keyword].
   //
   // If the given [keyword] is null, trending images are loaded.
-  _loadImages({String? keyword}) async {
+  loadImages({String? keyword}) async {
     // Check if there is currently a loading task running.
     if (loadingImages) {
       // There is currently a task running.
@@ -107,7 +107,7 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
       // Check if new search.
       if (this.keyword != keyword) {
         // Clear images and reset page counter for new search.
-        _images = [];
+        unsplashImages = [];
         page = 0;
       }
       // Keyword null.
@@ -135,14 +135,14 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
       // Done loading.
       loadingImages = false;
       // Set new loaded images.
-      _images.addAll(images!);
+      unsplashImages.addAll(images!);
     });
   }
 
   // Returns the grid that displays images.
   //
   // [orientation] can be used to adjust the grid column count.
-  Widget _buildImageGrid(walletIndex, {orientation = Orientation.portrait}) {
+  Widget buildImageGrid(walletIndex, {orientation = Orientation.portrait}) {
     // Calculate [columnCount] based on orientation.
     int columnCount = orientation == Orientation.portrait ? 2 : 3;
     // Return staggered grid.
@@ -151,12 +151,12 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
       sliver: SliverStaggeredGrid.countBuilder(
         // Set column count.
         crossAxisCount: columnCount,
-        itemCount: _images.length,
+        itemCount: unsplashImages.length,
         // Set itemBuilder.
         itemBuilder: (BuildContext context, int index) =>
-            _buildImageItemBuilder(index, walletIndex),
+            buildImageItemBuilder(index, walletIndex),
         staggeredTileBuilder: (int index) =>
-            _buildStaggeredTile(_images[index], columnCount),
+            buildStaggeredTile(unsplashImages[index], columnCount),
         mainAxisSpacing: 16.0,
         crossAxisSpacing: 16.0,
       ),
@@ -164,23 +164,23 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   }
 
   // Returns a FutureBuilder to load a [UnsplashImage] for a given [index].
-  Widget _buildImageItemBuilder(int imageIndex, int walletIndex) {
+  Widget buildImageItemBuilder(int imageIndex, int walletIndex) {
     return FutureBuilder(
       // Pass image loader.
-      future: _loadImage(imageIndex),
+      future: loadImage(imageIndex),
       builder: (context, snapshot) {
         // Image loaded return [_ImageTile].
         UnsplashImage? image;
         if (snapshot.data != null) {
           image = snapshot.data as UnsplashImage;
         }
-        return ImageTile(image, _wallet.imageId, walletIndex);
+        return ImageTile(image, wallet.imageId, walletIndex);
       },
     );
   }
 
   // Returns a StaggeredTile for a given [image].
-  StaggeredTile _buildStaggeredTile(UnsplashImage image, int columnCount) {
+  StaggeredTile buildStaggeredTile(UnsplashImage image, int columnCount) {
     // Calculate image aspect ratio.
     double aspectRatio =
         image.getHeight().toDouble() / image.getWidth().toDouble();
@@ -191,12 +191,12 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   }
 
   // Asynchronously loads a [UnsplashImage] for a given [index].
-  Future<UnsplashImage?> _loadImage(int index) async {
+  Future<UnsplashImage?> loadImage(int index) async {
     // Check if new images need to be loaded.
-    if (index >= _images.length - 2) {
+    if (index >= unsplashImages.length - 2) {
       // Reached the end of the list. Try to load more images.
-      _loadImages(keyword: keyword);
+      loadImages(keyword: keyword);
     }
-    return index < _images.length ? _images[index] : null;
+    return index < unsplashImages.length ? unsplashImages[index] : null;
   }
 }

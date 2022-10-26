@@ -21,12 +21,12 @@ class ImageTile extends StatefulWidget {
 
 class _ImageTileState extends State<ImageTile> {
   // Adds rounded corners to a given [widget].
-  Widget _addRoundedCorners(Widget widget) =>
+  Widget addRoundedCorners(Widget widget) =>
       // Wrap in ClipRRect to achieve rounded corners.
       ClipRRect(borderRadius: BorderRadius.circular(12), child: widget);
 
   // Returns a placeholder to show until an image is loaded.
-  Widget _buildImagePlaceholder({UnsplashImage? image}) => Container(
+  Widget buildImagePlaceholder({UnsplashImage? image}) => Container(
         color: image != null
             ? Color(int.parse(image.getColor().substring(1, 7), radix: 16) +
                 0x64000000)
@@ -34,7 +34,7 @@ class _ImageTileState extends State<ImageTile> {
       );
 
   // Returns a error placeholder to show until an image is loaded.
-  Widget _buildImageErrorWidget() => Container(
+  Widget buildImageErrorWidget() => Container(
       color: Colors.grey[200],
       child: Center(child: Icon(Icons.broken_image, color: Colors.grey[400])));
 
@@ -53,15 +53,15 @@ class _ImageTileState extends State<ImageTile> {
       child: widget.image != null
           ? Hero(
               tag: widget.image!.getId(),
-              child: _addRoundedCorners(
+              child: addRoundedCorners(
                 Stack(fit: StackFit.expand, children: [
                   Positioned(
                     child: CachedNetworkImage(
                       imageUrl: widget.image!.getSmallUrl(),
                       placeholder: (context, url) =>
-                          _buildImagePlaceholder(image: widget.image),
+                          buildImagePlaceholder(image: widget.image),
                       errorWidget: (context, url, obj) =>
-                          _buildImageErrorWidget(),
+                          buildImageErrorWidget(),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -69,7 +69,7 @@ class _ImageTileState extends State<ImageTile> {
                     bottom: 0,
                     child: Container(
                       width: (MediaQuery.of(context).size.width - 8.0) / 2,
-                      color: kDarkBackgroundColor.withOpacity(0.5),
+                      color: customDarkBackground.withOpacity(0.5),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
@@ -90,7 +90,7 @@ class _ImageTileState extends State<ImageTile> {
                       right: 8.0,
                       child: Icon(
                         Icons.check_circle_rounded,
-                        color: kYellowColor,
+                        color: customYellow,
                         size: 28,
                       ),
                     ),
@@ -98,7 +98,7 @@ class _ImageTileState extends State<ImageTile> {
                 ]),
               ),
             )
-          : _buildImagePlaceholder(),
+          : buildImagePlaceholder(),
     );
   }
 }

@@ -26,7 +26,7 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: GestureDetector(
@@ -35,8 +35,8 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
         },
         child: const CustomFlatButton(
           textLabel: 'Close',
-          buttonColor: kDarkBackgroundColor,
-          fontColor: kWhiteColor,
+          buttonColor: customDarkBackground,
+          fontColor: customWhite,
         ),
       ),
       child: Column(
@@ -46,7 +46,7 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
             child: Container(
               padding: const EdgeInsets.all(16.0),
               decoration: const BoxDecoration(
-                color: kWhiteColor,
+                color: customWhite,
                 borderRadius: BorderRadius.all(
                   Radius.circular(16.0),
                 ),
@@ -56,11 +56,11 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
                   QrImageView(
                     eyeStyle: const QrEyeStyle(
                       eyeShape: QrEyeShape.square,
-                      color: kDarkBackgroundColor,
+                      color: customDarkBackground,
                     ),
                     dataModuleStyle: const QrDataModuleStyle(
                         dataModuleShape: QrDataModuleShape.circle,
-                        color: kDarkBackgroundColor),
+                        color: customDarkBackground),
                     data: widget.wallet.addresses.last.address,
                     version: QrVersions.auto,
                     size: 320,
@@ -78,14 +78,14 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w600,
-                              color: kDarkNeutral4Color,
+                              color: customDarkNeutral4,
                             ),
                           ),
                         ),
                         const SizedBox(width: 16.0),
                         const Icon(
                           CupertinoIcons.doc_on_doc_fill,
-                          color: kDarkNeutral4Color,
+                          color: customDarkNeutral4,
                         ),
                       ],
                     ),
@@ -100,24 +100,24 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
   }
 
   void _setClipboard() async {
-    // clipboard
+    // Clipboard.
     ClipboardData data =
         ClipboardData(text: widget.wallet.addresses.last.address);
     await Clipboard.setData(data);
     if (!mounted) return;
 
-    // emoji
+    // Emoji
     var parser = EmojiParser();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          // returns: 'Copied to clipboard 👍'
+          // Return: 'Copied to clipboard 👍'.
           parser.emojify('Copied to clipboard :thumbsup:'),
-          style: const TextStyle(color: kWhiteColor, fontSize: 16.0),
+          style: const TextStyle(color: customWhite, fontSize: 16.0),
         ),
         duration: const Duration(seconds: 2),
-        backgroundColor: kDarkGreyColor,
+        backgroundColor: customDarkGrey,
       ),
     );
   }

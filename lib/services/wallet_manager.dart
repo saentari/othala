@@ -150,6 +150,7 @@ class WalletManager extends ValueNotifier<Box> {
     if (network == btc_address.Network.testnet) {
       bitcoinClient.setNetwork(bitcoin.testnet);
     }
+
     List balances = await bitcoinClient.getBalance(bitcoinClient.address);
     double balance = balances[0]['amount'];
     return balance;
@@ -167,9 +168,8 @@ class WalletManager extends ValueNotifier<Box> {
 
   Future<List<Transaction>> getTransactions(address, network) async {
     BitcoinClient bitcoinClient = BitcoinClient.readonly(address);
-    if (network == 'testnet') {
-      bitcoinClient.setNetwork(bitcoin.testnet);
-    }
+    if (network == 'testnet') bitcoinClient.setNetwork(bitcoin.testnet);
+
     List<Transaction> transactions = [];
     List rawTxs = await bitcoinClient.getTransactions(address);
     for (var rawTx in rawTxs) {
@@ -257,9 +257,7 @@ class WalletManager extends ValueNotifier<Box> {
             addressObj.transactions = txNew;
           } else {
             // Add old list to new AddressObj.
-            if (txCountNew != 0) {
-              addressObj.transactions = txOld;
-            }
+            if (txCountNew != 0) addressObj.transactions = txOld;
           }
 
           if (bitcoinClient.readOnlyClient == true) {
@@ -305,18 +303,15 @@ class WalletManager extends ValueNotifier<Box> {
   getWallets(List<String> walletTypes) {
     List<Wallet> wallets = [];
     for (Wallet wallet in value.values) {
-      if (walletTypes.contains(wallet.type)) {
-        wallets.add(wallet);
-      }
+      if (walletTypes.contains(wallet.type)) wallets.add(wallet);
     }
     return wallets;
   }
 
   setWalletValue(int walletIndex, {String? name}) {
     Wallet wallet = value.getAt(walletIndex);
-    if (name != null) {
-      wallet.name = name;
-    }
+    if (name != null) wallet.name = name;
+
     value.putAt(walletIndex, wallet);
   }
 
@@ -460,9 +455,7 @@ class WalletManager extends ValueNotifier<Box> {
     try {
       await File(localPath).delete();
     } catch (e) {
-      if (kDebugMode) {
-        print('Unable to delete file.');
-      }
+      if (kDebugMode) print('Unable to delete file.');
     }
   }
 }

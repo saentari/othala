@@ -23,14 +23,14 @@ class SendPaymentScreen extends StatefulWidget {
 class SendPaymentScreenState extends State<SendPaymentScreen> {
   // TODO: implement TransactionBuilder.
 
-  bool _confirmed = false;
-  // String _recipientAddress = '';
-  // String _recipientAmount = '';
+  bool confirmed = false;
+  // String recipientAddress = '';
+  // String recipientAmount = '';
   // TODO: replace temporary values for testing the IXD flow.
-  String _recipientAddress = 'tb1q669kqq0ykrzgx337w3sj0kdf6zcuznvff34z85';
-  String _recipientAmount = '0.0001';
-  final String _unit = BitcoinUnit.btc.toShortString();
-  late Wallet _wallet;
+  String recipientAddress = 'tb1q669kqq0ykrzgx337w3sj0kdf6zcuznvff34z85';
+  String recipientAmount = '0.0001';
+  final String unit = BitcoinUnit.btc.toShortString();
+  late Wallet wallet;
 
   @override
   Widget build(BuildContext context) {
@@ -38,24 +38,24 @@ class SendPaymentScreenState extends State<SendPaymentScreen> {
         valueListenable: Hive.box('walletBox').listenable(),
         builder: (context, Box box, widget2) {
           if (widget.walletIndex < box.length) {
-            _wallet = box.getAt(widget.walletIndex);
+            wallet = box.getAt(widget.walletIndex);
           }
-          if (_recipientAddress.isNotEmpty && _recipientAmount.isNotEmpty) {
-            _confirmed = true;
+          if (recipientAddress.isNotEmpty && recipientAmount.isNotEmpty) {
+            confirmed = true;
           }
           return SafeAreaX(
             appBar: AppBar(
               centerTitle: true,
               title: titleIcon,
-              backgroundColor: kBlackColor,
+              backgroundColor: customBlack,
               automaticallyImplyLeading: false,
             ),
             bottomBar: Row(
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => _confirmed == true ? _sendPayment() : null,
-                    child: _confirmed == true
+                    onTap: () => confirmed == true ? sendPayment() : null,
+                    child: confirmed == true
                         ? const CustomFlatButton(
                             textLabel: 'Send',
                           )
@@ -70,8 +70,8 @@ class SendPaymentScreenState extends State<SendPaymentScreen> {
                     onTap: () => Navigator.pop(context),
                     child: const CustomFlatButton(
                       textLabel: 'Cancel',
-                      buttonColor: kDarkBackgroundColor,
-                      fontColor: kWhiteColor,
+                      buttonColor: customDarkBackground,
+                      fontColor: customWhite,
                     ),
                   ),
                 ),
@@ -83,11 +83,11 @@ class SendPaymentScreenState extends State<SendPaymentScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        _navigateAndDisplayAddress(context);
+                        navigateAndDisplayAddress(context);
                       },
                       child: Container(
                         width: double.infinity,
-                        color: kTransparentColor,
+                        color: customTransparent,
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,12 +97,12 @@ class SendPaymentScreenState extends State<SendPaymentScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: kDarkNeutral5Color,
+                                color: customDarkNeutral5,
                               ),
                             ),
                             Text(
-                              _recipientAddress.isNotEmpty
-                                  ? _recipientAddress
+                              recipientAddress.isNotEmpty
+                                  ? recipientAddress
                                   : 'Enter address...',
                               style: const TextStyle(
                                 fontSize: 20,
@@ -115,11 +115,11 @@ class SendPaymentScreenState extends State<SendPaymentScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        _navigateAndDisplayAmount(context);
+                        navigateAndDisplayAmount(context);
                       },
                       child: Container(
                         width: double.infinity,
-                        color: kTransparentColor,
+                        color: customTransparent,
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,12 +129,12 @@ class SendPaymentScreenState extends State<SendPaymentScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: kDarkNeutral5Color,
+                                color: customDarkNeutral5,
                               ),
                             ),
                             Text(
-                              _recipientAmount.isNotEmpty
-                                  ? '$_recipientAmount $_unit'
+                              recipientAmount.isNotEmpty
+                                  ? '$recipientAmount $unit'
                                   : 'Enter amount...',
                               style: const TextStyle(
                                 fontSize: 20,
@@ -153,32 +153,32 @@ class SendPaymentScreenState extends State<SendPaymentScreen> {
         });
   }
 
-  Future<void> _navigateAndDisplayAddress(BuildContext context) async {
-    _recipientAddress = await Navigator.push(
+  Future<void> navigateAndDisplayAddress(BuildContext context) async {
+    recipientAddress = await Navigator.push(
       context,
       // Create the SelectionScreen in the next step.
       MaterialPageRoute(
-          builder: (context) => SendPaymentAddressScreen(_recipientAddress)),
+          builder: (context) => SendPaymentAddressScreen(recipientAddress)),
     );
     setState(() {});
   }
 
-  Future<void> _navigateAndDisplayAmount(BuildContext context) async {
+  Future<void> navigateAndDisplayAmount(BuildContext context) async {
     num maxBalance = 0;
-    for (Address addressObj in _wallet.addresses) {
+    for (Address addressObj in wallet.addresses) {
       maxBalance = maxBalance + addressObj.balance;
     }
-    _recipientAmount = await Navigator.push(
+    recipientAmount = await Navigator.push(
       context,
       // Create the SelectionScreen in the next step.
       MaterialPageRoute(
           builder: (context) =>
-              SendPaymentAmountScreen(_recipientAmount, maxBalance)),
+              SendPaymentAmountScreen(recipientAmount, maxBalance)),
     );
     setState(() {});
   }
 
-  _sendPayment() {
+  sendPayment() {
     Navigator.pushReplacementNamed(
         context, '/send_payment_confirmation_screen');
   }

@@ -20,12 +20,12 @@ class CameraScreen extends StatefulWidget {
 }
 
 class _CameraScreenState extends State<CameraScreen> {
-  final GlobalKey _qrKey = GlobalKey(debugLabel: 'QR');
-  QRViewController? _controller;
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  QRViewController? qrController;
 
   @override
   void dispose() {
-    _controller?.dispose();
+    qrController?.dispose();
     super.dispose();
   }
 
@@ -35,9 +35,9 @@ class _CameraScreenState extends State<CameraScreen> {
   void reassemble() {
     super.reassemble();
     if (Platform.isAndroid) {
-      _controller!.pauseCamera();
+      qrController!.pauseCamera();
     }
-    _controller!.resumeCamera();
+    qrController!.resumeCamera();
   }
 
   @override
@@ -45,7 +45,7 @@ class _CameraScreenState extends State<CameraScreen> {
     return SafeAreaX(
       bottomBar: GestureDetector(
         onTap: () {
-          _controller?.stopCamera();
+          qrController?.stopCamera();
           Navigator.pop(context);
         },
         child: const CustomFlatButton(textLabel: 'close'),
@@ -54,13 +54,13 @@ class _CameraScreenState extends State<CameraScreen> {
         alignment: Alignment.center,
         children: [
           QRView(
-            key: _qrKey,
+            key: qrKey,
             onQRViewCreated: (QRViewController controller) {
-              _controller = controller;
-              _controller!.resumeCamera();
+              qrController = controller;
+              qrController!.resumeCamera();
               controller.scannedDataStream.listen((scanData) {
                 if (mounted && scanData.code != '') {
-                  _controller!.pauseCamera();
+                  qrController!.pauseCamera();
                   _identifyInput(scanData.code);
                 }
               });
@@ -69,7 +69,7 @@ class _CameraScreenState extends State<CameraScreen> {
               borderWidth: 10,
               borderLength: 20,
               borderRadius: 10,
-              borderColor: kWhiteColor,
+              borderColor: customWhite,
               cutOutSize: MediaQuery.of(context).size.width * 0.8,
             ),
           ),
@@ -83,11 +83,11 @@ class _CameraScreenState extends State<CameraScreen> {
               children: <Widget>[
                 IconButton(
                   onPressed: () async {
-                    await _controller?.toggleFlash();
+                    await qrController?.toggleFlash();
                     setState(() {});
                   },
                   icon: FutureBuilder<bool?>(
-                    future: _controller?.getFlashStatus(),
+                    future: qrController?.getFlashStatus(),
                     builder: (context, snapshot) {
                       if (snapshot.data != null) {
                         return Icon(

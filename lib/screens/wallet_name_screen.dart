@@ -16,44 +16,44 @@ class WalletNameScreen extends StatefulWidget {
 }
 
 class WalletNameScreenState extends State<WalletNameScreen> {
-  late Wallet _wallet;
+  late Wallet wallet;
 
-  bool _confirmed = false;
+  bool confirmed = false;
 
-  final _myTextController = TextEditingController();
-  final _walletManager = WalletManager(Hive.box('walletBox'));
+  final myTextController = TextEditingController();
+  final walletManager = WalletManager(Hive.box('walletBox'));
 
   @override
   void initState() {
     super.initState();
-    _myTextController.addListener(_validateName);
+    myTextController.addListener(_validateName);
   }
 
   @override
   void dispose() {
-    _myTextController.dispose();
+    myTextController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
-    _wallet = _walletManager.value.getAt(walletIndex);
+    wallet = walletManager.value.getAt(walletIndex);
     return SafeAreaX(
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: Row(
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => _confirmed == true
-                  ? _setWalletName(walletIndex, _myTextController.text)
+              onTap: () => confirmed == true
+                  ? _setWalletName(walletIndex, myTextController.text)
                   : null,
-              child: _confirmed == true
+              child: confirmed == true
                   ? const CustomFlatButton(
                       textLabel: 'Save',
                     )
@@ -70,8 +70,8 @@ class WalletNameScreenState extends State<WalletNameScreen> {
               },
               child: const CustomFlatButton(
                 textLabel: 'Cancel',
-                buttonColor: kDarkBackgroundColor,
-                fontColor: kWhiteColor,
+                buttonColor: customDarkBackground,
+                fontColor: customWhite,
               ),
             ),
           ),
@@ -92,16 +92,16 @@ class WalletNameScreenState extends State<WalletNameScreen> {
             decoration: const BoxDecoration(
               shape: BoxShape.rectangle,
               borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              color: kBlackColor,
+              color: customBlack,
             ),
             child: Column(
               children: [
                 TextField(
                   style: const TextStyle(fontSize: 20),
-                  controller: _myTextController,
+                  controller: myTextController,
                   maxLength: 21,
                   decoration: InputDecoration(
-                    hintText: _wallet.name,
+                    hintText: wallet.name,
                   ),
                 ),
                 const SizedBox(height: 8.0),
@@ -114,16 +114,16 @@ class WalletNameScreenState extends State<WalletNameScreen> {
   }
 
   Future<void> _setWalletName(index, walletName) async {
-    _walletManager.setWalletValue(index, name: walletName);
+    walletManager.setWalletValue(index, name: walletName);
 
-    int jumpToPage = _walletManager.value.length - 1;
+    int jumpToPage = walletManager.value.length - 1;
     Navigator.pushReplacementNamed(context, '/home_screen',
         arguments: jumpToPage);
   }
 
   void _validateName() {
-    if (_myTextController.text.isNotEmpty) {
-      _confirmed = true;
+    if (myTextController.text.isNotEmpty) {
+      confirmed = true;
       setState(() {});
     }
   }

@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
-import '../constants/constants.dart';
+import '../constants/constants.dart' as constants;
 import '../models/currency.dart';
 import '../services/wallet_manager.dart';
 import '../themes/custom_icons.dart';
@@ -18,21 +18,19 @@ class WalletCurrencyScreen extends StatefulWidget {
   WalletCurrencyScreenState createState() => WalletCurrencyScreenState();
 }
 
-final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
-
 class WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
-  final List<Currency> _fiatCurrencies = fiatCurrencies;
+  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
   late Currency _defaultFiatCurrency;
 
   @override
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
-    _defaultFiatCurrency = _walletManager.getDefaultFiatCurrency(walletIndex);
+    _defaultFiatCurrency = walletManager.getDefaultFiatCurrency(walletIndex);
     return SafeAreaX(
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: GestureDetector(
@@ -41,8 +39,8 @@ class WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
         },
         child: const CustomFlatButton(
           textLabel: 'Cancel',
-          buttonColor: kDarkBackgroundColor,
-          fontColor: kWhiteColor,
+          buttonColor: customDarkBackground,
+          fontColor: customWhite,
         ),
       ),
       child: CustomScrollView(
@@ -54,14 +52,14 @@ class WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
                   children: <Widget>[
                     ListTileAsset(
                       walletIndex,
-                      _fiatCurrencies[index],
+                      constants.fiatCurrencies[index],
                       _defaultFiatCurrency,
                     ),
                     const ListDivider(),
                   ],
                 );
               },
-              childCount: _fiatCurrencies.length,
+              childCount: constants.fiatCurrencies.length,
             ),
           ),
         ],
@@ -85,15 +83,16 @@ class ListTileAsset extends StatefulWidget {
 }
 
 class _ListTileAssetState extends State<ListTileAsset> {
+  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: kDarkBackgroundColor,
+      color: customDarkBackground,
       child: GestureDetector(
         onTap: () async {
-          await _walletManager.setDefaultFiatCurrency(
+          await walletManager.setDefaultFiatCurrency(
               widget.walletIndex, widget.fiatCurrency);
-          await _walletManager.setDefaultCurrency(
+          await walletManager.setDefaultCurrency(
               widget.walletIndex, widget.fiatCurrency);
           if (!mounted) return;
           Navigator.pop(context);
@@ -117,7 +116,7 @@ class _ListTileAssetState extends State<ListTileAsset> {
                         : false,
                 child: const Icon(
                   CupertinoIcons.check_mark,
-                  color: kYellowColor,
+                  color: customYellow,
                 ),
               ),
             ],

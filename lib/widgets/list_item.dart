@@ -8,7 +8,7 @@ class ListItem extends StatelessWidget {
       {Key? key,
       this.value = '',
       this.subtitle = '',
-      this.subtitleColor = kDarkNeutral7Color,
+      this.subtitleColor = customDarkNeutral7,
       this.chevron = false,
       this.icon})
       : super(key: key);
@@ -37,7 +37,7 @@ class ListItem extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         shape: BoxShape.rectangle,
-        color: kBlackColor,
+        color: customBlack,
       ),
       padding: const EdgeInsets.only(left: 16.0, right: 8.0),
       height: subtitle != '' ? 90 : 70,
@@ -88,7 +88,7 @@ class ListItem extends StatelessWidget {
           ),
           const SizedBox(width: 8.0),
           Icon(CupertinoIcons.chevron_forward,
-              color: chevron == true ? kWhiteColor : kTransparentColor),
+              color: chevron == true ? customWhite : customTransparent),
         ],
       ),
     );

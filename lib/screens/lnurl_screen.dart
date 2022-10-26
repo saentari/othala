@@ -26,7 +26,7 @@ class LnurlScreen extends StatefulWidget {
 }
 
 class LnurlScreenState extends State<LnurlScreen> {
-  final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
+  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
   int signed = -1;
   String domain = '';
   String callBackUrl = '';
@@ -34,20 +34,20 @@ class LnurlScreenState extends State<LnurlScreen> {
   @override
   Widget build(BuildContext context) {
     final lnURL = ModalRoute.of(context)!.settings.arguments as String;
-    _getLnAuth(lnURL);
-    final List<Wallet> wallets = _walletManager.getWallets(['mnemonic']);
+    getLnAuth(lnURL);
+    final List<Wallet> wallets = walletManager.getWallets(['mnemonic']);
     return SafeAreaX(
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: Row(
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => signed != -1 ? _authenticate(callBackUrl) : null,
+              onTap: () => signed != -1 ? authenticate(callBackUrl) : null,
               child: CustomFlatButton(
                 textLabel: 'Sign in',
                 enabled: signed != -1 ? true : false,
@@ -62,8 +62,8 @@ class LnurlScreenState extends State<LnurlScreen> {
               },
               child: const CustomFlatButton(
                 textLabel: 'Close',
-                buttonColor: kDarkBackgroundColor,
-                fontColor: kWhiteColor,
+                buttonColor: customDarkBackground,
+                fontColor: customWhite,
               ),
             ),
           ),
@@ -78,7 +78,7 @@ class LnurlScreenState extends State<LnurlScreen> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: kDarkNeutral5Color,
+                  color: customDarkNeutral5,
                 ),
               ),
             ],
@@ -105,7 +105,7 @@ class LnurlScreenState extends State<LnurlScreen> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: kDarkNeutral5Color,
+                  color: customDarkNeutral5,
                 ),
               ),
             ],
@@ -125,14 +125,14 @@ class LnurlScreenState extends State<LnurlScreen> {
                   onTap: () {
                     setState(() {
                       signed = index;
-                      _sign(wallet, lnURL);
+                      sign(wallet, lnURL);
                     });
                   },
                   child: Stack(
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(16.0),
-                        child: _showImage(wallet.imagePath,
+                        child: showImage(wallet.imagePath,
                             signed == index || signed == -1 ? 1.0 : 0.5),
                       ),
                       Visibility(
@@ -142,7 +142,7 @@ class LnurlScreenState extends State<LnurlScreen> {
                           right: 8.0,
                           child: Icon(
                             Icons.check_circle_rounded,
-                            color: kYellowColor,
+                            color: customYellow,
                             size: 28,
                           ),
                         ),
@@ -158,7 +158,7 @@ class LnurlScreenState extends State<LnurlScreen> {
     );
   }
 
-  _authenticate(callBackUrl) async {
+  authenticate(callBackUrl) async {
     NetworkHelper networkHelper = NetworkHelper();
     try {
       final resBody = await networkHelper.getData(callBackUrl);
@@ -177,7 +177,7 @@ class LnurlScreenState extends State<LnurlScreen> {
     }
   }
 
-  _getLnAuth(url) async {
+  getLnAuth(url) async {
     if (domain.isEmpty) {
       final res = await lnurl.getParams(url);
       lnurl.LNURLAuthParams? auth = res.authParams;
@@ -186,7 +186,7 @@ class LnurlScreenState extends State<LnurlScreen> {
     }
   }
 
-  _showImage(String path, double opacity) {
+  showImage(String path, double opacity) {
     if (FileSystemEntity.typeSync(path) == FileSystemEntityType.notFound) {
       return Image.asset(
         'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg',
@@ -208,7 +208,7 @@ class LnurlScreenState extends State<LnurlScreen> {
     }
   }
 
-  _sign(Wallet wallet, url) async {
+  sign(Wallet wallet, url) async {
     StorageService storageService = StorageService();
     final mnemonic = await storageService.readSecureData(wallet.key);
     final seed = bip39.mnemonicToSeed(mnemonic!);

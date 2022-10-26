@@ -7,9 +7,9 @@ class CustomFlatButton extends StatelessWidget {
   const CustomFlatButton({
     Key? key,
     required this.textLabel,
-    this.buttonColor = kYellowColor,
-    this.borderColor = kTransparentColor,
-    this.fontColor = kDarkBackgroundColor,
+    this.buttonColor = customYellow,
+    this.borderColor = customTransparent,
+    this.fontColor = customDarkBackground,
     this.enabled = true,
   }) : super(key: key);
 

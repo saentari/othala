@@ -27,15 +27,15 @@ class WalletDerivationScreenState extends State<WalletDerivationScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: GestureDetector(
         onTap: () => Navigator.pop(context),
         child: const CustomFlatButton(
           textLabel: 'Cancel',
-          buttonColor: kDarkBackgroundColor,
-          fontColor: kWhiteColor,
+          buttonColor: customDarkBackground,
+          fontColor: customWhite,
         ),
       ),
       child: Column(
@@ -90,7 +90,7 @@ class _ListTileAssetState extends State<ListTileAsset> {
     final selectedIndex = dp.purpose;
     final selectedCoinType = dp.coinType;
     return Container(
-      color: kDarkBackgroundColor,
+      color: customDarkBackground,
       child: GestureDetector(
         onTap: () async {
           EasyLoading.show(
@@ -129,7 +129,7 @@ class _ListTileAssetState extends State<ListTileAsset> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: kDarkNeutral7Color,
+                      color: customDarkNeutral7,
                     ),
                   ),
                 ],
@@ -139,7 +139,7 @@ class _ListTileAssetState extends State<ListTileAsset> {
                 visible: widget.purpose == selectedIndex ? true : false,
                 child: const Icon(
                   CupertinoIcons.check_mark,
-                  color: kYellowColor,
+                  color: customYellow,
                 ),
               ),
             ],

@@ -18,7 +18,6 @@ class BitcoinClient {
   int coinType = 0;
 
   final NetworkHelper _networkHelper = NetworkHelper();
-
   static const _denominator = 100000000;
 
   BitcoinClient(this.seed) {
@@ -33,9 +32,7 @@ class BitcoinClient {
   }
 
   getAddress(walletIndex) {
-    if (walletIndex < 0) {
-      throw ('index must be greater than zero');
-    }
+    if (walletIndex < 0) throw ('index must be greater than zero');
 
     final String? address;
     final seedUint8List = bip39.mnemonicToSeed(seed);
@@ -73,6 +70,7 @@ class BitcoinClient {
     else {
       throw ('unsupported derivation scheme');
     }
+
     return address;
   }
 
@@ -135,17 +133,15 @@ class BitcoinClient {
   }
 
   getSeed(String mnemonic, {String passphrase = ""}) {
-    if (!validateMnemonic(mnemonic)) {
-      throw ArgumentError('Invalid mnemonic ');
-    }
+    if (!validateMnemonic(mnemonic)) throw ArgumentError('Invalid mnemonic ');
+
     Uint8List seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase);
     return seed;
   }
 
   getSeedHex(String mnemonic, {String passphrase = ""}) {
-    if (!validateMnemonic(mnemonic)) {
-      throw ArgumentError('Invalid mnemonic');
-    }
+    if (!validateMnemonic(mnemonic)) throw ArgumentError('Invalid mnemonic');
+
     String seedHex = bip39.mnemonicToSeedHex(mnemonic, passphrase: passphrase);
     return seedHex;
   }
@@ -174,12 +170,8 @@ class BitcoinClient {
           late String address;
           late double amount;
           prevoutMap.forEach((subkey, subvalue) {
-            if (subkey == 'scriptpubkey_address') {
-              address = subvalue;
-            }
-            if (subkey == 'value') {
-              amount = subvalue / _denominator;
-            }
+            if (subkey == 'scriptpubkey_address') address = subvalue;
+            if (subkey == 'value') amount = subvalue / _denominator;
           });
           if (address.isNotEmpty) {
             var map = {'address': address, 'amount': amount};
@@ -195,13 +187,8 @@ class BitcoinClient {
       late String address;
       late double amount;
       txMap.forEach((key, value) {
-        if (key == 'scriptpubkey_address') {
-          address = value;
-        }
-
-        if (key == 'value') {
-          amount = value / _denominator;
-        }
+        if (key == 'scriptpubkey_address') address = value;
+        if (key == 'value') amount = value / _denominator;
       });
       if (address.isNotEmpty) {
         var map = {'address': address, 'amount': amount};
@@ -250,9 +237,7 @@ class BitcoinClient {
     // Avoid retrieving more data then explicitly requested.
     if (limit != null) {
       int pageLimit = (limit / 25).ceil();
-      if (pageLimit < pages) {
-        pages = pageLimit;
-      }
+      if (pageLimit < pages) pages = pageLimit;
     }
 
     List txData = [];
@@ -284,12 +269,8 @@ class BitcoinClient {
                   String address = '';
                   double amount = 0.0;
                   prevOutMap.forEach((subkey, subvalue) {
-                    if (subkey == 'scriptpubkey_address') {
-                      address = subvalue;
-                    }
-                    if (subkey == 'value') {
-                      amount = subvalue / _denominator;
-                    }
+                    if (subkey == 'scriptpubkey_address') address = subvalue;
+                    if (subkey == 'value') amount = subvalue / _denominator;
                   });
                   if (address.isNotEmpty) {
                     var map = {'address': address, 'amount': amount};
@@ -306,12 +287,8 @@ class BitcoinClient {
             String address = '';
             double amount = 0.0;
             txMap.forEach((key, value) {
-              if (key == 'scriptpubkey_address') {
-                address = value;
-              }
-              if (key == 'value') {
-                amount = value / _denominator;
-              }
+              if (key == 'scriptpubkey_address') address = value;
+              if (key == 'value') amount = value / _denominator;
             });
             var map = {'address': address, 'amount': amount};
             to.add(map);
@@ -355,12 +332,8 @@ class BitcoinClient {
                 String address = '';
                 double amount = 0.0;
                 prevoutMap.forEach((subkey, subvalue) {
-                  if (subkey == 'scriptpubkey_address') {
-                    address = subvalue;
-                  }
-                  if (subkey == 'value') {
-                    amount = subvalue / _denominator;
-                  }
+                  if (subkey == 'scriptpubkey_address') address = subvalue;
+                  if (subkey == 'value') amount = subvalue / _denominator;
                 });
                 if (address.isNotEmpty) {
                   var map = {'address': address, 'amount': amount};
@@ -377,12 +350,8 @@ class BitcoinClient {
           String address = '';
           double amount = 0.0;
           txMap.forEach((key, value) {
-            if (key == 'scriptpubkey_address') {
-              address = value;
-            }
-            if (key == 'value') {
-              amount = value / _denominator;
-            }
+            if (key == 'scriptpubkey_address') address = value;
+            if (key == 'value') amount = value / _denominator;
           });
           var map = {'address': address, 'amount': amount};
           to.add(map);
@@ -430,16 +399,13 @@ class BitcoinClient {
     }
 
     // Sets the address.
-    if (readOnlyClient == false) {
-      address = getAddress(walletIndex);
-    }
+    if (readOnlyClient == false) address = getAddress(walletIndex);
   }
 
   setNetwork(newNetwork) {
     network = newNetwork;
-    if (readOnlyClient == false) {
-      address = getAddress(0);
-    }
+    if (readOnlyClient == false) address = getAddress(0);
+
     coinType = newNetwork == testnet ? 1 : 0;
   }
 

@@ -23,7 +23,7 @@ class ListDivider extends StatelessWidget {
               width: dashWidth,
               height: dashHeight,
               child: const DecoratedBox(
-                decoration: BoxDecoration(color: kDarkNeutral4Color),
+                decoration: BoxDecoration(color: customDarkNeutral4),
               ),
             );
           }),

@@ -9,7 +9,7 @@ final titleIcon = Hero(
   tag: 'logoHero',
   child: SvgPicture.asset(
     'assets/icons/logo.svg',
-    color: kYellowColor,
+    color: customYellow,
     height: 40.0,
   ),
 );

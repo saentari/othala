@@ -22,10 +22,10 @@ class WalletCreationScreen extends StatefulWidget {
 }
 
 class WalletCreationScreenState extends State<WalletCreationScreen> {
-  bool _confirmed = false;
-  String _randomMnemonic = '';
+  bool confirmed = false;
+  String randomMnemonic = '';
 
-  List<String> _randomMnemonicList = [
+  List<String> randomMnemonicList = [
     '',
     '',
     '',
@@ -43,7 +43,7 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
   @override
   void initState() {
     super.initState();
-    _createMnemonic();
+    createMnemonic();
   }
 
   @override
@@ -52,15 +52,15 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: Row(
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => _confirmed == true ? _encryptToKeyStore() : null,
-              child: _confirmed == true
+              onTap: () => confirmed == true ? encryptToKeyStore() : null,
+              child: confirmed == true
                   ? const CustomFlatButton(
                       textLabel: 'Create',
                     )
@@ -75,8 +75,8 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
               onTap: () => Navigator.pop(context),
               child: const CustomFlatButton(
                 textLabel: 'Cancel',
-                buttonColor: kDarkBackgroundColor,
-                fontColor: kWhiteColor,
+                buttonColor: customDarkBackground,
+                fontColor: customWhite,
               ),
             ),
           ),
@@ -110,12 +110,12 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: kGreyColor,
+                            color: customGrey,
                           ),
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[0],
+                        randomMnemonicList[0],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -126,11 +126,11 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: kGreyColor,
+                          color: customGrey,
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[1],
+                        randomMnemonicList[1],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -141,11 +141,11 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: kGreyColor,
+                          color: customGrey,
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[2],
+                        randomMnemonicList[2],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -162,12 +162,12 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: kGreyColor,
+                            color: customGrey,
                           ),
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[3],
+                        randomMnemonicList[3],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -178,11 +178,11 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: kGreyColor,
+                          color: customGrey,
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[4],
+                        randomMnemonicList[4],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -193,11 +193,11 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: kGreyColor,
+                          color: customGrey,
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[5],
+                        randomMnemonicList[5],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -214,12 +214,12 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: kGreyColor,
+                            color: customGrey,
                           ),
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[6],
+                        randomMnemonicList[6],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -230,11 +230,11 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: kGreyColor,
+                          color: customGrey,
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[7],
+                        randomMnemonicList[7],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -245,11 +245,11 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: kGreyColor,
+                          color: customGrey,
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[8],
+                        randomMnemonicList[8],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -266,12 +266,12 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: kGreyColor,
+                            color: customGrey,
                           ),
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[9],
+                        randomMnemonicList[9],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -282,11 +282,11 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: kGreyColor,
+                          color: customGrey,
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[10],
+                        randomMnemonicList[10],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -297,11 +297,11 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: kGreyColor,
+                          color: customGrey,
                         ),
                       ),
                       Text(
-                        _randomMnemonicList[11],
+                        randomMnemonicList[11],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -314,14 +314,14 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
               const SizedBox(height: 24.0),
               GestureDetector(
                 onTap: () {
-                  _setClipboard();
+                  setClipboard();
                 },
                 child: const Text(
                   'Copy to clipboard',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: kYellowColor,
+                    color: customYellow,
                     decoration: TextDecoration.underline,
                   ),
                 ),
@@ -330,13 +330,13 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
           ),
           const Spacer(),
           GestureDetector(
-            onTap: () => _toggleConfirmation(),
+            onTap: () => toggleConfirmation(),
             child: Row(
               children: [
-                _confirmed
+                confirmed
                     ? const Icon(CupertinoIcons.checkmark_square_fill,
-                        color: kWhiteColor)
-                    : const Icon(CupertinoIcons.square, color: kWhiteColor),
+                        color: customWhite)
+                    : const Icon(CupertinoIcons.square, color: customWhite),
                 const SizedBox(width: 16.0),
                 const Expanded(
                   child: Text(
@@ -356,20 +356,20 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
     );
   }
 
-  void _toggleConfirmation() {
+  void toggleConfirmation() {
     setState(() {
-      _confirmed == false ? _confirmed = true : _confirmed = false;
+      confirmed == false ? confirmed = true : confirmed = false;
     });
   }
 
-  _createMnemonic() {
+  createMnemonic() {
     // BIP39 English word list.
-    _randomMnemonic = generateMnemonic();
-    _randomMnemonicList = _randomMnemonic.split(" ");
+    randomMnemonic = generateMnemonic();
+    randomMnemonicList = randomMnemonic.split(" ");
     setState(() {});
   }
 
-  Future<void> _encryptToKeyStore() async {
+  Future<void> encryptToKeyStore() async {
     EasyLoading.show(
       status: 'creating...',
       maskType: EasyLoadingMaskType.black,
@@ -377,7 +377,7 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
     );
     final walletManager = WalletManager(Hive.box('walletBox'));
     await walletManager.encryptToKeyStore(
-        mnemonic: _randomMnemonic, generated: true);
+        mnemonic: randomMnemonic, generated: true);
     if (EasyLoading.isShow) {
       EasyLoading.dismiss();
     }
@@ -387,9 +387,9 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
         arguments: jumpToPage);
   }
 
-  void _setClipboard() async {
+  void setClipboard() async {
     // Clipboard.
-    ClipboardData data = ClipboardData(text: _randomMnemonic);
+    ClipboardData data = ClipboardData(text: randomMnemonic);
     await Clipboard.setData(data);
     if (!mounted) return;
 
@@ -401,10 +401,10 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
         content: Text(
           // Returns: `Copied to clipboard 👍`.
           parser.emojify('Copied to clipboard :thumbsup:'),
-          style: const TextStyle(color: kWhiteColor, fontSize: 16.0),
+          style: const TextStyle(color: customWhite, fontSize: 16.0),
         ),
         duration: const Duration(seconds: 2),
-        backgroundColor: kDarkGreyColor,
+        backgroundColor: customDarkGrey,
       ),
     );
   }

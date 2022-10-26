@@ -16,14 +16,14 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class LoadingScreenState extends State<LoadingScreen> {
-  final WalletManager _walletManager = WalletManager(Hive.box('walletBox'));
+  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
 
   @override
   initState() {
     super.initState();
     // Fetches prices and updates transactions at start-up.
-    _walletManager.updateFiatPrices();
-    _walletManager.setTransactions();
+    walletManager.updateFiatPrices();
+    walletManager.setTransactions();
 
     // Show a placeholder when data is being retrieved.
     Timer(const Duration(seconds: 2), () {
@@ -41,7 +41,7 @@ class LoadingScreenState extends State<LoadingScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: kDarkBackgroundColor,
+      color: customDarkBackground,
       child: SafeArea(
         child: Scaffold(
           body: Container(
@@ -59,7 +59,7 @@ class LoadingScreenState extends State<LoadingScreen> {
                 const Text(
                   'Your keys, your bitcoin.\n100% open-source & open-design',
                   style: TextStyle(
-                      color: kDarkNeutral7Color,
+                      color: customDarkNeutral7,
                       fontSize: 16.0,
                       fontWeight: FontWeight.w500),
                   textAlign: TextAlign.center,

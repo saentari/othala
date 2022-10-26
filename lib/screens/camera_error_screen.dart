@@ -20,7 +20,7 @@ class CameraErrorScreenState extends State<CameraErrorScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: titleIcon,
-        backgroundColor: kBlackColor,
+        backgroundColor: customBlack,
         automaticallyImplyLeading: false,
       ),
       bottomBar: Row(
@@ -33,8 +33,8 @@ class CameraErrorScreenState extends State<CameraErrorScreen> {
               },
               child: const CustomFlatButton(
                 textLabel: 'Close',
-                buttonColor: kDarkBackgroundColor,
-                fontColor: kWhiteColor,
+                buttonColor: customDarkBackground,
+                fontColor: customWhite,
               ),
             ),
           ),
@@ -56,7 +56,7 @@ class CameraErrorScreenState extends State<CameraErrorScreen> {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w500,
-              color: kDarkNeutral5Color,
+              color: customDarkNeutral5,
             ),
           ),
         ],
