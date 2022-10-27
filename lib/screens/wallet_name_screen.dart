@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 
 import '../models/wallet.dart';
 import '../services/wallet_manager.dart';
@@ -18,15 +17,15 @@ class WalletNameScreen extends StatefulWidget {
 class WalletNameScreenState extends State<WalletNameScreen> {
   late Wallet wallet;
 
-  bool confirmed = false;
+  var confirmed = false;
 
-  final myTextController = TextEditingController();
-  final walletManager = WalletManager(Hive.box('walletBox'));
+  var myTextController = TextEditingController();
+  var walletManager = WalletManager();
 
   @override
   void initState() {
     super.initState();
-    myTextController.addListener(_validateName);
+    myTextController.addListener(validateName);
   }
 
   @override
@@ -51,7 +50,7 @@ class WalletNameScreenState extends State<WalletNameScreen> {
           Expanded(
             child: GestureDetector(
               onTap: () => confirmed == true
-                  ? _setWalletName(walletIndex, myTextController.text)
+                  ? setWalletName(walletIndex, myTextController.text)
                   : null,
               child: confirmed == true
                   ? const CustomFlatButton(
@@ -113,15 +112,14 @@ class WalletNameScreenState extends State<WalletNameScreen> {
     );
   }
 
-  Future<void> _setWalletName(index, walletName) async {
+  Future<void> setWalletName(int index, String walletName) async {
     walletManager.setWalletValue(index, name: walletName);
-
-    int jumpToPage = walletManager.value.length - 1;
+    var jumpToPage = walletManager.value.length - 1;
     Navigator.pushReplacementNamed(context, '/home_screen',
         arguments: jumpToPage);
   }
 
-  void _validateName() {
+  void validateName() {
     if (myTextController.text.isNotEmpty) {
       confirmed = true;
       setState(() {});

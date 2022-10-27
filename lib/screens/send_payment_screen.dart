@@ -23,13 +23,13 @@ class SendPaymentScreen extends StatefulWidget {
 class SendPaymentScreenState extends State<SendPaymentScreen> {
   // TODO: implement TransactionBuilder.
 
-  bool confirmed = false;
-  // String recipientAddress = '';
-  // String recipientAmount = '';
+  // var recipientAddress = '';
+  // var recipientAmount = '';
   // TODO: replace temporary values for testing the IXD flow.
-  String recipientAddress = 'tb1q669kqq0ykrzgx337w3sj0kdf6zcuznvff34z85';
-  String recipientAmount = '0.0001';
-  final String unit = BitcoinUnit.btc.toShortString();
+  var recipientAddress = 'tb1q669kqq0ykrzgx337w3sj0kdf6zcuznvff34z85';
+  var recipientAmount = '0.0001';
+  var unit = BitcoinUnit.btc.toShortString();
+  var confirmed = false;
   late Wallet wallet;
 
   @override

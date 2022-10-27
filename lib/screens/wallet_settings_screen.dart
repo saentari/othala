@@ -18,13 +18,14 @@ class WalletSettingsScreen extends StatefulWidget {
 }
 
 class WalletSettingsScreenState extends State<WalletSettingsScreen> {
-  final walletManager = WalletManager(Hive.box('walletBox'));
+  var walletManager = WalletManager();
+  var defaultFiatCurrency = 'US dollar';
+
   late Wallet wallet;
-  String defaultFiatCurrency = 'US dollar';
 
   @override
   Widget build(BuildContext context) {
-    final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    var walletIndex = ModalRoute.of(context)!.settings.arguments as int;
     return ValueListenableBuilder(
       valueListenable: Hive.box('walletBox').listenable(),
       builder: (context, Box box, widget2) {
@@ -156,7 +157,7 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
     );
   }
 
-  void deleteWalletDialog(walletIndex) {
+  void deleteWalletDialog(int walletIndex) {
     showDialog(
       barrierDismissible: true,
       context: context,
@@ -266,7 +267,7 @@ class WalletSettingsScreenState extends State<WalletSettingsScreen> {
     );
   }
 
-  Future<void> deleteWallet(walletIndex) async {
+  Future<void> deleteWallet(int walletIndex) async {
     await walletManager.deleteWallet(walletIndex);
     if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil(

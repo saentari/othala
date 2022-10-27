@@ -22,10 +22,10 @@ class WalletAdapter extends TypeAdapter<Wallet> {
       fields[2] as String,
       fields[3] as String,
       (fields[4] as List).cast<Address>(),
-      fields[7] as String,
-      fields[8] as String,
-      fields[9] as Currency,
-      fields[10] as Currency,
+      fields[5] as String,
+      fields[6] as String,
+      fields[7] as Currency,
+      fields[8] as Currency,
     );
   }
 
@@ -43,13 +43,13 @@ class WalletAdapter extends TypeAdapter<Wallet> {
       ..write(obj.derivationPath)
       ..writeByte(4)
       ..write(obj.addresses)
-      ..writeByte(7)
+      ..writeByte(5)
       ..write(obj.imageId)
-      ..writeByte(8)
+      ..writeByte(6)
       ..write(obj.imagePath)
-      ..writeByte(9)
+      ..writeByte(7)
       ..write(obj.defaultFiatCurrency)
-      ..writeByte(10)
+      ..writeByte(8)
       ..write(obj.defaultCurrency);
   }
 

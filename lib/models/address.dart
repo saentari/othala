@@ -31,30 +31,30 @@ class Address {
     this.chainStats,
     this.mempoolStats,
   }) {
-    balance = balanceTotal();
+    balance = totalBalance();
   }
 
   // Returns the blockchain [amount] denominated in bitcoin unit.
-  num balanceConfirmed() {
-    num funded = chainStats?['funded_txo_sum'] ?? 0;
-    num spend = chainStats?['spent_txo_sum'] ?? 0;
-    num amount = (funded - spend) / 100000000;
+  num confirmedBalance() {
+    var funded = chainStats?['funded_txo_sum'] ?? 0;
+    var spend = chainStats?['spent_txo_sum'] ?? 0;
+    var amount = (funded - spend) / 100000000;
     return amount;
   }
 
   // Returns the mempool [amount] denominated in bitcoin unit.
-  num balanceUnconfirmed() {
-    num funded = mempoolStats?['funded_txo_sum'] ?? 0;
-    num spend = mempoolStats?['spent_txo_sum'] ?? 0;
-    num amount = (funded - spend) / 100000000;
+  num unconfirmedBalance() {
+    var funded = mempoolStats?['funded_txo_sum'] ?? 0;
+    var spend = mempoolStats?['spent_txo_sum'] ?? 0;
+    var amount = (funded - spend) / 100000000;
     return amount;
   }
 
   // Returns the total [amount] denominated in bitcoin unit.
-  num balanceTotal() {
-    num confirmed = balanceConfirmed();
-    num unconfirmed = balanceUnconfirmed();
-    num amount = (confirmed + unconfirmed);
+  num totalBalance() {
+    var confirmed = confirmedBalance();
+    var unconfirmed = unconfirmedBalance();
+    var amount = (confirmed + unconfirmed);
     return amount;
   }
 }

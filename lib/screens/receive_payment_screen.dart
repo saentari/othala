@@ -68,7 +68,7 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
                   const SizedBox(height: 24.0),
                   GestureDetector(
                     onTap: () {
-                      _setClipboard();
+                      setClipboard();
                     },
                     child: Row(
                       children: [
@@ -99,7 +99,7 @@ class ReceivePaymentScreenState extends State<ReceivePaymentScreen> {
     );
   }
 
-  void _setClipboard() async {
+  Future<void> setClipboard() async {
     // Clipboard.
     ClipboardData data =
         ClipboardData(text: widget.wallet.addresses.last.address);

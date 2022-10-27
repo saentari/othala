@@ -21,7 +21,7 @@ class WalletDerivationScreen extends StatefulWidget {
 class WalletDerivationScreenState extends State<WalletDerivationScreen> {
   @override
   Widget build(BuildContext context) {
-    final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    var walletIndex = ModalRoute.of(context)!.settings.arguments as int;
 
     return SafeAreaX(
       appBar: AppBar(
@@ -83,12 +83,8 @@ class ListTileAsset extends StatefulWidget {
 class _ListTileAssetState extends State<ListTileAsset> {
   @override
   Widget build(BuildContext context) {
-    final box = Hive.box('walletBox');
-    final walletManager = WalletManager(box);
-    final wallet = box.getAt(widget.walletIndex);
-    final dp = DerivationPath(wallet.derivationPath);
-    final selectedIndex = dp.purpose;
-    final selectedCoinType = dp.coinType;
+    var wallet = Hive.box('walletBox').getAt(widget.walletIndex);
+    var dp = DerivationPath(wallet.derivationPath);
     return Container(
       color: customDarkBackground,
       child: GestureDetector(
@@ -98,11 +94,8 @@ class _ListTileAssetState extends State<ListTileAsset> {
             maskType: EasyLoadingMaskType.black,
             dismissOnTap: true,
           );
-          await walletManager.setPurpose(widget.walletIndex, widget.purpose);
-          if (EasyLoading.isShow) {
-            EasyLoading.dismiss();
-          }
-
+          await WalletManager().setPurpose(widget.walletIndex, widget.purpose);
+          if (EasyLoading.isShow) EasyLoading.dismiss();
           if (!mounted) return;
           Navigator.pop(context);
         },
@@ -117,7 +110,7 @@ class _ListTileAssetState extends State<ListTileAsset> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "m/${widget.purpose}'/$selectedCoinType'/0'/0",
+                    "m/${widget.purpose}'/${dp.coinType}'/0'/0",
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 20,
@@ -136,7 +129,7 @@ class _ListTileAssetState extends State<ListTileAsset> {
               ),
               const Spacer(),
               Visibility(
-                visible: widget.purpose == selectedIndex ? true : false,
+                visible: widget.purpose == dp.purpose ? true : false,
                 child: const Icon(
                   CupertinoIcons.check_mark,
                   color: customYellow,

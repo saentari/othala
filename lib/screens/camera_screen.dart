@@ -61,7 +61,7 @@ class _CameraScreenState extends State<CameraScreen> {
               controller.scannedDataStream.listen((scanData) {
                 if (mounted && scanData.code != '') {
                   qrController!.pauseCamera();
-                  _identifyInput(scanData.code);
+                  identifyInput(scanData.code);
                 }
               });
             },
@@ -89,12 +89,11 @@ class _CameraScreenState extends State<CameraScreen> {
                   icon: FutureBuilder<bool?>(
                     future: qrController?.getFlashStatus(),
                     builder: (context, snapshot) {
-                      if (snapshot.data != null) {
+                      if (snapshot.data ?? false) {
                         return Icon(
                             snapshot.data! ? Icons.flash_on : Icons.flash_off);
-                      } else {
-                        return const Icon(Icons.flash_off);
                       }
+                      return const Icon(Icons.flash_off);
                     },
                   ),
                 ),
@@ -106,11 +105,11 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 
-  _identifyInput(input) async {
+  identifyInput(input) async {
     InputType? inputType = getInputType(input);
 
     if (inputType == InputType.lnurl) {
-      final lnurlAuth = await getParams(input);
+      var lnurlAuth = await getParams(input);
       if (!mounted) return;
       if (lnurlAuth.authParams != null) {
         Navigator.pushNamed(

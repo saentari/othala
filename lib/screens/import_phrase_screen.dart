@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:hive/hive.dart';
 
 import '../services/bitcoin_client.dart' as bitcoin_client;
 import '../services/wallet_manager.dart';
@@ -18,10 +17,9 @@ class ImportPhraseScreen extends StatefulWidget {
 }
 
 class ImportPhraseScreenState extends State<ImportPhraseScreen> {
-  final myTextController = TextEditingController();
-
-  bool confirmed = false;
-  String mnemonic = '';
+  var myTextController = TextEditingController();
+  var confirmed = false;
+  var mnemonic = '';
 
   @override
   void initState() {
@@ -130,37 +128,32 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
       maskType: EasyLoadingMaskType.black,
       dismissOnTap: true,
     );
-    final walletManager = WalletManager(Hive.box('walletBox'));
-
-    int purpose = 84;
-    final bitcoinClient = bitcoin_client.BitcoinClient(mnemonic);
+    var purpose = 84;
+    var bitcoinClient = bitcoin_client.BitcoinClient(mnemonic);
 
     // check if a derivation path has transactions
     for (int p in [44, 49, 84]) {
-      String derivationPath = "m/$p'/0'/0'/0";
-      bitcoinClient.setDerivationPath(derivationPath);
-      final data =
+      bitcoinClient.setDerivationPath("m/$p'/0'/0'/0");
+      var data =
           await bitcoinClient.getTransactionAddressStats(bitcoinClient.address);
-      final txCount =
+      var txCount =
           data['chain_stats']['tx_count'] + data['mempool_stats']['tx_count'];
       if (txCount > 0) {
         purpose = p;
         break;
       }
     }
-
+    var walletManager = WalletManager();
     await walletManager.encryptToKeyStore(mnemonic: mnemonic, purpose: purpose);
-    if (EasyLoading.isShow) {
-      EasyLoading.dismiss();
-    }
+    if (EasyLoading.isShow) EasyLoading.dismiss();
     if (!mounted) return;
-    int jumpToPage = walletManager.value.length - 1;
+    var jumpToPage = walletManager.value.length - 1;
     Navigator.pushReplacementNamed(context, '/home_screen',
         arguments: jumpToPage);
   }
 
   void getClipboard() async {
-    ClipboardData? data = await Clipboard.getData('text/plain');
+    var data = await Clipboard.getData('text/plain');
     mnemonic = data!.text!;
     myTextController.text = mnemonic;
   }
@@ -168,16 +161,7 @@ class ImportPhraseScreenState extends State<ImportPhraseScreen> {
   void validateMnemonic() {
     if (myTextController.text.isNotEmpty) {
       mnemonic = myTextController.text;
-      if (bitcoin_client.validateMnemonic(mnemonic) == true) {
-        setState(() {
-          confirmed = true;
-        });
-      }
-      if (bitcoin_client.validateMnemonic(mnemonic) == false) {
-        setState(() {
-          confirmed = false;
-        });
-      }
+      setState(() => confirmed = bitcoin_client.validateMnemonic(mnemonic));
     }
   }
 }

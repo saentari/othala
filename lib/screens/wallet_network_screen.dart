@@ -21,7 +21,7 @@ class WalletNetworkScreen extends StatefulWidget {
 class WalletNetworkScreenState extends State<WalletNetworkScreen> {
   @override
   Widget build(BuildContext context) {
-    final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    var walletIndex = ModalRoute.of(context)!.settings.arguments as int;
 
     return SafeAreaX(
       appBar: AppBar(
@@ -77,12 +77,9 @@ class ListTileAsset extends StatefulWidget {
 class _ListTileAssetState extends State<ListTileAsset> {
   @override
   Widget build(BuildContext context) {
-    final box = Hive.box('walletBox');
-    final walletManager = WalletManager(box);
-    final wallet = box.getAt(widget.walletIndex);
-    final dp = DerivationPath(wallet.derivationPath);
-    final selectedCoinType = dp.coinType;
-    final coinType = widget.network == 'testnet' ? 1 : 0;
+    var wallet = Hive.box('walletBox').getAt(widget.walletIndex);
+    var selectedCoinType = DerivationPath(wallet.derivationPath).coinType;
+    var coinType = widget.network == 'testnet' ? 1 : 0;
     return Container(
       color: customDarkBackground,
       child: GestureDetector(
@@ -93,7 +90,8 @@ class _ListTileAssetState extends State<ListTileAsset> {
               maskType: EasyLoadingMaskType.black,
               dismissOnTap: true,
             );
-            await walletManager.setNetwork(widget.walletIndex, widget.network);
+            await WalletManager()
+                .setNetwork(widget.walletIndex, widget.network);
             await EasyLoading.dismiss();
           } catch (e) {
             await EasyLoading.showError(e.toString());

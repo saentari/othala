@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 
 import '../screens/home_screen.dart';
 import '../services/wallet_manager.dart';
@@ -16,14 +15,12 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class LoadingScreenState extends State<LoadingScreen> {
-  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
-
   @override
   initState() {
     super.initState();
     // Fetches prices and updates transactions at start-up.
-    walletManager.updateFiatPrices();
-    walletManager.setTransactions();
+    WalletManager().updateFiatPrices();
+    WalletManager().setTransactions();
 
     // Show a placeholder when data is being retrieved.
     Timer(const Duration(seconds: 2), () {

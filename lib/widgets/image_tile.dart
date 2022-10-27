@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 
 import '../models/unsplash_image.dart';
 import '../services/wallet_manager.dart';
@@ -40,7 +39,7 @@ class _ImageTileState extends State<ImageTile> {
 
   @override
   Widget build(BuildContext context) {
-    final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
+    final WalletManager walletManager = WalletManager();
 
     return InkWell(
       onTap: () async {

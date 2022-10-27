@@ -23,7 +23,7 @@ class WalletCard extends StatefulWidget {
 }
 
 class _WalletCardState extends State<WalletCard> {
-  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
+  final WalletManager walletManager = WalletManager();
   final Currency bitcoin = Currency('BTC', priceUsd: 1.0);
   final Currency satoshi = Currency('SATS', priceUsd: 100000000.0);
   num balance = 0.0;

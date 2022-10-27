@@ -7,7 +7,7 @@ const coinPaprikaIconUrl = 'https://static.coinpaprika.com/coin';
 const coinPaprikaConversion = 'https://api.coinpaprika.com/v1/price-converter';
 
 // Unicode Characters.
-String unicodeBitcoin = String.fromCharCodes(Runes('\u{20BF}'));
+final String unicodeBitcoin = String.fromCharCodes(Runes('\u{20BF}'));
 
 // Fiat currencies supported by CoinPaprika.
 List<Currency> fiatCurrencies = [

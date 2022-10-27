@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_emoji/flutter_emoji.dart';
-import 'package:hive/hive.dart';
 
 import '../services/bitcoin_client.dart';
 import '../services/wallet_manager.dart';
@@ -22,23 +21,9 @@ class WalletCreationScreen extends StatefulWidget {
 }
 
 class WalletCreationScreenState extends State<WalletCreationScreen> {
-  bool confirmed = false;
-  String randomMnemonic = '';
-
-  List<String> randomMnemonicList = [
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    ''
-  ];
+  var confirmed = false;
+  var randomMnemonic = '';
+  var randomMnemonicList = ['', '', '', '', '', '', '', '', '', '', '', ''];
 
   @override
   void initState() {
@@ -313,9 +298,7 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
               ),
               const SizedBox(height: 24.0),
               GestureDetector(
-                onTap: () {
-                  setClipboard();
-                },
+                onTap: () => setClipboard(),
                 child: const Text(
                   'Copy to clipboard',
                   style: TextStyle(
@@ -357,9 +340,8 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
   }
 
   void toggleConfirmation() {
-    setState(() {
-      confirmed == false ? confirmed = true : confirmed = false;
-    });
+    confirmed == false ? confirmed = true : confirmed = false;
+    setState(() {});
   }
 
   createMnemonic() {
@@ -375,7 +357,7 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
       maskType: EasyLoadingMaskType.black,
       dismissOnTap: true,
     );
-    final walletManager = WalletManager(Hive.box('walletBox'));
+    final walletManager = WalletManager();
     await walletManager.encryptToKeyStore(
         mnemonic: randomMnemonic, generated: true);
     if (EasyLoading.isShow) {
@@ -389,7 +371,7 @@ class WalletCreationScreenState extends State<WalletCreationScreen> {
 
   void setClipboard() async {
     // Clipboard.
-    ClipboardData data = ClipboardData(text: randomMnemonic);
+    var data = ClipboardData(text: randomMnemonic);
     await Clipboard.setData(data);
     if (!mounted) return;
 

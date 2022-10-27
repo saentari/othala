@@ -5,16 +5,9 @@ import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 import '../widgets/safe_area.dart';
 
-class SendPaymentConfirmationScreen extends StatefulWidget {
+class SendPaymentConfirmationScreen extends StatelessWidget {
   const SendPaymentConfirmationScreen({Key? key}) : super(key: key);
 
-  @override
-  SendPaymentConfirmationScreenState createState() =>
-      SendPaymentConfirmationScreenState();
-}
-
-class SendPaymentConfirmationScreenState
-    extends State<SendPaymentConfirmationScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeAreaX(

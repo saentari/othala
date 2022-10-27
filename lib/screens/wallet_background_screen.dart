@@ -22,16 +22,16 @@ class WalletBackgroundScreen extends StatefulWidget {
 class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   late Wallet wallet;
 
-  /// Stores the current page index for the api requests.
+  // Stores the current page index for the api requests.
   int page = 0, totalPages = -1;
 
-  /// Stores the currently loaded loaded images.
+  // Stores the currently loaded loaded images.
   List<UnsplashImage> unsplashImages = [];
 
-  /// States whether there is currently a task running loading images.
+  // States whether there is currently a task running loading images.
   bool loadingImages = false;
 
-  /// Stored the currently searched keyword.
+  // Stored the currently searched keyword.
   String? keyword;
 
   @override
@@ -43,43 +43,43 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    var walletIndex = ModalRoute.of(context)!.settings.arguments as int;
     return ValueListenableBuilder(
-        valueListenable: Hive.box('walletBox').listenable(),
-        builder: (context, Box box, widget2) {
-          if (walletIndex < box.length) {
-            wallet = box.getAt(walletIndex);
-          }
-          return SafeAreaX(
-            appBar: AppBar(
-              centerTitle: true,
-              title: titleIcon,
-              backgroundColor: customBlack,
-              automaticallyImplyLeading: false,
+      valueListenable: Hive.box('walletBox').listenable(),
+      builder: (context, Box box, widget2) {
+        if (walletIndex < box.length) {
+          wallet = box.getAt(walletIndex);
+        }
+        return SafeAreaX(
+          appBar: AppBar(
+            centerTitle: true,
+            title: titleIcon,
+            backgroundColor: customBlack,
+            automaticallyImplyLeading: false,
+          ),
+          bottomBar: GestureDetector(
+            onTap: () => {Navigator.pop(context)},
+            child: const CustomFlatButton(
+              textLabel: 'Cancel',
+              buttonColor: customDarkBackground,
+              fontColor: customWhite,
             ),
-            bottomBar: GestureDetector(
-              onTap: () => {Navigator.pop(context)},
-              child: const CustomFlatButton(
-                textLabel: 'Cancel',
-                buttonColor: customDarkBackground,
-                fontColor: customWhite,
-              ),
+          ),
+          child: OrientationBuilder(
+            builder: (context, orientation) => CustomScrollView(
+              slivers: [
+                //Grid view with all the images
+                buildImageGrid(walletIndex, orientation: orientation),
+                // loading indicator at the bottom of the list
+                const SliverToBoxAdapter(
+                  child: LoadingIndicator(customDarkNeutral5),
+                ),
+              ],
             ),
-            child: OrientationBuilder(
-              builder: (context, orientation) => CustomScrollView(
-                slivers: [
-                  //Grid view with all the images
-                  buildImageGrid(walletIndex, orientation: orientation),
-
-                  // loading indicator at the bottom of the list
-                  const SliverToBoxAdapter(
-                    child: LoadingIndicator(customDarkNeutral5),
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 
   // Requests a list of [UnsplashImage] for a given [keyword].
@@ -116,11 +116,7 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
 
     // Load images.
     List<UnsplashImage>? images;
-    if (keyword == null) {
-      // Load images from the next page of trending images.
-      images = (await UnsplashImageProvider.loadImages(page: ++page))
-          .cast<UnsplashImage>();
-    } else {
+    if (keyword != null && keyword.isNotEmpty) {
       // Load images from the next page with a keyword.
       List res = await UnsplashImageProvider.loadImagesWithKeyword(keyword,
           page: ++page);
@@ -128,8 +124,11 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
       totalPages = res[0];
       // Set images.
       images = res[1];
+    } else {
+      // Load images from the next page of trending images.
+      images = (await UnsplashImageProvider.loadImages(page: ++page))
+          .cast<UnsplashImage>();
     }
-
     // Update the state.
     setState(() {
       // Done loading.
@@ -144,7 +143,7 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   // [orientation] can be used to adjust the grid column count.
   Widget buildImageGrid(walletIndex, {orientation = Orientation.portrait}) {
     // Calculate [columnCount] based on orientation.
-    int columnCount = orientation == Orientation.portrait ? 2 : 3;
+    var columnCount = orientation == Orientation.portrait ? 2 : 3;
     // Return staggered grid.
     return SliverPadding(
       padding: const EdgeInsets.all(16.0),
@@ -182,10 +181,10 @@ class WalletBackgroundScreenState extends State<WalletBackgroundScreen> {
   // Returns a StaggeredTile for a given [image].
   StaggeredTile buildStaggeredTile(UnsplashImage image, int columnCount) {
     // Calculate image aspect ratio.
-    double aspectRatio =
+    var aspectRatio =
         image.getHeight().toDouble() / image.getWidth().toDouble();
     // Calculate column width.
-    double columnWidth = MediaQuery.of(context).size.width / columnCount;
+    var columnWidth = MediaQuery.of(context).size.width / columnCount;
     // Not using [StaggeredTile.fit(1)] because during loading StaggeredGrid is really jumpy.
     return StaggeredTile.extent(1, aspectRatio * columnWidth);
   }

@@ -7,14 +7,9 @@ import '../widgets/list_divider.dart';
 import '../widgets/list_item.dart';
 import '../widgets/safe_area.dart';
 
-class WalletImportScreen extends StatefulWidget {
+class WalletImportScreen extends StatelessWidget {
   const WalletImportScreen({Key? key}) : super(key: key);
 
-  @override
-  WalletImportScreenState createState() => WalletImportScreenState();
-}
-
-class WalletImportScreenState extends State<WalletImportScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeAreaX(

@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class NetworkHelper {
-  Future getData(String uri, [Map<String, String>? header]) async {
+  Future fetchData(String uri, [Map<String, String>? header]) async {
     if (kDebugMode) print('connecting to $uri, with header $header');
     var url = Uri.parse(uri);
-    http.Response response = await http.get(url, headers: header);
+    var response = await http.get(url, headers: header);
     if (response.statusCode == 200) {
       return response.body;
     } else {

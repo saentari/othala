@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:hive/hive.dart';
 
 import '../services/wallet_manager.dart';
 import '../themes/custom_icons.dart';
@@ -20,9 +19,8 @@ class ImportAddressScreen extends StatefulWidget {
 class ImportAddressScreenState extends State<ImportAddressScreen> {
   late String address;
 
-  bool confirmed = false;
-
-  final textController = TextEditingController();
+  var confirmed = false;
+  var textController = TextEditingController();
 
   @override
   void initState() {
@@ -125,19 +123,17 @@ class ImportAddressScreenState extends State<ImportAddressScreen> {
       maskType: EasyLoadingMaskType.black,
       dismissOnTap: true,
     );
-    final walletManager = WalletManager(Hive.box('walletBox'));
+    var walletManager = WalletManager();
     await walletManager.encryptToKeyStore(address: address);
-    if (EasyLoading.isShow) {
-      EasyLoading.dismiss();
-    }
+    if (EasyLoading.isShow) EasyLoading.dismiss();
     if (!mounted) return;
-    int jumpToPage = walletManager.value.length - 1;
+    var jumpToPage = walletManager.value.length - 1;
     Navigator.pushReplacementNamed(context, '/home_screen',
         arguments: jumpToPage);
   }
 
   void getClipboard() async {
-    ClipboardData? data = await Clipboard.getData('text/plain');
+    var data = await Clipboard.getData('text/plain');
     textController.text = data!.text!;
   }
 

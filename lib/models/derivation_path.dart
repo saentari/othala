@@ -22,36 +22,36 @@ class DerivationPath {
   }
 
   // Sets the derivation path.
-  setDerivationPath(int prp, int cnt, int acc, int chng, int addr) {
+  void setDerivationPath(int prp, int cnt, int acc, int chng, int addr) {
     derivationPath = "m/$prp'/$cnt'/$acc'/$chng/$addr";
   }
 
   // Assigns the purpose (e.g. `84` for native SegWit).
-  setPurpose(int value) {
+  void setPurpose(int value) {
     addressIndex = value;
     setDerivationPath(purpose, coinType, account, change, addressIndex);
   }
 
   // Assigns the cointype (e.g. `1` for testnet).
-  setCoinType(int value) {
+  void setCoinType(int value) {
     addressIndex = value;
     setDerivationPath(purpose, coinType, account, change, addressIndex);
   }
 
   // Assigns the account value.
-  setAccount(int value) {
+  void setAccount(int value) {
     addressIndex = value;
     setDerivationPath(purpose, coinType, account, change, addressIndex);
   }
 
   // Assigns the change value.
-  setChange(int value) {
+  void setChange(int value) {
     addressIndex = value;
     setDerivationPath(purpose, coinType, account, change, addressIndex);
   }
 
   // Assigns the address index value (e.g. `1` for the second address).
-  setAddressIndex(int value) {
+  void setAddressIndex(int value) {
     addressIndex = value;
     setDerivationPath(purpose, coinType, account, change, addressIndex);
   }

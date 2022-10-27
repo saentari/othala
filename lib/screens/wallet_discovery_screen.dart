@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 
 import '../enums/input_type.dart';
 import '../services/bitcoin_client.dart';
@@ -19,14 +18,13 @@ class WalletDiscoveryScreen extends StatefulWidget {
 }
 
 class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
-  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
-
-  bool confirmed = false;
-  String walletName = '';
-  final List<String> address = [''];
-  final List<String> amount = [''];
   late String mnemonic;
   late InputType inputType;
+
+  var confirmed = false;
+  var walletName = '';
+  var address = [''];
+  var amount = [''];
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +95,7 @@ class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
   }
 
   Future<void> encryptToKeyStore() async {
+    var walletManager = WalletManager();
     if (inputType == InputType.address) {
       await walletManager.encryptToKeyStore(address: address[0]);
     } else if (inputType == InputType.mnemonic) {
@@ -122,7 +121,7 @@ class WalletDiscoveryScreenState extends State<WalletDiscoveryScreen> {
     }
     walletName = getAddressName(firstAddress);
 
-    double doubleAmount = await walletManager.getBalance(firstAddress);
+    double doubleAmount = await WalletManager().getBalance(firstAddress);
 
     address.insert(0, firstAddress);
     amount.insert(0, '$doubleAmount BTC');

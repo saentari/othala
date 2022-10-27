@@ -26,7 +26,6 @@ class WalletScreen extends StatefulWidget {
 }
 
 class WalletScreenState extends State<WalletScreen> {
-  final Box box = Hive.box('walletBox');
   late Wallet wallet;
   late double balance;
   late double amount;
@@ -36,7 +35,7 @@ class WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
     return ValueListenableBuilder(
-      valueListenable: box.listenable(),
+      valueListenable: Hive.box('walletBox').listenable(),
       builder: (context, Box box, widget) {
         getWalletData(box, walletIndex);
         return SafeAreaX(
@@ -140,7 +139,7 @@ class WalletScreenState extends State<WalletScreen> {
                   color: customBlack,
                   backgroundColor: customYellow,
                   onRefresh: () async {
-                    final wm = WalletManager(box);
+                    final wm = WalletManager();
                     await wm.setTransactions(walletIndex);
                   },
                   child: ListView.separated(

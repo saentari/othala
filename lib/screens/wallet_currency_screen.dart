@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 
 import '../constants/constants.dart' as constants;
 import '../models/currency.dart';
@@ -19,13 +18,11 @@ class WalletCurrencyScreen extends StatefulWidget {
 }
 
 class WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
-  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
-  late Currency _defaultFiatCurrency;
-
   @override
   Widget build(BuildContext context) {
-    final walletIndex = ModalRoute.of(context)!.settings.arguments as int;
-    _defaultFiatCurrency = walletManager.getDefaultFiatCurrency(walletIndex);
+    var walletIndex = ModalRoute.of(context)!.settings.arguments as int;
+    var defaultFiatCurrency =
+        WalletManager().getDefaultFiatCurrency(walletIndex);
     return SafeAreaX(
       appBar: AppBar(
         centerTitle: true,
@@ -53,7 +50,7 @@ class WalletCurrencyScreenState extends State<WalletCurrencyScreen> {
                     ListTileAsset(
                       walletIndex,
                       constants.fiatCurrencies[index],
-                      _defaultFiatCurrency,
+                      defaultFiatCurrency,
                     ),
                     const ListDivider(),
                   ],
@@ -83,7 +80,8 @@ class ListTileAsset extends StatefulWidget {
 }
 
 class _ListTileAssetState extends State<ListTileAsset> {
-  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
+  var walletManager = WalletManager();
+
   @override
   Widget build(BuildContext context) {
     return Container(

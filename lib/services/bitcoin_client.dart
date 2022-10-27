@@ -22,7 +22,7 @@ class BitcoinClient {
 
   BitcoinClient(this.seed) {
     readOnlyClient = false;
-    int walletIndex = 0;
+    var walletIndex = 0;
     address = getAddress(walletIndex);
   }
 
@@ -31,21 +31,21 @@ class BitcoinClient {
     address = address;
   }
 
-  getAddress(walletIndex) {
+  String getAddress(int walletIndex) {
     if (walletIndex < 0) throw ('index must be greater than zero');
 
-    final String? address;
-    final seedUint8List = bip39.mnemonicToSeed(seed);
-    final root = bip32.BIP32.fromSeed(seedUint8List);
-    final network = coinType == 1 ? testnet : bitcoin;
+    late String address;
+    var seedUint8List = bip39.mnemonicToSeed(seed);
+    var root = bip32.BIP32.fromSeed(seedUint8List);
+    var network = coinType == 1 ? testnet : bitcoin;
 
     // BIP44 - Multi-account hierarchy for deterministic wallets (Legacy).
-    final node = root.derivePath("m/$purpose'/$coinType'/0'/0/$walletIndex");
+    var node = root.derivePath("m/$purpose'/$coinType'/0'/0/$walletIndex");
     if (purpose == 44) {
       address =
           P2PKH(data: PaymentData(pubkey: node.publicKey), network: network)
               .data
-              .address;
+              .address!;
     }
     // BIP49 - Derivation scheme for P2WPKH-nested-in-P2SH based accounts (Segwit).
     else if (purpose == 49) {
@@ -57,48 +57,42 @@ class BitcoinClient {
                       .data),
               network: network)
           .data
-          .address;
+          .address!;
     }
     // BIP84 - Derivation scheme for P2WPKH based accounts (native Segwit).
     else if (purpose == 84) {
       address =
           P2WPKH(data: PaymentData(pubkey: node.publicKey), network: network)
               .data
-              .address;
+              .address!;
     }
     // Unsupported derivation scheme.
     else {
       throw ('unsupported derivation scheme');
     }
-
     return address;
   }
 
-  getBalance(address) async {
-    List balances = [];
-
-    String uri = '${getExplorerAddressUrl(address)}';
-    String responseBody = await _networkHelper.getData(uri);
-    num funded = jsonDecode(responseBody)['chain_stats']['funded_txo_sum'];
-    num spend = jsonDecode(responseBody)['chain_stats']['spent_txo_sum'];
-    num amount = (funded - spend) / _denominator;
-
-    balances.add({
-      'amount': amount,
-    });
-
+  Future<List> getBalance(String address) async {
+    var balances = [];
+    var uri = getExplorerAddressUrl(address);
+    var responseBody = await _networkHelper.fetchData(uri);
+    var funded = jsonDecode(responseBody)['chain_stats']['funded_txo_sum'];
+    var spend = jsonDecode(responseBody)['chain_stats']['spent_txo_sum'];
+    var amount = (funded - spend) / _denominator;
+    balances.add({'amount': amount});
     return balances;
   }
 
-  getExplorerAddressUrl(address) {
+  String getExplorerAddressUrl(String address) {
     return '${getExplorerUrl()}/address/$address';
   }
 
-  getExplorerTransactionUrl(txId) {
+  String getExplorerTransactionUrl(String txId) {
     return '${getExplorerUrl()}/tx/$txId';
   }
 
-  getExplorerUrl() {
+  String getExplorerUrl() {
     if (network == bitcoin) {
       return 'https://blockstream.info/api';
     } else if (network == testnet) {
@@ -108,16 +102,16 @@ class BitcoinClient {
     }
   }
 
-  getFees() async {
-    String uri = 'https://app.bitgo.com/api/v2/btc/tx/fee';
-    String responseBody = await _networkHelper.getData(uri);
-    Map rawFeesPerKb = jsonDecode(responseBody);
-    Map feeByBlockTarget = rawFeesPerKb['feeByBlockTarget'];
+  Future<Map> getFees() async {
+    var uri = 'https://app.bitgo.com/api/v2/btc/tx/fee';
+    var responseBody = await _networkHelper.fetchData(uri);
+    var rawFeesPerKb = jsonDecode(responseBody);
+    var feeByBlockTarget = rawFeesPerKb['feeByBlockTarget'];
 
-    int fastest = rawFeesPerKb['feePerKb'];
-    int slow = feeByBlockTarget['6'] ?? fastest;
-    int average = feeByBlockTarget['3'] ?? ((fastest + slow) / 2).ceil();
-    int fast = feeByBlockTarget['2'] ?? ((fastest + average) / 2).ceil();
+    var fastest = rawFeesPerKb['feePerKb'];
+    var slow = feeByBlockTarget['6'] ?? fastest;
+    var average = feeByBlockTarget['3'] ?? ((fastest + slow) / 2).ceil();
+    var fast = feeByBlockTarget['2'] ?? ((fastest + average) / 2).ceil();
 
     Map fees = {
       "type": "kilobyte",
@@ -128,29 +122,27 @@ class BitcoinClient {
     return fees;
   }
 
-  getNetwork() {
+  NetworkType getNetwork() {
     return network;
   }
 
-  getSeed(String mnemonic, {String passphrase = ""}) {
+  Uint8List getSeed(String mnemonic, {String passphrase = ""}) {
     if (!validateMnemonic(mnemonic)) throw ArgumentError('Invalid mnemonic ');
-
-    Uint8List seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase);
+    var seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase);
     return seed;
   }
 
-  getSeedHex(String mnemonic, {String passphrase = ""}) {
+  String getSeedHex(String mnemonic, {String passphrase = ""}) {
     if (!validateMnemonic(mnemonic)) throw ArgumentError('Invalid mnemonic');
-
-    String seedHex = bip39.mnemonicToSeedHex(mnemonic, passphrase: passphrase);
+    var seedHex = bip39.mnemonicToSeedHex(mnemonic, passphrase: passphrase);
     return seedHex;
   }
 
-  getTransactionData(txId) async {
+  Future<Map> getTransactionData(String txId) async {
     var txData = {};
 
-    String uri = '${getExplorerTransactionUrl(txId)}';
-    String responseBody = await _networkHelper.getData(uri);
+    var uri = getExplorerTransactionUrl(txId);
+    var responseBody = await _networkHelper.fetchData(uri);
     var rawTx = jsonDecode(responseBody);
 
     var confirmed = rawTx['status']['confirmed'];
@@ -162,8 +154,7 @@ class BitcoinClient {
     }
 
     List<Map> from = [];
-    rawTx['vin'].forEach((tx) {
-      Map txMap = tx;
+    for (Map txMap in rawTx['vin']) {
       txMap.forEach((key, value) {
         if (key == 'prevout') {
           Map prevoutMap = value;
@@ -179,11 +170,10 @@ class BitcoinClient {
           }
         }
       });
-    });
+    }
 
     List<Map> to = [];
-    rawTx['vout'].forEach((tx) {
-      Map txMap = tx;
+    for (Map txMap in rawTx['vout']) {
       late String address;
       late double amount;
       txMap.forEach((key, value) {
@@ -194,7 +184,7 @@ class BitcoinClient {
         var map = {'address': address, 'amount': amount};
         to.add(map);
       }
-    });
+    }
 
     if (rawTx != null) {
       txData.addAll({
@@ -209,34 +199,33 @@ class BitcoinClient {
     return txData;
   }
 
-  getTransactionAddressStats(address) async {
+  Future getTransactionAddressStats(String address) async {
     // Returns mempool and chain transaction stats.
-    String addressUri = '${getExplorerAddressUrl(address)}';
-    String addrResponseBody = await _networkHelper.getData(addressUri);
-
+    var addressUri = getExplorerAddressUrl(address);
+    var addrResponseBody = await _networkHelper.fetchData(addressUri);
     return jsonDecode(addrResponseBody);
   }
 
-  getTransactions(address, [limit]) async {
+  Future<List> getTransactions(String address, [int? limit]) async {
     // Current block.
-    String blockHeightUri = '${getExplorerUrl()}/blocks/tip/height';
-    String blockResponseBody = await _networkHelper.getData(blockHeightUri);
-    int rawBlockHeight = jsonDecode(blockResponseBody);
+    var blockHeightUri = '${getExplorerUrl()}/blocks/tip/height';
+    var blockResponseBody = await _networkHelper.fetchData(blockHeightUri);
+    var rawBlockHeight = jsonDecode(blockResponseBody);
 
-    String addressUri = '${getExplorerAddressUrl(address)}';
-    String addrResponseBody = await _networkHelper.getData(addressUri);
+    var addressUri = getExplorerAddressUrl(address);
+    var addrResponseBody = await _networkHelper.fetchData(addressUri);
     var rawAddressStats = jsonDecode(addrResponseBody);
 
     // Retrieve the number of (mempool) transactions for an address.
-    int txCount = rawAddressStats['chain_stats']['tx_count'] ?? 0;
-    int mtxCount = rawAddressStats['mempool_stats']['tx_count'] ?? 0;
+    var txCount = rawAddressStats['chain_stats']['tx_count'] ?? 0;
+    var mtxCount = rawAddressStats['mempool_stats']['tx_count'] ?? 0;
 
     // Blockstream api limits tx results to 25 per page.
-    int pages = (txCount / 25).ceil();
+    var pages = (txCount / 25).ceil();
 
     // Avoid retrieving more data then explicitly requested.
-    if (limit != null) {
-      int pageLimit = (limit / 25).ceil();
+    if (limit != null && !limit.isNegative) {
+      var pageLimit = (limit / 25).ceil();
       if (pageLimit < pages) pages = pageLimit;
     }
 
@@ -244,30 +233,29 @@ class BitcoinClient {
 
     if (txCount > 0) {
       // Confirmed transactions.
-      String lastTx = '';
+      var lastTx = '';
       for (int i = 0; i < pages; i++) {
-        String txUri = '$addressUri/txs/chain/$lastTx';
-        String txResponseBody = await _networkHelper.getData(txUri);
+        var txUri = '$addressUri/txs/chain/$lastTx';
+        var txResponseBody = await _networkHelper.fetchData(txUri);
         var rawTxs = jsonDecode(txResponseBody);
         lastTx = rawTxs.last['txid'];
 
         for (var rawTx in rawTxs) {
-          int block = rawTx['status']['block_height'];
-          String txid = rawTx['txid'];
+          var block = rawTx['status']['block_height'];
+          var txid = rawTx['txid'];
           var epoch = rawTx['status']['block_time'];
-          int blockConf = rawBlockHeight - block + 1;
+          var blockConf = rawBlockHeight - block + 1;
           var date =
               DateTime.fromMillisecondsSinceEpoch(epoch * 1000, isUtc: false);
 
           List<Map> from = [];
-          rawTx['vin'].forEach((tx) {
-            Map txMap = tx;
+          for (Map txMap in rawTx['vin']) {
             txMap.forEach((key, value) {
               if (key == 'prevout') {
                 Map prevOutMap = value ?? {};
                 if (prevOutMap.isNotEmpty) {
-                  String address = '';
-                  double amount = 0.0;
+                  var address = '';
+                  var amount = 0.0;
                   prevOutMap.forEach((subkey, subvalue) {
                     if (subkey == 'scriptpubkey_address') address = subvalue;
                     if (subkey == 'value') amount = subvalue / _denominator;
@@ -279,20 +267,19 @@ class BitcoinClient {
                 }
               }
             });
-          });
+          }
 
           List<Map> to = [];
-          rawTx['vout'].forEach((tx) {
-            Map txMap = tx;
-            String address = '';
-            double amount = 0.0;
+          for (Map txMap in rawTx['vout']) {
+            var address = '';
+            var amount = 0.0;
             txMap.forEach((key, value) {
               if (key == 'scriptpubkey_address') address = value;
               if (key == 'value') amount = value / _denominator;
             });
             var map = {'address': address, 'amount': amount};
             to.add(map);
-          });
+          }
 
           txData.add({
             'from': from,
@@ -308,13 +295,13 @@ class BitcoinClient {
 
     // Unconfirmed transactions (mempool)
     if (mtxCount > 0) {
-      String mempoolUri = '${getExplorerAddressUrl(address)}/txs/mempool';
-      String txmResponseBody = await _networkHelper.getData(mempoolUri);
+      var mempoolUri = '${getExplorerAddressUrl(address)}/txs/mempool';
+      var txmResponseBody = await _networkHelper.fetchData(mempoolUri);
       var rawTxs = jsonDecode(txmResponseBody);
 
       for (var rawTx in rawTxs) {
         var confirmed = rawTx['status']['confirmed'];
-        String txid = rawTx['txid'];
+        var txid = rawTx['txid'];
         var date = DateTime.now();
         if (confirmed == true) {
           var epoch = rawTx['status']['block_time'];
@@ -323,14 +310,13 @@ class BitcoinClient {
         }
 
         List<Map> from = [];
-        rawTx['vin'].forEach((tx) {
-          Map txMap = tx;
+        for (Map txMap in rawTx['vin']) {
           txMap.forEach((key, value) {
             if (key == 'prevout') {
               Map prevoutMap = value ?? {};
               if (prevoutMap.isNotEmpty) {
-                String address = '';
-                double amount = 0.0;
+                var address = '';
+                var amount = 0.0;
                 prevoutMap.forEach((subkey, subvalue) {
                   if (subkey == 'scriptpubkey_address') address = subvalue;
                   if (subkey == 'value') amount = subvalue / _denominator;
@@ -342,20 +328,19 @@ class BitcoinClient {
               }
             }
           });
-        });
+        }
 
         List<Map> to = [];
-        rawTx['vout'].forEach((tx) {
-          Map txMap = tx;
-          String address = '';
-          double amount = 0.0;
+        for (Map txMap in rawTx['vout']) {
+          var address = '';
+          var amount = 0.0;
           txMap.forEach((key, value) {
             if (key == 'scriptpubkey_address') address = value;
             if (key == 'value') amount = value / _denominator;
           });
           var map = {'address': address, 'amount': amount};
           to.add(map);
-        });
+        }
 
         txData.add({
           'from': from,
@@ -368,25 +353,25 @@ class BitcoinClient {
       }
     }
 
-    if (limit == null) {
-      return txData;
-    } else {
+    if (limit != null && !limit.isNegative) {
       return txData.sublist(0, limit);
+    } else {
+      return txData;
     }
   }
 
-  purgeClient() {
+  void purgeClient() {
     // TODO: implement clearing sensitive data when done.
     //
     // When a wallet is "locked" the private key should be purged in each
     // client by setting it back to null.
   }
 
-  setDerivationPath(derivationPath) {
-    final dp = DerivationPath(derivationPath);
-    final purpose = dp.purpose;
-    final coinType = dp.coinType;
-    final walletIndex = dp.addressIndex;
+  void setDerivationPath(String derivationPath) {
+    var dp = DerivationPath(derivationPath);
+    var purpose = dp.purpose;
+    var coinType = dp.coinType;
+    var walletIndex = dp.addressIndex;
 
     // Sets the purpose.
     setPurpose(purpose);
@@ -402,47 +387,45 @@ class BitcoinClient {
     if (readOnlyClient == false) address = getAddress(walletIndex);
   }
 
-  setNetwork(newNetwork) {
-    network = newNetwork;
+  void setNetwork(NetworkType network) {
+    this.network = network;
+    coinType = network == testnet ? 1 : 0;
     if (readOnlyClient == false) address = getAddress(0);
-
-    coinType = newNetwork == testnet ? 1 : 0;
   }
 
-  setPurpose(p) {
+  void setPurpose(int purpose) {
     // Only support BIP44, BIP49, and BIP84.
-    if (p == 44 || p == 49 || p == 84) {
-      purpose = p;
+    if (purpose == 44 || purpose == 49 || purpose == 84) {
+      this.purpose = purpose;
     }
   }
 
-  setPhrase(mnemonic, walletIndex) {
+  void setPhrase(String mnemonic, int walletIndex) {
     seed = mnemonic;
     address = getAddress(walletIndex);
-    return address;
   }
 
   // TODO: implement function.
-  transfer(params) {
-    String txHash =
+  String transfer(params) {
+    var txHash =
         '59bbb95bbe740ad6acf24509d38f13f83ca49d6f11207f6a162999ffc5863b77';
     return txHash;
   }
 
-  validateAddress(address) {
-    bool result = Address.validateAddress(address, network);
+  bool validateAddress(address) {
+    var result = Address.validateAddress(address, network);
     return result;
   }
 }
 
-generateMnemonic({int size = 12}) {
+String generateMnemonic({int size = 12}) {
   // Generate a random mnemonic, defaults to 128-bits of entropy.
-  int entropy = size == 24 ? 256 : 128;
-  String mnemonic = bip39.generateMnemonic(strength: entropy);
+  var entropy = size == 24 ? 256 : 128;
+  var mnemonic = bip39.generateMnemonic(strength: entropy);
   return mnemonic;
 }
 
-validateMnemonic(String mnemonic) {
-  bool result = bip39.validateMnemonic(mnemonic);
+bool validateMnemonic(String mnemonic) {
+  var result = bip39.validateMnemonic(mnemonic);
   return result;
 }

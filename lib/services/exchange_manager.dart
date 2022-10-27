@@ -6,11 +6,11 @@ class ExchangeManager {
   final NetworkHelper _networkHelper = NetworkHelper();
 
   // Retrieve bitcoin price.
-  Future<double> getPrice(String fiatCurrency) async {
-    String uri =
+  Future<double> price(String fiatCurrency) async {
+    var uri =
         'https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=$fiatCurrency';
-    String responseBody = await _networkHelper.getData(uri);
-    double price = jsonDecode(responseBody)['quotes'][fiatCurrency]['price'];
+    var responseBody = await _networkHelper.fetchData(uri);
+    var price = jsonDecode(responseBody)['quotes'][fiatCurrency]['price'];
     return price;
   }
 }

@@ -5,17 +5,11 @@ import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 import '../widgets/safe_area.dart';
 
-class LnUrlErrorScreen extends StatefulWidget {
+class LnUrlErrorScreen extends StatelessWidget {
   const LnUrlErrorScreen({Key? key}) : super(key: key);
 
   @override
-  LnUrlErrorScreenState createState() => LnUrlErrorScreenState();
-}
-
-class LnUrlErrorScreenState extends State<LnUrlErrorScreen> {
-  @override
   Widget build(BuildContext context) {
-    final lnurlAuth = ModalRoute.of(context)!.settings.arguments;
     return SafeAreaX(
       appBar: AppBar(
         centerTitle: true,
@@ -51,7 +45,7 @@ class LnUrlErrorScreenState extends State<LnUrlErrorScreen> {
           ),
           const SizedBox(height: 8.0),
           Text(
-            'Could not login at $lnurlAuth',
+            'Could not login at ${ModalRoute.of(context)!.settings.arguments}',
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 20,

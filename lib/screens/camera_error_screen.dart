@@ -5,17 +5,13 @@ import '../themes/theme_data.dart';
 import '../widgets/flat_button.dart';
 import '../widgets/safe_area.dart';
 
-class CameraErrorScreen extends StatefulWidget {
+class CameraErrorScreen extends StatelessWidget {
   const CameraErrorScreen({Key? key}) : super(key: key);
 
   @override
-  CameraErrorScreenState createState() => CameraErrorScreenState();
-}
-
-class CameraErrorScreenState extends State<CameraErrorScreen> {
-  @override
   Widget build(BuildContext context) {
-    final res = ModalRoute.of(context)!.settings.arguments;
+    // [qrBarcodeString] is parsed when failed to identify this as an input
+    var qrBarcodeString = ModalRoute.of(context)!.settings.arguments;
     return SafeAreaX(
       appBar: AppBar(
         centerTitle: true,
@@ -51,7 +47,7 @@ class CameraErrorScreenState extends State<CameraErrorScreen> {
           ),
           const SizedBox(height: 8.0),
           Text(
-            '$res',
+            '$qrBarcodeString',
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 20,

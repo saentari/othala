@@ -20,9 +20,8 @@ class SendPaymentAddressScreen extends StatefulWidget {
 
 class SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
   late String address;
-  bool confirmed = false;
-
-  final textController = TextEditingController();
+  var confirmed = false;
+  var textController = TextEditingController();
 
   @override
   void initState() {
@@ -126,15 +125,14 @@ class SendPaymentAddressScreenState extends State<SendPaymentAddressScreen> {
   }
 
   void getClipboard() async {
-    ClipboardData? data = await Clipboard.getData('text/plain');
+    var data = await Clipboard.getData('text/plain');
     textController.text = data!.text!;
   }
 
   void validateAddress() {
     address = textController.text;
     if (textController.text.isNotEmpty) {
-      confirmed = isValidAddress(address);
-      setState(() {});
+      setState(() => confirmed = isValidAddress(address));
     }
   }
 }

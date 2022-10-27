@@ -6,7 +6,6 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:dart_lnurl/dart_lnurl.dart' as lnurl;
 import 'package:flutter/material.dart';
 import 'package:hex/hex.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models/wallet.dart';
 import '../services/network_helper.dart';
@@ -26,16 +25,17 @@ class LnurlScreen extends StatefulWidget {
 }
 
 class LnurlScreenState extends State<LnurlScreen> {
-  final WalletManager walletManager = WalletManager(Hive.box('walletBox'));
-  int signed = -1;
-  String domain = '';
-  String callBackUrl = '';
+  var walletManager = WalletManager();
+  var signed = -1;
+  var domain = '';
+  var callBackUrl = '';
 
   @override
   Widget build(BuildContext context) {
-    final lnURL = ModalRoute.of(context)!.settings.arguments as String;
+    var wallets = walletManager.getWallets(['mnemonic']);
+    var lnURL = ModalRoute.of(context)!.settings.arguments as String;
     getLnAuth(lnURL);
-    final List<Wallet> wallets = walletManager.getWallets(['mnemonic']);
+
     return SafeAreaX(
       appBar: AppBar(
         centerTitle: true,
@@ -120,7 +120,7 @@ class LnurlScreenState extends State<LnurlScreen> {
                   mainAxisSpacing: 20),
               itemCount: wallets.length,
               itemBuilder: (BuildContext ctx, index) {
-                Wallet wallet = wallets[index];
+                var wallet = wallets[index];
                 return GestureDetector(
                   onTap: () {
                     setState(() {
@@ -158,13 +158,12 @@ class LnurlScreenState extends State<LnurlScreen> {
     );
   }
 
-  authenticate(callBackUrl) async {
-    NetworkHelper networkHelper = NetworkHelper();
+  authenticate(String callBackUrl) async {
     try {
-      final resBody = await networkHelper.getData(callBackUrl);
+      final resBody = await NetworkHelper().fetchData(callBackUrl);
       if (!mounted) return;
-      final res = jsonDecode(resBody);
-      final status = res['status'];
+      var res = jsonDecode(resBody);
+      var status = res['status'];
 
       if (status == 'OK') {
         Navigator.pushNamed(context, '/lnurl_confirmation_screen',
@@ -177,9 +176,9 @@ class LnurlScreenState extends State<LnurlScreen> {
     }
   }
 
-  getLnAuth(url) async {
+  getLnAuth(String url) async {
     if (domain.isEmpty) {
-      final res = await lnurl.getParams(url);
+      var res = await lnurl.getParams(url);
       lnurl.LNURLAuthParams? auth = res.authParams;
       domain = auth!.domain;
       setState(() {});
@@ -208,15 +207,14 @@ class LnurlScreenState extends State<LnurlScreen> {
     }
   }
 
-  sign(Wallet wallet, url) async {
-    StorageService storageService = StorageService();
-    final mnemonic = await storageService.readSecureData(wallet.key);
-    final seed = bip39.mnemonicToSeed(mnemonic!);
-    final masterKey = bip32.BIP32.fromSeed(seed);
-    final linkingKey = await lnurl.deriveLinkingKey(url, masterKey);
-    final key = HEX.encode(linkingKey.publicKey);
-    final sig = await lnurl.signK1(url, linkingKey);
-    final decodedUrl = lnurl.decodeLnUri(url);
+  sign(Wallet wallet, String url) async {
+    var mnemonic = await StorageService().readSecureData(wallet.key);
+    var seed = bip39.mnemonicToSeed(mnemonic!);
+    var masterKey = bip32.BIP32.fromSeed(seed);
+    var linkingKey = await lnurl.deriveLinkingKey(url, masterKey);
+    var key = HEX.encode(linkingKey.publicKey);
+    var sig = await lnurl.signK1(url, linkingKey);
+    var decodedUrl = lnurl.decodeLnUri(url);
     callBackUrl = '$decodedUrl&sig=$sig&key=$key';
   }
 }
