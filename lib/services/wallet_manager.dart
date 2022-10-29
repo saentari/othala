@@ -291,7 +291,7 @@ class WalletManager extends ValueNotifier<Box> {
   }
 
   // Returns a list of [Wallet] (of a certain type).
-  getWallets(List<String> walletTypes) {
+  List getWallets(List<String> walletTypes) {
     var wallets = [];
     for (Wallet wallet in value.values) {
       if (walletTypes.contains(wallet.type)) wallets.add(wallet);

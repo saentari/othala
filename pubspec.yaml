@@ -16,35 +16,35 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Utility plugins
+  # Utility.
   http: ^0.13.4
   date_format: ^2.0.6
   intl: ^0.17.0
 
-  # File/storage plugins
+  # State & storage.
   flutter_secure_storage: ^6.0.0
   hive: ^2.2.1
   hive_flutter: ^1.1.0
   path: ^1.8.0
   path_provider: ^2.0.11
+  stacked: ^3.0.0
 
-  # UI/Component plugins
+  # UI.
   cupertino_icons: ^1.0.2
   cached_network_image: ^3.2.1
   flutter_svg: ^1.0.3
-  page_view_indicators: ^2.0.0
   flutter_easyloading: ^3.0.5
   flutter_emoji:
     git: https://github.com/cek-cek/flutter-emoji
   flutter_staggered_grid_view: ^0.4.0
-
-  # qr_flutter 4.0.0 contains outdated package:qr/qr.dart with error.
+  page_view_indicators: ^2.0.0
   qr_flutter:
+    # qr_flutter 4.0.0 contains outdated package:qr/qr.dart with error.
     git:
       url: git://github.com/lukef/qr.flutter.git
   qr_code_scanner: ^1.0.0
 
-  # bitcoin & cryptography
+  # Crypto.
   bip32: ^2.0.0
   bip39:
     git:
@@ -59,8 +59,6 @@ dependencies:
     git:
       url: https://github.com/saentari/dart_lnurl.git
   hex: ^0.2.0
-
-
 
 dev_dependencies:
   flutter_test:

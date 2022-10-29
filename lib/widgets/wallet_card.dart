@@ -6,10 +6,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/address.dart';
 import '../models/currency.dart';
 import '../models/wallet.dart';
-import '../screens/receive_payment_screen.dart';
-import '../screens/send_payment_screen.dart';
 import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
+import '../ui/receive_payment/receive_payment_view.dart';
+import '../ui/send_payment/send_payment_view.dart';
 import '../utils/utils.dart';
 import '../widgets/flat_button.dart';
 
@@ -122,7 +122,7 @@ class _WalletCardState extends State<WalletCard> {
                                     context,
                                     MaterialPageRoute<void>(
                                       builder: (BuildContext context) =>
-                                          SendPaymentScreen(widget.walletIndex),
+                                          SendPaymentView(widget.walletIndex),
                                     ),
                                   );
                                 },
@@ -136,7 +136,7 @@ class _WalletCardState extends State<WalletCard> {
                             context,
                             MaterialPageRoute<void>(
                               builder: (BuildContext context) =>
-                                  ReceivePaymentScreen(wallet),
+                                  ReceivePaymentView(wallet),
                             ),
                           );
                         },

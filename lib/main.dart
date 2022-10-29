@@ -3,31 +3,31 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '../models/address.dart';
-import '../models/currency.dart';
-import '../models/transaction.dart';
-import '../models/wallet.dart';
-import '../screens/camera_error_screen.dart';
-import '../screens/camera_screen.dart';
-import '../screens/home_screen.dart';
-import '../screens/import_address_screen.dart';
-import '../screens/import_phrase_screen.dart';
-import '../screens/lnurl_confirmation_screen.dart';
-import '../screens/lnurl_error_screen.dart';
-import '../screens/lnurl_screen.dart';
-import '../screens/loading_screen.dart';
-import '../screens/send_payment_confirmation_screen.dart';
-import '../screens/wallet_background_screen.dart';
-import '../screens/wallet_creation_screen.dart';
-import '../screens/wallet_currency_screen.dart';
-import '../screens/wallet_derivation_screen.dart';
-import '../screens/wallet_discovery_screen.dart';
-import '../screens/wallet_import_screen.dart';
-import '../screens/wallet_name_screen.dart';
-import '../screens/wallet_network_screen.dart';
-import '../screens/wallet_screen.dart';
-import '../screens/wallet_settings_screen.dart';
-import '../themes/theme_data.dart';
+import 'models/address.dart';
+import 'models/currency.dart';
+import 'models/transaction.dart';
+import 'models/wallet.dart';
+import 'themes/theme_data.dart';
+import 'ui/camera/camera_view.dart';
+import 'ui/camera_error/camera_error_view.dart';
+import 'ui/home/home_view.dart';
+import 'ui/import_address/import_address_view.dart';
+import 'ui/import_phrase/import_phrase_view.dart';
+import 'ui/lnurl/lnurl_view.dart';
+import 'ui/lnurl_confirmation/lnurl_confirmation_view.dart';
+import 'ui/lnurl_error/lnurl_error_view.dart';
+import 'ui/loading/loading_view.dart';
+import 'ui/send_payment_confirmation/send_payment_confirmation_view.dart';
+import 'ui/wallet/wallet_view.dart';
+import 'ui/wallet_background/wallet_background_view.dart';
+import 'ui/wallet_creation/wallet_creation_view.dart';
+import 'ui/wallet_currency/wallet_currency_view.dart';
+import 'ui/wallet_derivation/wallet_derivation_view.dart';
+import 'ui/wallet_discovery/wallet_discovery_view.dart';
+import 'ui/wallet_import/wallet_import_view.dart';
+import 'ui/wallet_name/wallet_name_view.dart';
+import 'ui/wallet_network/wallet_network_view.dart';
+import 'ui/wallet_settings/wallet_settings_view.dart';
 
 Future<void> main() async {
   Hive.registerAdapter(WalletAdapter());
@@ -54,30 +54,28 @@ class MyApp extends StatelessWidget {
       initialRoute: '/loading_screen',
       builder: EasyLoading.init(),
       routes: {
-        '/camera_error_screen': (context) => const CameraErrorScreen(),
-        '/camera_screen': (context) => const CameraScreen(),
-        '/home_screen': (context) => const HomeScreen(),
-        '/import_address_screen': (context) => const ImportAddressScreen(),
-        '/import_phrase_screen': (context) => const ImportPhraseScreen(),
+        '/camera_error_screen': (context) => const CameraErrorView(),
+        '/camera_screen': (context) => const CameraView(),
+        '/home_screen': (context) => const HomeView(),
+        '/import_address_screen': (context) => const ImportAddressView(),
+        '/import_phrase_screen': (context) => const ImportPhraseView(),
         '/lnurl_confirmation_screen': (context) =>
-            const LnUrlConfirmationScreen(),
-        '/lnurl_error_screen': (context) => const LnUrlErrorScreen(),
-        '/lnurl_screen': (context) => const LnurlScreen(),
-        '/loading_screen': (context) => const LoadingScreen(),
+            const LnUrlConfirmationView(),
+        '/lnurl_error_screen': (context) => const LnUrlErrorView(),
+        '/lnurl_screen': (context) => const LnurlView(),
+        '/loading_screen': (context) => const LoadingView(),
         '/send_payment_confirmation_screen': (context) =>
-            const SendPaymentConfirmationScreen(),
-        '/wallet_background_screen': (context) =>
-            const WalletBackgroundScreen(),
-        '/wallet_creation_screen': (context) => const WalletCreationScreen(),
-        '/wallet_currency_screen': (context) => const WalletCurrencyScreen(),
-        '/wallet_discovery_screen': (context) => const WalletDiscoveryScreen(),
-        '/wallet_derivation_screen': (context) =>
-            const WalletDerivationScreen(),
-        '/wallet_import_screen': (context) => const WalletImportScreen(),
-        '/wallet_name_screen': (context) => const WalletNameScreen(),
-        '/wallet_network_screen': (context) => const WalletNetworkScreen(),
-        '/wallet_settings_screen': (context) => const WalletSettingsScreen(),
-        '/wallet_screen': (context) => const WalletScreen(),
+            const SendPaymentConfirmationView(),
+        '/wallet_background_screen': (context) => const WalletBackgroundView(),
+        '/wallet_creation_screen': (context) => const WalletCreationView(),
+        '/wallet_currency_screen': (context) => const WalletCurrencyView(),
+        '/wallet_discovery_screen': (context) => const WalletDiscoveryView(),
+        '/wallet_derivation_screen': (context) => const WalletDerivationView(),
+        '/wallet_import_screen': (context) => const WalletImportView(),
+        '/wallet_name_screen': (context) => const WalletNameView(),
+        '/wallet_network_screen': (context) => const WalletNetworkView(),
+        '/wallet_settings_screen': (context) => const WalletSettingsView(),
+        '/wallet_screen': (context) => const WalletView(),
       },
     );
   }
