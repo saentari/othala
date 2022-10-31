@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:othala/ui/send_payment_utxo/send_payment_utxo_view.dart';
 
 import '../../enums/bitcoin_unit_enum.dart';
 import '../../models/address.dart';
@@ -18,9 +19,12 @@ class SendPaymentViewModel extends ChangeNotifier {
   var recipientAmount = '0.0001';
   var unit = BitcoinUnit.btc.toShortString();
   var confirmed = false;
+  var utxoPicking = false;
   late Wallet wallet;
+  late int walletIndex;
 
   void initialise(BuildContext context, int walletIndex) {
+    this.walletIndex = walletIndex;
     final box = Hive.box('walletBox');
     if (walletIndex < box.length) {
       wallet = box.getAt(walletIndex);
@@ -31,6 +35,7 @@ class SendPaymentViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Enter a valid bitcoin address.
   Future<void> navigateAndDisplayAddress(BuildContext context) async {
     recipientAddress = await Navigator.push(
       context,
@@ -41,6 +46,7 @@ class SendPaymentViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Enter an amount equal or less than the maximum balance.
   Future<void> navigateAndDisplayAmount(BuildContext context) async {
     num maxBalance = 0;
     for (Address addressObj in wallet.addresses) {
@@ -52,6 +58,16 @@ class SendPaymentViewModel extends ChangeNotifier {
       MaterialPageRoute(
           builder: (context) =>
               SendPaymentAmountView(recipientAmount, maxBalance)),
+    );
+    notifyListeners();
+  }
+
+  // Allows to override the default unspent transaction outputs (utxo).
+  Future<void> navigateAndDisplayUTXO(BuildContext context) async {
+    utxoPicking = await Navigator.push(
+      context,
+      // Create the SelectionScreen in the next step.
+      MaterialPageRoute(builder: (context) => SendPaymentUtxoView(walletIndex)),
     );
     notifyListeners();
   }
