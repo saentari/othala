@@ -117,6 +117,35 @@ class SendPaymentView extends StatelessWidget {
                   ),
                 ),
                 GestureDetector(
+                  onTap: () => model.navigateAndDisplayFees(context),
+                  child: Container(
+                    width: double.infinity,
+                    color: customTransparent,
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          // 'Fee ${model.satsPerByte}',
+                          'Fee',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: customDarkNeutral5,
+                          ),
+                        ),
+                        Text(
+                          model.feeDescription,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                GestureDetector(
                   onTap: () => model.navigateAndDisplayUTXO(context),
                   child: Container(
                     width: double.infinity,

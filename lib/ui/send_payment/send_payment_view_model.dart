@@ -8,6 +8,7 @@ import '../../models/address.dart';
 import '../../models/wallet.dart';
 import '../send_payment_address/send_payment_address_view.dart';
 import '../send_payment_amount/send_payment_amount_view.dart';
+import '../send_payment_fee/send_payment_fee_view.dart';
 
 class SendPaymentViewModel extends ChangeNotifier {
   // TODO: implement TransactionBuilder.
@@ -17,11 +18,14 @@ class SendPaymentViewModel extends ChangeNotifier {
   // TODO: replace temporary values for testing the IXD flow.
   var recipientAddress = 'tb1q669kqq0ykrzgx337w3sj0kdf6zcuznvff34z85';
   var recipientAmount = '0.0001';
+  var feeDescription = 'Normal';
+  // var satsPerByte = '';
   var unit = BitcoinUnit.btc.toShortString();
   var confirmed = false;
   var utxoPicking = false;
   late Wallet wallet;
   late int walletIndex;
+  late int fee;
 
   void initialise(BuildContext context, int walletIndex) {
     this.walletIndex = walletIndex;
@@ -68,6 +72,18 @@ class SendPaymentViewModel extends ChangeNotifier {
       context,
       // Create the SelectionScreen in the next step.
       MaterialPageRoute(builder: (context) => SendPaymentUtxoView(walletIndex)),
+    );
+    notifyListeners();
+  }
+
+  // Allows to override the default unspent transaction outputs (utxo).
+  Future<void> navigateAndDisplayFees(BuildContext context) async {
+    feeDescription = await Navigator.push(
+      context,
+      // Create the SelectionScreen in the next step.
+      MaterialPageRoute(
+          builder: (context) =>
+              SendPaymentFeeView(walletIndex, feeDescription)),
     );
     notifyListeners();
   }
