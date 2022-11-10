@@ -57,7 +57,7 @@ class LnurlViewModel extends ChangeNotifier {
   showImage(BuildContext context, String path, double opacity) {
     if (FileSystemEntity.typeSync(path) == FileSystemEntityType.notFound) {
       return Image.asset(
-        'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg',
+        'assets/images/geran-de-klerk-qzgN45hseN0-unsplash.jpeg',
         fit: BoxFit.cover,
         color: Colors.white.withOpacity(opacity),
         colorBlendMode: BlendMode.modulate,

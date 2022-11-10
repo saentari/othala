@@ -20,7 +20,7 @@ class _WalletCardNewState extends State<WalletCardNew> {
           children: [
             Expanded(
               child: Image.asset(
-                'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg',
+                'assets/images/geran-de-klerk-qzgN45hseN0-unsplash.jpeg',
                 fit: BoxFit.cover,
               ),
             ),

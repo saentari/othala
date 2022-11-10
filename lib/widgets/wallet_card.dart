@@ -4,14 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models/address.dart';
-import '../models/currency.dart';
 import '../models/wallet.dart';
-import '../services/wallet_manager.dart';
 import '../themes/theme_data.dart';
 import '../ui/receive_payment/receive_payment_view.dart';
 import '../ui/send_payment/send_payment_view.dart';
-import '../utils/utils.dart';
-import '../widgets/flat_button.dart';
+import 'flat_button.dart';
 
 class WalletCard extends StatefulWidget {
   const WalletCard(this.walletIndex, {Key? key}) : super(key: key);
@@ -23,13 +20,6 @@ class WalletCard extends StatefulWidget {
 }
 
 class _WalletCardState extends State<WalletCard> {
-  final WalletManager walletManager = WalletManager();
-  final Currency bitcoin = Currency('BTC', priceUsd: 1.0);
-  final Currency satoshi = Currency('SATS', priceUsd: 100000000.0);
-  num balance = 0.0;
-
-  late Currency defaultCurrency;
-  late Currency defaultFiatCurrency;
   late Wallet wallet;
 
   @override
@@ -38,115 +28,68 @@ class _WalletCardState extends State<WalletCard> {
       child: ValueListenableBuilder(
           valueListenable: Hive.box('walletBox').listenable(),
           builder: (context, Box box, widget2) {
-            updateValues(box);
+            wallet = box.getAt(widget.walletIndex);
             return Scaffold(
-              body: Column(
+              body: Stack(
+                fit: StackFit.loose,
                 children: [
-                  Expanded(
-                    child: Stack(
-                      fit: StackFit.expand,
+                  Positioned.fill(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/wallet_screen',
+                          arguments: widget.walletIndex,
+                        );
+                      },
+                      child: Hero(
+                        tag: 'imageHero',
+                        child: showImage(),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    width: MediaQuery.of(context).size.width,
+                    bottom: 0.0,
+                    child: Row(
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/wallet_screen',
-                              arguments: widget.walletIndex,
-                            );
-                          },
-                          child: Hero(
-                            tag: 'imageHero',
-                            child: showImage(),
+                        Visibility(
+                          visible: checkVisibility(wallet),
+                          child: Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute<void>(
+                                    builder: (BuildContext context) =>
+                                        SendPaymentView(widget.walletIndex),
+                                  ),
+                                );
+                              },
+                              child: const CustomFlatButton(textLabel: 'Send'),
+                            ),
                           ),
                         ),
-                        Visibility(
-                          visible: balance > 0 ? true : false,
-                          child: Positioned(
-                            top: 48,
-                            child: GestureDetector(
-                              onTap: () => toggleDefaultCurrency(),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: customBlack.withOpacity(0.5),
-                                  borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(40.0),
-                                    bottomRight: Radius.circular(40.0),
-                                  ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (BuildContext context) =>
+                                      ReceivePaymentView(wallet),
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8.0,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.baseline,
-                                  textBaseline: TextBaseline.alphabetic,
-                                  children: [
-                                    Text(
-                                      getNumberFormat(
-                                          currency: defaultCurrency,
-                                          amount: balance),
-                                      style: const TextStyle(
-                                        color: customWhite,
-                                        fontSize: 40.0,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8.0),
-                                    Text(
-                                      wallet.defaultCurrency.code,
-                                      style: const TextStyle(
-                                        color: customWhite,
-                                        fontSize: 24.0,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              );
+                            },
+                            child: const CustomFlatButton(
+                              textLabel: 'Receive',
+                              buttonColor: customDarkBackground,
+                              fontColor: customWhite,
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Row(
-                    children: [
-                      Visibility(
-                        visible: checkVisibility(wallet),
-                        child: Expanded(
-                            child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                      builder: (BuildContext context) =>
-                                          SendPaymentView(widget.walletIndex),
-                                    ),
-                                  );
-                                },
-                                child:
-                                    const CustomFlatButton(textLabel: 'Send'))),
-                      ),
-                      Expanded(
-                          child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (BuildContext context) =>
-                                  ReceivePaymentView(wallet),
-                            ),
-                          );
-                        },
-                        child: const CustomFlatButton(
-                          textLabel: 'Receive',
-                          buttonColor: customDarkBackground,
-                          fontColor: customWhite,
-                        ),
-                      )),
-                    ],
                   ),
                 ],
               ),
@@ -166,25 +109,12 @@ class _WalletCardState extends State<WalletCard> {
     return false;
   }
 
-  void updateValues(Box<dynamic> box) {
-    num amount = 0;
-    if (widget.walletIndex < box.length) {
-      wallet = box.getAt(widget.walletIndex);
-    }
-    for (Address addressObj in wallet.addresses) {
-      amount = amount + addressObj.balance;
-    }
-    defaultCurrency = wallet.defaultCurrency;
-    defaultFiatCurrency = wallet.defaultFiatCurrency;
-    // use stored price
-    balance = amount * defaultCurrency.priceUsd;
-  }
-
+  // Loads the stored image or reverts back to the default image.
   showImage() {
     if (FileSystemEntity.typeSync(wallet.imagePath) ==
         FileSystemEntityType.notFound) {
       return Image.asset(
-        'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg',
+        'assets/images/geran-de-klerk-qzgN45hseN0-unsplash.jpeg',
         fit: BoxFit.cover,
       );
     } else {
@@ -193,27 +123,5 @@ class _WalletCardState extends State<WalletCard> {
         fit: BoxFit.cover,
       );
     }
-  }
-
-  toggleDefaultCurrency() async {
-    if (defaultCurrency.code == bitcoin.code) {
-      updateCurrency(satoshi);
-    } else if (defaultCurrency.code == satoshi.code) {
-      updateCurrency(defaultFiatCurrency);
-    } else {
-      updateCurrency(bitcoin);
-    }
-  }
-
-  updateCurrency(Currency newCurrency) async {
-    if (newCurrency.code == bitcoin.code) {
-      defaultCurrency = bitcoin;
-    } else if (newCurrency.code == satoshi.code) {
-      defaultCurrency = satoshi;
-    } else {
-      // if newCurrency is not bitcoin or satoshi, then fiat.
-      defaultCurrency = newCurrency;
-    }
-    walletManager.setDefaultCurrency(widget.walletIndex, defaultCurrency);
   }
 }

@@ -17,28 +17,33 @@ class LoadingView extends StatelessWidget {
         color: customDarkBackground,
         child: SafeArea(
           child: Scaffold(
-            body: Container(
-              padding: const EdgeInsets.only(
-                bottom: 16.0,
-                left: 8.0,
-                right: 8.0,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Spacer(),
-                  Center(child: logoTextIcon),
-                  const Spacer(),
-                  const Text(
-                    'Your keys, your bitcoin.\n100% open-source & open-design',
-                    style: TextStyle(
-                        color: customDarkNeutral7,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w500),
-                    textAlign: TextAlign.center,
+            body: ClipRRect(
+              borderRadius: BorderRadius.circular(24.0),
+              child: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(
+                        "assets/images/geran-de-klerk-qzgN45hseN0-unsplash.jpeg"),
+                    fit: BoxFit.cover,
                   ),
-                  const SizedBox(height: 16.0),
-                ],
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned(top: 300.0, child: logoTextIcon),
+                    const Positioned(
+                      bottom: 24.0,
+                      child: Text(
+                        'Your keys, your bitcoin.\n100% open-source & open-design',
+                        style: TextStyle(
+                            color: customDarkForeground,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

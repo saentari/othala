@@ -109,7 +109,7 @@ class WalletManager extends ValueNotifier<Box> {
       localPath = await _downloadFile(imageData.getRegularUrl());
     } catch (e) {
       // If it fails, use the default image.
-      localPath = 'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg';
+      localPath = 'assets/images/geran-de-klerk-qzgN45hseN0-unsplash.jpeg';
     }
 
     Currency defaultFiatCurrency =
@@ -420,7 +420,7 @@ class WalletManager extends ValueNotifier<Box> {
 
   Future<String> _downloadFile(String url) async {
     // Default background image.
-    var localPath = 'assets/images/andreas-gucklhorn-mawU2PoJWfU-unsplash.jpeg';
+    var localPath = 'assets/images/geran-de-klerk-qzgN45hseN0-unsplash.jpeg';
     var response = await http.get(Uri.parse(url));
 
     // Get the image name.
